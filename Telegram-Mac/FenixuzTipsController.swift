@@ -13,6 +13,7 @@ import Cocoa
 import TGUIKit
 import SwiftSignalKit
 import Localization
+import FenixuzCore
 
 // First-launch tracking — iOS bilan bir xil kalit (suite "pro_messager").
 public enum FenixuzTips {

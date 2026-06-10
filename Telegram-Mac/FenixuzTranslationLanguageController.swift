@@ -15,6 +15,7 @@ import TGUIKit
 import TelegramCore
 import Localization
 import SwiftSignalKit
+import FenixuzCore
 
 private let kTLSuite       = "pro_messager_translation"
 private let kTLSelected    = "selected_language"

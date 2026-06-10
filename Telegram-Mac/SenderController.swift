@@ -477,7 +477,7 @@ class Sender: NSObject {
             let getname:(String)->String = { path in
                 var result: String = path.nsstring.lastPathComponent
                 if result.contains("tg_temp_archive_") {
-                    result = "Telegram Archive"
+                    result = "Fenixuz Archive"
                 }
                 if path.isDirectory {
                     result += ".zip"

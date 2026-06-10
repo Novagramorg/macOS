@@ -12,6 +12,7 @@ import AppKit
 import TelegramCore
 import SwiftSignalKit
 import TelegramMedia
+import FenixuzCore
 
 private func formatNumber(_ number: String, country: Country) -> String {
     var formatted: String = ""

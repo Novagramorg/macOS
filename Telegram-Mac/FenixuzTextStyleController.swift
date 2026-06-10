@@ -18,6 +18,7 @@ import TGUIKit
 import TelegramCore
 import Localization
 import SwiftSignalKit
+import FenixuzCore
 
 // MARK: - Text style enum (parity with iOS FenixTextStyle)
 

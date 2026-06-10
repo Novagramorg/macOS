@@ -17,6 +17,7 @@ import ObjcUtils
 import ThemeSettings
 import DustLayer
 import CodeSyntax
+import FenixuzCore
 
 private func calculateAdjustedPoint(for point: CGPoint,
                             floatingPhotosView: NSView,

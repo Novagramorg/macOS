@@ -10,6 +10,7 @@ import Cocoa
 import SwiftSignalKit
 import Postbox
 import TelegramCore
+import FenixuzCore
 
 
 

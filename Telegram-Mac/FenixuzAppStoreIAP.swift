@@ -31,6 +31,7 @@ import Foundation
 import AppKit
 import TGUIKit
 import TelegramCore
+import FenixuzCore
 
 public enum FenixuzAppStoreIAP {
     /// Tashqi observabilityyo'q (Mac uchun App Store flag yo'q hozircha) — placeholder bo'lib

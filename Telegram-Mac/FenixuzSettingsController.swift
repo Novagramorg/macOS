@@ -35,6 +35,7 @@ import TelegramCore
 import Localization
 import SwiftSignalKit
 import Postbox
+import FenixuzCore
 
 // MARK: - Storage facade
 

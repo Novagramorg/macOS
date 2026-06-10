@@ -9,7 +9,7 @@
 #   ./fenix-build.sh run       build, then launch Fenixuz.app on success
 #   ./fenix-build.sh timing    build with slow-compile + phase timing diagnostics
 
-set -uo pipefail
+set -o pipefail
 cd "$(dirname "$0")"
 
 LOG=/tmp/fenix-build.log

@@ -19,6 +19,7 @@ import Foundation
 import AVFoundation
 import Speech
 import SwiftSignalKit
+import FenixuzCore
 
 public final class FenixuzSpeechToTextManager {
     private var speechRecognizer: SFSpeechRecognizer?

@@ -15,6 +15,7 @@ import TGUIKit
 import Postbox
 import TelegramCore
 import SwiftSignalKit
+import FenixuzCore
 
 // MARK: - Entry
 

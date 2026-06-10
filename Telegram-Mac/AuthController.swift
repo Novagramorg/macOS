@@ -8,6 +8,7 @@ import TGUIKit
 import ApiCredentials
 import InAppSettings
 import ThemeSettings
+import FenixuzCore
 
 enum LoginAuthViewState {
     case phoneNumber

@@ -14,6 +14,7 @@ import Reactions
 import SwiftSignalKit
 import InAppSettings
 import FetchManager
+import FenixuzCore
 
 struct PeerListHiddenItems : Equatable {
     var archive: ItemHideStatus

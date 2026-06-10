@@ -12,6 +12,7 @@ import TelegramCore
 import Localization
 import Postbox
 import SwiftSignalKit
+import FenixuzCore
 
 let normalAccountsLimit: Int = 10
 

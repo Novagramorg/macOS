@@ -302,7 +302,6 @@ class MainViewController: TelegramViewController {
         tabController.view.frame = bounds
         self.navigation.frame = bounds
         self.contacts.frame = bounds
-        self.tasks.frame = bounds
         updateController.updateLayout(context.layout, parentSize: size, isChatList: true)
     }
 
@@ -316,10 +315,7 @@ class MainViewController: TelegramViewController {
         self.contacts.hasBarLeftBorder = true
         self.contacts._frameRect = self._frameRect
 
-        self.tasks.applyAppearOnLoad = false
-        self.tasks.hasBarRightBorder = true
-        self.tasks.hasBarLeftBorder = true
-        self.tasks._frameRect = self._frameRect
+        // Fenixuz: Tasks removed.
 
         tabController._frameRect = self._frameRect
         self.navigation._frameRect = self._frameRect
@@ -350,9 +346,7 @@ class MainViewController: TelegramViewController {
 
         tabController.add(tab: TabItem(image: theme.icons.tab_calls, selectedImage: theme.icons.tab_calls_active, controller: phoneCalls))
 
-        // Fenixuz Tasks (Vazifalar) — internal feature, sits between Calls and Chats.
-        let (tasksIdle, tasksActive) = FenixuzTasksTabIcon.icons(accent: theme.colors.accent, idle: theme.colors.grayIcon)
-        tabController.add(tab: TabItem(image: tasksIdle, selectedImage: tasksActive, controller: tasks))
+        // Fenixuz: Tasks tab removed — not needed.
         
         tabController.add(tab: TabBadgeItem(context, controller: navigation, image: theme.icons.tab_chats, selectedImage: theme.icons.tab_chats_active, longHoverHandler: { [weak self] control in
             self?.showFastChatSettings(control)
@@ -580,10 +574,7 @@ class MainViewController: TelegramViewController {
                 index += 1
             }
 
-            // Fenixuz Tasks tab — regenerate icon with refreshed theme colors.
-            let (tasksIdle, tasksActive) = FenixuzTasksTabIcon.icons(accent: theme.colors.accent, idle: theme.colors.grayIcon)
-            tabController.replace(tab: tabController.tab(at: index).withUpdatedImages(tasksIdle, tasksActive), at: index)
-            index += 1
+            // Fenixuz: Tasks tab removed.
 
             tabController.replace(tab: tabController.tab(at: index).withUpdatedImages(theme.icons.tab_chats, theme.icons.tab_chats_active), at: index)
             index += 1
@@ -779,7 +770,7 @@ class MainViewController: TelegramViewController {
         self.tabController.updateFrame(frame.size.bounds, transition: transition)
     }
     
-    let tasks: NavigationViewController
+    // Fenixuz: tasks tab removed.
 
     override init(_ context: AccountContext) {
 
@@ -788,7 +779,6 @@ class MainViewController: TelegramViewController {
         self.settings = AccountViewController(context)
         self.phoneCalls = RecentCallsViewController(context)
         self.navigation = NavigationViewController(self.chatList, context.window)
-        self.tasks = NavigationViewController(FenixuzTasksController(context), context.window)
 
         //#if !APP_STORE
             updateController = UpdateTabController(context.sharedContext)

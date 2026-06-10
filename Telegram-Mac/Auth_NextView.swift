@@ -8,6 +8,7 @@
 
 import Foundation
 import TGUIKit
+import FenixuzCore
 
 
 final class Auth_NextView: TextButton {

@@ -235,6 +235,7 @@
 		2745FED1274F950100546B05 /* Svg in Frameworks */ = {isa = PBXBuildFile; productRef = 2745FED0274F950100546B05 /* Svg */; };
 		2745FED3274F951100546B05 /* FastBlur in Frameworks */ = {isa = PBXBuildFile; productRef = 2745FED2274F951100546B05 /* FastBlur */; };
 		2745FED5274F952600546B05 /* Localization in Frameworks */ = {isa = PBXBuildFile; productRef = 2745FED4274F952600546B05 /* Localization */; };
+		FE10DEC04E14C190FEFE0003 /* FenixuzCore in Frameworks */ = {isa = PBXBuildFile; productRef = FE10DEC04E14C190FEFE0002 /* FenixuzCore */; };
 		2745FED7274F952D00546B05 /* ThemeSettings in Frameworks */ = {isa = PBXBuildFile; productRef = 2745FED6274F952D00546B05 /* ThemeSettings */; };
 		2745FED9274F95CF00546B05 /* ApiCredentials in Frameworks */ = {isa = PBXBuildFile; productRef = 2745FED8274F95CF00546B05 /* ApiCredentials */; };
 		2746926C26A99DD800B67817 /* WallpaperCheckboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2746926B26A99DD800B67817 /* WallpaperCheckboxView.swift */; };
@@ -1665,13 +1666,8 @@
 		D0E82E002500F10E00E09A20 /* MergedAvatarsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E82DFF2500F10E00E09A20 /* MergedAvatarsView.swift */; };
 		D0FCA7622434867400B72F18 /* PeerInfoHeadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FCA7612434867400B72F18 /* PeerInfoHeadItem.swift */; };
 		D0FFC4AC23E184BA0044D305 /* ChatListFilterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FFC4AB23E184BA0044D305 /* ChatListFilterController.swift */; };
-		FE10DEC04E14C19000000001 /* FenixuzDemoCodeFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000002 /* FenixuzDemoCodeFetcher.swift */; };
-		FE10DEC04E14C19000000140 /* FenixuzGhostMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000141 /* FenixuzGhostMode.swift */; };
-		FE10DEC04E14C19000000150 /* FenixuzSettingsIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000151 /* FenixuzSettingsIcons.swift */; };
 		FE10DEC04E14C19000000160 /* FenixuzTipsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000161 /* FenixuzTipsController.swift */; };
 		FE10DEC04E14C19000000170 /* FenixuzAboutController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000171 /* FenixuzAboutController.swift */; };
-		FE10DEC04E14C19000000010 /* FenixuzBrandColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000011 /* FenixuzBrandColors.swift */; };
-		FE10DEC04E14C19000000020 /* FenixuzL10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000021 /* FenixuzL10n.swift */; };
 		FE10DEC04E14C19000000030 /* FenixuzAppStoreIAP.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000031 /* FenixuzAppStoreIAP.swift */; };
 		FE10DEC04E14C19000000040 /* FenixuzSettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000041 /* FenixuzSettingsController.swift */; };
 		FE10DEC04E14C19000000050 /* FenixuzForeignUserBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000051 /* FenixuzForeignUserBlock.swift */; };
@@ -1686,9 +1682,6 @@
 		FE10DEC04E14C190000000E0 /* FenixuzEditedHistoryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C190000000E1 /* FenixuzEditedHistoryController.swift */; };
 		FE10DEC04E14C190000000F0 /* FenixuzForeignUserBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C190000000F1 /* FenixuzForeignUserBannerView.swift */; };
 		FE10DEC04E14C19000000100 /* FenixuzSpeechToTextManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000101 /* FenixuzSpeechToTextManager.swift */; };
-		FE10DEC04E14C19000000110 /* FenixuzTasksDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000111 /* FenixuzTasksDatabase.swift */; };
-		FE10DEC04E14C19000000120 /* FenixuzTasksController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000121 /* FenixuzTasksController.swift */; };
-		FE10DEC04E14C19000000130 /* FenixuzTasksTabIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000131 /* FenixuzTasksTabIcon.swift */; };
 		FE10DEC04E14C190FFFFFFF1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C190FFFFFFF0 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
@@ -2336,6 +2329,7 @@
 		27A69794273D252800B33415 /* rnnoise */ = {isa = PBXFileReference; lastKnownFileType = folder; name = rnnoise; path = "submodules/telegram-ios/third-party/rnnoise"; sourceTree = "<group>"; };
 		27A697A1273D311700B33415 /* Stripe */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Stripe; path = submodules/Stripe; sourceTree = "<group>"; };
 		27A697A7273D36A200B33415 /* Localization */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Localization; path = packages/Localization; sourceTree = "<group>"; };
+		FE10DEC04E14C190FEFE0001 /* FenixuzCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FenixuzCore; path = packages/FenixuzCore; sourceTree = "<group>"; };
 		27A697AA273D3B3D00B33415 /* NumberPluralization */ = {isa = PBXFileReference; lastKnownFileType = folder; name = NumberPluralization; path = packages/NumberPluralization; sourceTree = "<group>"; };
 		27A697AD273D3FE900B33415 /* Spotlight.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Spotlight.swift; sourceTree = "<group>"; };
 		27A710B628B8C8F100E65838 /* custom_reaction.tgs */ = {isa = PBXFileReference; lastKnownFileType = file; path = custom_reaction.tgs; sourceTree = "<group>"; };
@@ -3379,13 +3373,8 @@
 		D0E82DFF2500F10E00E09A20 /* MergedAvatarsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MergedAvatarsView.swift; sourceTree = "<group>"; };
 		D0FCA7612434867400B72F18 /* PeerInfoHeadItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerInfoHeadItem.swift; sourceTree = "<group>"; };
 		D0FFC4AB23E184BA0044D305 /* ChatListFilterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListFilterController.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000002 /* FenixuzDemoCodeFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzDemoCodeFetcher.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000141 /* FenixuzGhostMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzGhostMode.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000151 /* FenixuzSettingsIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzSettingsIcons.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000161 /* FenixuzTipsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzTipsController.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000171 /* FenixuzAboutController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAboutController.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000011 /* FenixuzBrandColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzBrandColors.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000021 /* FenixuzL10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzL10n.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000031 /* FenixuzAppStoreIAP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAppStoreIAP.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000041 /* FenixuzSettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzSettingsController.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000051 /* FenixuzForeignUserBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzForeignUserBlock.swift; sourceTree = "<group>"; };
@@ -3400,9 +3389,6 @@
 		FE10DEC04E14C190000000E1 /* FenixuzEditedHistoryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzEditedHistoryController.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C190000000F1 /* FenixuzForeignUserBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzForeignUserBannerView.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000101 /* FenixuzSpeechToTextManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzSpeechToTextManager.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000111 /* FenixuzTasksDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzTasksDatabase.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000121 /* FenixuzTasksController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzTasksController.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000131 /* FenixuzTasksTabIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzTasksTabIcon.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C190FFFFFFF0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -3536,6 +3522,7 @@
 				277C209327A2F58E0070B3BF /* ManagedFile in Frameworks */,
 				27B6D05B27393A4700C785C7 /* TGUIKit in Frameworks */,
 				27A697A9273D3A5F00B33415 /* Localization in Frameworks */,
+				FE10DEC04E14C190FEFE0003 /* FenixuzCore in Frameworks */,
 				27B8E7C627425279001B8DF7 /* TGModernGrowingTextView in Frameworks */,
 				A7D08F48236AC9B6002DC240 /* Sparkle.framework in Frameworks */,
 				D0DDECEA2322FA0200E1B359 /* Contacts.framework in Frameworks */,
@@ -3880,14 +3867,9 @@
 				2748C56027BA477900F05503 /* Auth_Token.swift */,
 				2748C56227BA53C800F05503 /* Auth_Loading.swift */,
 				2748C56427BA959F00F05503 /* Auth_PhoneNumber.swift */,
-				FE10DEC04E14C19000000002 /* FenixuzDemoCodeFetcher.swift */,
-				FE10DEC04E14C19000000141 /* FenixuzGhostMode.swift */,
-				FE10DEC04E14C19000000151 /* FenixuzSettingsIcons.swift */,
-				FE10DEC04E14C19000000161 /* FenixuzTipsController.swift */,
+					FE10DEC04E14C19000000161 /* FenixuzTipsController.swift */,
 				FE10DEC04E14C19000000171 /* FenixuzAboutController.swift */,
-				FE10DEC04E14C19000000011 /* FenixuzBrandColors.swift */,
-				FE10DEC04E14C19000000021 /* FenixuzL10n.swift */,
-				FE10DEC04E14C19000000031 /* FenixuzAppStoreIAP.swift */,
+					FE10DEC04E14C19000000031 /* FenixuzAppStoreIAP.swift */,
 				FE10DEC04E14C190FFFFFFF0 /* PrivacyInfo.xcprivacy */,
 				FE10DEC04E14C19000000041 /* FenixuzSettingsController.swift */,
 				FE10DEC04E14C19000000051 /* FenixuzForeignUserBlock.swift */,
@@ -3902,9 +3884,6 @@
 				FE10DEC04E14C190000000E1 /* FenixuzEditedHistoryController.swift */,
 				FE10DEC04E14C190000000F1 /* FenixuzForeignUserBannerView.swift */,
 				FE10DEC04E14C19000000101 /* FenixuzSpeechToTextManager.swift */,
-				FE10DEC04E14C19000000111 /* FenixuzTasksDatabase.swift */,
-				FE10DEC04E14C19000000121 /* FenixuzTasksController.swift */,
-				FE10DEC04E14C19000000131 /* FenixuzTasksTabIcon.swift */,
 				27EFF4BA27BAF19600006834 /* Auth_CodeEntry.swift */,
 				27EFF4BC27BBDF4600006834 /* Auth_PasswordEntry.swift */,
 				27EFF4BE27BBF2D600006834 /* Auth_NextView.swift */,
@@ -4694,6 +4673,7 @@
 				276651DA273D569400671FB4 /* ApiCredentials */,
 				27A697AA273D3B3D00B33415 /* NumberPluralization */,
 				27A697A7273D36A200B33415 /* Localization */,
+				FE10DEC04E14C190FEFE0001 /* FenixuzCore */,
 				27A697A1273D311700B33415 /* Stripe */,
 				27A69794273D252800B33415 /* rnnoise */,
 				27A69791273D20E800B33415 /* OpusBinding */,
@@ -7093,6 +7073,7 @@
 				27A69795273D253B00B33415 /* rnoise */,
 				27A697A2273D313000B33415 /* Stripe */,
 				27A697A8273D3A5F00B33415 /* Localization */,
+				FE10DEC04E14C190FEFE0002 /* FenixuzCore */,
 				276651DB273D574900671FB4 /* ApiCredentials */,
 				2796FEF127423A8600DA653C /* EmojiSuggestions */,
 				2796FEF427423D2100DA653C /* EDSunriseSet */,
@@ -8233,14 +8214,9 @@
 				C2B6A9651E8519FA00A441B7 /* RecentGIFRowItem.swift in Sources */,
 				C2E8BA071FB5EF4C00DEB5E2 /* GalleryThumbsControl.swift in Sources */,
 				2748C56527BA959F00F05503 /* Auth_PhoneNumber.swift in Sources */,
-				FE10DEC04E14C19000000001 /* FenixuzDemoCodeFetcher.swift in Sources */,
-				FE10DEC04E14C19000000140 /* FenixuzGhostMode.swift in Sources */,
-				FE10DEC04E14C19000000150 /* FenixuzSettingsIcons.swift in Sources */,
-				FE10DEC04E14C19000000160 /* FenixuzTipsController.swift in Sources */,
+					FE10DEC04E14C19000000160 /* FenixuzTipsController.swift in Sources */,
 				FE10DEC04E14C19000000170 /* FenixuzAboutController.swift in Sources */,
-				FE10DEC04E14C19000000010 /* FenixuzBrandColors.swift in Sources */,
-				FE10DEC04E14C19000000020 /* FenixuzL10n.swift in Sources */,
-				FE10DEC04E14C19000000030 /* FenixuzAppStoreIAP.swift in Sources */,
+					FE10DEC04E14C19000000030 /* FenixuzAppStoreIAP.swift in Sources */,
 				FE10DEC04E14C19000000040 /* FenixuzSettingsController.swift in Sources */,
 				FE10DEC04E14C19000000050 /* FenixuzForeignUserBlock.swift in Sources */,
 				FE10DEC04E14C19000000060 /* FenixuzChatPincodeManager.swift in Sources */,
@@ -8254,9 +8230,6 @@
 				FE10DEC04E14C190000000E0 /* FenixuzEditedHistoryController.swift in Sources */,
 				FE10DEC04E14C190000000F0 /* FenixuzForeignUserBannerView.swift in Sources */,
 				FE10DEC04E14C19000000100 /* FenixuzSpeechToTextManager.swift in Sources */,
-				FE10DEC04E14C19000000110 /* FenixuzTasksDatabase.swift in Sources */,
-				FE10DEC04E14C19000000120 /* FenixuzTasksController.swift in Sources */,
-				FE10DEC04E14C19000000130 /* FenixuzTasksTabIcon.swift in Sources */,
 				2778409F2BAC0B1D0026CC3A /* MultiGiftPremium.swift in Sources */,
 				C2A1054B1E0163D500B01F48 /* GalleryPageController.swift in Sources */,
 				D0D752C822F8A76100E2CB74 /* Geocoding.swift in Sources */,
@@ -9156,7 +9129,7 @@
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = uz.fenixuz.app.TelegramShare;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Fenixuz;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = SHARE;
@@ -9210,7 +9183,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				"OTHER_SWIFT_FLAGS[arch=*]" = "";
 				PRODUCT_BUNDLE_IDENTIFIER = uz.fenixuz.app.TelegramShare;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Fenixuz;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = SHARE;
@@ -9470,6 +9443,10 @@
 		2745FED4274F952600546B05 /* Localization */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Localization;
+		};
+		FE10DEC04E14C190FEFE0002 /* FenixuzCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FenixuzCore;
 		};
 		2745FED6274F952D00546B05 /* ThemeSettings */ = {
 			isa = XCSwiftPackageProductDependency;

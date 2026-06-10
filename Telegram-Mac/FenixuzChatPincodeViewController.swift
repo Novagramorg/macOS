@@ -27,6 +27,7 @@ import Cocoa
 import TGUIKit
 import Postbox
 import TelegramCore
+import FenixuzCore
 
 public enum FenixuzChatPincodeMode {
     case set(onSuccess: (String) -> Void)

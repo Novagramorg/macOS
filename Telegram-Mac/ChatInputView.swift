@@ -15,6 +15,7 @@ import InputView
 import Postbox
 import ColorPalette
 import TelegramMedia
+import FenixuzCore
 
 protocol ChatInputDelegate : AnyObject {
     func inputChanged(height:CGFloat, animated:Bool);

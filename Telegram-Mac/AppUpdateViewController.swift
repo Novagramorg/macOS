@@ -104,7 +104,7 @@ func updateApplication(sharedContext: SharedAccountContext) {
     let state = stateValue.with {$0.loadingState}
     switch state {
     case let .readyToInstall(item):
-        var text: String = "Telegram was updated to \(item.versionTitle.lowercased())"
+        var text: String = "Fenixuz was updated to \(item.versionTitle.lowercased())"
         text += "\n\n"
         
         text += item.updateText

@@ -13,6 +13,7 @@ import Cocoa
 import TGUIKit
 import SwiftSignalKit
 import Localization
+import FenixuzCore
 
 private struct AboutFeature {
     let symbol: String
