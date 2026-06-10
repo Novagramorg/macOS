@@ -59,7 +59,11 @@ private func hTmeParseDuration(_ durationStr: String) -> Int {
 }
 
 
-let itunesAppLink = "https://apps.apple.com/us/app/telegram/id747648890"
+// Fenixuz: open the Fenixuz App Store page (universal app id6768202244) — never the
+// official Telegram. Used by the in-app "update the app" actions.
+func openFenixuzAppStore() {
+    execute(inapp: inAppLink.external(link: "https://apps.apple.com/uz/app/fenixuz/id6768202244", false))
+}
 
 let XTR: String = LocalTelegramCurrency.xtr.rawValue
 let XTRSTAR: String = "⭐️"
@@ -1519,7 +1523,7 @@ private func updateAppAsYouWish(text: String, updateApp: Bool) {
         verifyAlert_button(for: mainWindow, header: appName, information: text, ok: strings().alertButtonOKUpdateApp, cancel: strings().modalCancel, option: nil, successHandler: { _ in
             if updateApp {
                 #if APP_STORE
-                execute(inapp: inAppLink.external(link: itunesAppLink, false))
+                openFenixuzAppStore()
                 #else
                 (NSApp.delegate as? AppDelegate)?.checkForUpdates(updateApp)
                 #endif

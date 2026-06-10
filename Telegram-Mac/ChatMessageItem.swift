@@ -254,7 +254,7 @@ class ChatMessageItem: ChatRowItem {
             execute(inapp: link)
         } else if unsupported {
             #if APP_STORE
-            execute(inapp: inAppLink.external(link: itunesAppLink, false))
+            openFenixuzAppStore()
             #else
             (NSApp.delegate as? AppDelegate)?.checkForUpdates("")
             #endif

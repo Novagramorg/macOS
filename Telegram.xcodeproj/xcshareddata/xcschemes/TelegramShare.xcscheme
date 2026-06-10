@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C232EA901E1D07E700C4D38C"
-               BuildableName = "TelegramShare.appex"
+               BuildableName = "Fenixuz.appex"
                BlueprintName = "TelegramShare"
                ReferencedContainer = "container:Telegram.xcodeproj">
             </BuildableReference>

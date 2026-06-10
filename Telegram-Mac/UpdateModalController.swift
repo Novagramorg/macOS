@@ -114,7 +114,7 @@ class UpdateModalController: ModalViewController {
     override var modalInteractions: ModalInteractions? {
         return ModalInteractions(acceptTitle: "Update Fenixuz", accept: {
             #if APP_STORE
-            execute(inapp: inAppLink.external(link: "https://apps.apple.com/us/app/telegram/id747648890", false))
+            openFenixuzAppStore()
             #else
             (NSApp.delegate as? AppDelegate)?.checkForUpdates("")
             #endif
