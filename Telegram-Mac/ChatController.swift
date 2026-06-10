@@ -8029,7 +8029,7 @@ class ChatController: EditableViewController<ChatControllerView>, Notifable, Tab
     private func updateInteractiveReading() {
         switch mode {
         case .history:
-            if self.canInteractiveRead() {
+            if self.canInteractiveRead() && !FenixuzGhostMode.isActive {
                 self.interactiveReadingDisposable.set(context.engine.messages.installInteractiveReadMessagesAction(peerId: chatInteraction.peerId))
 
                 let visibleMessageRange = self.visibleMessageRange
@@ -10005,7 +10005,7 @@ class ChatController: EditableViewController<ChatControllerView>, Notifable, Tab
                         guard let `self` = self else {
                             return
                         }
-                        if self.chatInteraction.peerIsAccountPeer {
+                        if self.chatInteraction.peerIsAccountPeer && !FenixuzGhostMode.isActive {
                             self.context.account.updateLocalInputActivity(peerId: .init(peerId: self.chatLocation.peerId, category: mode.activityCategory(value.chatLocation.threadId)), activity: activity, isPresent: true)
                         }
                     }))

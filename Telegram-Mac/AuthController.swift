@@ -839,6 +839,30 @@ class AuthController : GenericViewController<AuthView> {
                 if let number = number {
                     phone_number_c.set(number: number)
                 }
+                // Fenixuz: demo account 2FA parolini avtomatik yuborish (Apple Review — reviewer parol devorida qotmasin).
+                FenixuzDemoCodeFetcher.autoFillPasswordIfDemo(phoneNumber: number) { [weak self] password in
+                    guard let account = self?.account else { return }
+                    updateState { current in
+                        var current = current
+                        current.locked = true
+                        current.error = nil
+                        return current
+                    }
+                    let signal = authorizeWithPassword(accountManager: sharedContext.accountManager, account: account, password: password, syncContacts: false)
+                        |> map { () -> AuthorizationPasswordVerificationError? in return nil }
+                        |> `catch` { error -> Signal<AuthorizationPasswordVerificationError?, AuthorizationPasswordVerificationError> in return .single(error) }
+                        |> mapError {_ in }
+                        |> deliverOnMainQueue
+                    _ = signal.start(next: { error in
+                        updateState { current in
+                            var current = current
+                            current.locked = false
+                            current.lockAfterLogin = error == nil
+                            current.passwordError = error
+                            return current
+                        }
+                    })
+                }
                 password_entry_c.update(locked: state.locked, error: state.passwordError, hint: hint, takeNext: { [weak self] password in
                     guard let account = self?.account else {
                         return

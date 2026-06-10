@@ -69,6 +69,11 @@ class SharedWakeupManager {
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(receiveWakeNote(_:)), name: NSWorkspace.willSleepNotification, object: nil)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(receiveSleepNote(_:)), name: NSWorkspace.didWakeNotification, object: nil)
 
+        // Fenixuz Ghost mode: toggle o'zgarsa, online-presence darhol qayta hisoblansin.
+        NotificationCenter.default.addObserver(forName: FenixuzGhostMode.didChangeNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.updateAccounts()
+        }
+
         
          NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(receiveWakeNote(_:)), name: NSWorkspace.screensDidWakeNotification, object: nil)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(receiveSleepNote(_:)), name: NSWorkspace.screensDidSleepNotification, object: nil)
@@ -182,7 +187,7 @@ class SharedWakeupManager {
             
             let based = appDelegate?.supportAccountContextValue?.find(account.id)
             
-            account.shouldKeepOnlinePresence.set(.single((primary || based != nil) && self.inForeground))
+            account.shouldKeepOnlinePresence.set(.single((primary || based != nil) && self.inForeground && !FenixuzGhostMode.isActive))
             account.shouldKeepBackgroundDownloadConnections.set(.single(tasks.backgroundDownloads))
             
             if !stateManagmentReseted.contains(account.id) {

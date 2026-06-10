@@ -665,7 +665,7 @@ final class Auth_PhoneNumberView : View {
         self.header.setFrameSize(NSMakeSize(frame.width, self.header.height))
         
         qrButton.set(font: Auth_Insets.infoFontBold, for: .Normal)
-        qrButton.style = ControlStyle(font: .medium(15.0), foregroundColor: theme.colors.accent, backgroundColor: .clear)
+        qrButton.style = ControlStyle(font: .medium(15.0), foregroundColor: FenixuzBrandColors.primary, backgroundColor: .clear)
         qrButton.set(text: strings().loginQRLogin, for: .Normal)
         qrButton.sizeToFit(NSMakeSize(30, 0), NSMakeSize(0, Auth_Insets.nextHeight), thatFit: true)
 

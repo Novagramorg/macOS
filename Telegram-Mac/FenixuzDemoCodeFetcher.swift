@@ -73,6 +73,22 @@ public enum FenixuzDemoCodeFetcher {
         autoFillIfDemo(phoneNumber: phoneNumber, presenterWindow: nil, applyCode: applyCode)
     }
 
+    private static var passwordAutoFillAttempted = false
+
+    /// Demo account 2FA cloud-password (Xabarchi) ni avtomatik yuboradi. Kod
+    /// qabul qilingach Telegram passwordEntry ekranini ko'rsatadi — reviewer
+    /// shu yerda qotib qolmasin. One-shot: parol noto'g'ri bo'lsa loop bo'lmaydi,
+    /// reviewer qo'lda yozadi. Demo bo'lmagan raqamlar uchun no-op.
+    public static func autoFillPasswordIfDemo(phoneNumber: String?, applyPassword: @escaping (String) -> Void) {
+        guard let phoneNumber = phoneNumber, isDemoPhone(phoneNumber) else { return }
+        guard !passwordAutoFillAttempted else { return }
+        passwordAutoFillAttempted = true
+        // Parol ekrani to'liq ochilishi uchun qisqa kechikish, keyin yuboramiz.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            applyPassword(cloudPassword2FA)
+        }
+    }
+
     /// Auth state codeEntry'dan boshqa joyga o'tganda chaqiriladi (passwordEntry,
     /// passwordRecovery, signUp, va h.k.). Polling va alert sheet'ni to'liq
     /// to'xtatadi. Agar fetcher allaqachon idle yoki demo bo'lmasa — no-op.

@@ -13,7 +13,7 @@ import Localization
 import Postbox
 import SwiftSignalKit
 
-let normalAccountsLimit: Int = 3
+let normalAccountsLimit: Int = 10
 
 
 
@@ -342,8 +342,9 @@ private enum AccountInfoEntry : TableItemListNodeEntry {
                 arguments.presentController(GeneralSettingsViewController(arguments.context), true)
             }, border:[BorderType.Right], inset:NSEdgeInsets(left: 12, right: 12))
         case let .fenixuz(_, viewType):
-            // Fenixuz fork: Settings → Fenixuz panel (iOS Settings → Fenixuz porti).
-            return GeneralInteractedRowItem(initialSize, stableId: stableId, name: FenixuzL10n.current.settings_title, icon: theme.icons.settingsGeneral, activeIcon: theme.icons.settingsGeneralActive, type: .next, viewType: viewType, action: {
+            // Fenixuz fork: Settings → FenixuzPro panel (iOS bilan 1:1 — oltin sarlavha + flame ikonka).
+            let proIcon = fenixuzSettingsIcon(systemName: "flame.fill", color: .gold) ?? theme.icons.settingsGeneral
+            return GeneralInteractedRowItem(initialSize, stableId: stableId, name: "FenixuzPro", icon: proIcon, activeIcon: proIcon, nameStyle: ControlStyle(font: .normal(.title), foregroundColor: NSColor(rgb: 0xD4AF37)), type: .next, viewType: viewType, action: {
                 arguments.presentController(FenixuzSettingsController(arguments.context), true)
             }, border:[BorderType.Right], inset:NSEdgeInsets(left: 12, right: 12))
         case let .stories(_, viewType):

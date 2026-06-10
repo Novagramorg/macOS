@@ -75,7 +75,20 @@ private let statePromise: ValuePromise<AppUpdateState> = ValuePromise(initialSta
 private let stateValue = Atomic(value: initialState)
 
 var appUpdateStateSignal: Signal<AppUpdateState, NoError> {
-    return statePromise.get()
+    // Fenixuz (FORK_NOTES §7 — updates disabled). Two bugs avoided here:
+    //  1) the global statePromise/initialState crash the Debug (!APP_STORE) build on launch
+    //     (initialState = AppUpdateState(items: [SUAppcastItem]()) hits null ObjC metadata during
+    //     early static init), and
+    //  2) `.never()` removed the crash but left the app running with NO WINDOW (a consumer waits
+    //     for the first value of this signal before the UI proceeds).
+    // So emit one inert `.uptodate` state lazily at subscription time (Sparkle metadata is
+    // available by then) — UI consumers proceed, the disabled update button stays hidden, no
+    // crash, no global access. Re-enable ONLY together with Sparkle (§7 — confirm first).
+    return Signal { subscriber in
+        subscriber.putNext(AppUpdateState(items: [], loadingState: .uptodate))
+        subscriber.putCompletion()
+        return EmptyDisposable
+    }
 }
 
 private let updateState:((AppUpdateState)->AppUpdateState) -> Void = { f in

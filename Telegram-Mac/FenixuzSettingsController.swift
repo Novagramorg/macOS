@@ -47,6 +47,7 @@ private enum FenixuzDefaultsKey {
     static let showDeletedMessages        = "show_deleted_messages"
     static let showViewFirstMessage       = "show_view_first_message"
     static let showGhostMode              = "show_ghost_mode_button"
+    static let ghostModeActive            = "is_ghost_mode_active"
     static let longPressCameraSelection   = "long_press_camera_selection"
     static let showTranslateMessages      = "show_translate_messages"
     static let textStyle                  = "text_style"
@@ -65,6 +66,7 @@ private struct FenixuzSettingsState: Equatable {
     var showDeletedMessages: Bool
     var showViewFirstMessage: Bool
     var showGhostMode: Bool
+    var ghostModeActive: Bool
     var longPressCameraSelection: Bool
     var showTranslateMessages: Bool
     var textStyle: String
@@ -84,6 +86,7 @@ private struct FenixuzSettingsState: Equatable {
             showDeletedMessages:       d?.bool(forKey: FenixuzDefaultsKey.showDeletedMessages) ?? false,
             showViewFirstMessage:      d?.bool(forKey: FenixuzDefaultsKey.showViewFirstMessage) ?? false,
             showGhostMode:             d?.bool(forKey: FenixuzDefaultsKey.showGhostMode) ?? false,
+            ghostModeActive:           d?.bool(forKey: FenixuzDefaultsKey.ghostModeActive) ?? false,
             longPressCameraSelection:  d?.object(forKey: FenixuzDefaultsKey.longPressCameraSelection) as? Bool ?? true,
             showTranslateMessages:     d?.object(forKey: FenixuzDefaultsKey.showTranslateMessages) as? Bool ?? true,
             textStyle:                 d?.string(forKey: FenixuzDefaultsKey.textStyle) ?? "none",
@@ -123,11 +126,42 @@ private final class FenixuzSettingsArguments {
 private enum FenixuzEntryId : Hashable {
     case section(Int)
     case header(Int)
+    case topTips
+    case topAbout
     case interfaceHideFolders, interfaceStories, interfaceMutual, interfaceFooter
-    case chatDeleted, chatFirstMessage, chatGhost, chatCamera, chatFooter
+    case chatDeleted, chatFirstMessage, chatGhostActive, chatGhost, chatCamera, chatFooter
     case messagingTextStyle, messagingAutoText, messagingAutoTranslate, messagingTranslateToggle, messagingTranslateLang, messagingFooter
     case sttEnabled, sttLanguage
     case protectionForeign, protectionApk, protectionFooter
+}
+
+// iOS 1:1 — har bir row uchun rangli kvadrat ikonka (FenixuzIconColor + SF Symbol).
+private func fenixuzSettingsRowIcon(_ id: FenixuzEntryId) -> CGImage? {
+    let map: (String, FenixuzIconColor)?
+    switch id {
+    case .topAbout:                 map = ("info.circle.fill", .blue)
+    case .topTips:                  map = ("sparkles", .gold)
+    case .interfaceHideFolders:     map = ("folder.badge.minus", .lightBlue)
+    case .interfaceStories:         map = ("circle.dashed", .violet)
+    case .interfaceMutual:          map = ("person.2.fill", .blue)
+    case .chatDeleted:              map = ("trash.slash.fill", .red)
+    case .chatFirstMessage:         map = ("arrow.up.to.line", .blue)
+    case .chatGhostActive:          map = ("eye.slash.fill", .gray)
+    case .chatGhost:                map = ("eye.slash", .gray)
+    case .chatCamera:               map = ("camera.rotate.fill", .orange)
+    case .messagingTextStyle:       map = ("textformat", .purple)
+    case .messagingAutoText:        map = ("text.append", .teal)
+    case .messagingAutoTranslate:   map = ("globe", .pink)
+    case .messagingTranslateToggle: map = ("character.bubble.fill", .pink)
+    case .messagingTranslateLang:   map = ("character.book.closed.fill", .lightBlue)
+    case .sttEnabled:               map = ("mic.fill", .red)
+    case .sttLanguage:              map = ("globe", .blue)
+    case .protectionForeign:        map = ("person.crop.circle.badge.xmark", .orange)
+    case .protectionApk:            map = ("doc.fill.badge.ellipsis", .red)
+    default:                        map = nil
+    }
+    guard let (symbol, color) = map else { return nil }
+    return fenixuzSettingsIcon(systemName: symbol, color: color)
 }
 
 private enum FenixuzEntry : Comparable, Identifiable {
@@ -185,10 +219,11 @@ private enum FenixuzEntry : Comparable, Identifiable {
             return GeneralRowItem(initialSize, height: 20, stableId: stableId, viewType: .separator)
         case let .header(_, _, text):
             return GeneralTextRowItem(initialSize, stableId: stableId, text: text, viewType: .textTopItem)
-        case let .toggle(_, _, title, subtitle, value, viewType, key):
+        case let .toggle(_, entryId, title, subtitle, value, viewType, key):
             return GeneralInteractedRowItem(
                 initialSize, stableId: stableId,
                 name: title,
+                icon: fenixuzSettingsRowIcon(entryId),
                 description: subtitle,
                 type: .switchable(value),
                 viewType: viewType,
@@ -196,20 +231,22 @@ private enum FenixuzEntry : Comparable, Identifiable {
                     arguments.updateBool(key, !value)
                 }
             )
-        case let .disclosurePlaceholder(_, _, title, label, viewType, subKey):
+        case let .disclosurePlaceholder(_, entryId, title, label, viewType, subKey):
             return GeneralInteractedRowItem(
                 initialSize, stableId: stableId,
                 name: title,
+                icon: fenixuzSettingsRowIcon(entryId),
                 type: .nextContext(label),
                 viewType: viewType,
                 action: {
                     arguments.openSubController(subKey)
                 }
             )
-        case let .disclosureSTTLanguage(_, _, title, label, viewType):
+        case let .disclosureSTTLanguage(_, entryId, title, label, viewType):
             return GeneralInteractedRowItem(
                 initialSize, stableId: stableId,
                 name: title,
+                icon: fenixuzSettingsRowIcon(entryId),
                 type: .nextContext(label),
                 viewType: viewType,
                 action: {
@@ -229,6 +266,11 @@ private func fenixuzSettingsEntries(state: FenixuzSettingsState, l10n: FenixuzL1
     func next() -> Int { idx += 1; return idx }
     var sectionId = 0
 
+    // ─── FENIX PRO (top) ───
+    entries.append(.section(sectionId)); sectionId += 1
+    entries.append(.disclosurePlaceholder(next(), .topAbout, l10n.about_rowTitle, "", .firstItem, "about"))
+    entries.append(.disclosurePlaceholder(next(), .topTips, l10n.tips_screenTitle, "", .lastItem, "tips"))
+
     // ─── INTERFACE ───
     entries.append(.section(sectionId)); sectionId += 1
     entries.append(.header(next(), .header(1), l10n.settings_section_interface))
@@ -242,6 +284,7 @@ private func fenixuzSettingsEntries(state: FenixuzSettingsState, l10n: FenixuzL1
     entries.append(.header(next(), .header(2), l10n.settings_section_chat))
     entries.append(.toggle(next(), .chatDeleted, l10n.settings_chat_deletedMessages_title, nil, state.showDeletedMessages, .firstItem, FenixuzDefaultsKey.showDeletedMessages))
     entries.append(.toggle(next(), .chatFirstMessage, l10n.settings_chat_firstMessage_title, nil, state.showViewFirstMessage, .innerItem, FenixuzDefaultsKey.showViewFirstMessage))
+    entries.append(.toggle(next(), .chatGhostActive, l10n.settings_chat_ghostActive_title, l10n.settings_chat_ghostActive_subtitle, state.ghostModeActive, .innerItem, FenixuzDefaultsKey.ghostModeActive))
     entries.append(.toggle(next(), .chatGhost, l10n.settings_chat_ghost_title, nil, state.showGhostMode, .innerItem, FenixuzDefaultsKey.showGhostMode))
     entries.append(.toggle(next(), .chatCamera, l10n.settings_chat_camera_title, l10n.settings_chat_camera_subtitle, state.longPressCameraSelection, .lastItem, FenixuzDefaultsKey.longPressCameraSelection))
     entries.append(.footer(next(), .chatFooter, l10n.settings_chat_footer))
@@ -321,7 +364,11 @@ class FenixuzSettingsController: TableViewController {
         let arguments = FenixuzSettingsArguments(
             context: context,
             updateBool: { key, value in
-                fenixuzDefaults?.set(value, forKey: key)
+                if key == FenixuzDefaultsKey.ghostModeActive {
+                    FenixuzGhostMode.isActive = value
+                } else {
+                    fenixuzDefaults?.set(value, forKey: key)
+                }
                 updateState { state in
                     switch key {
                     case FenixuzDefaultsKey.hideFolders: state.hideFolders = value
@@ -330,6 +377,7 @@ class FenixuzSettingsController: TableViewController {
                     case FenixuzDefaultsKey.showDeletedMessages: state.showDeletedMessages = value
                     case FenixuzDefaultsKey.showViewFirstMessage: state.showViewFirstMessage = value
                     case FenixuzDefaultsKey.showGhostMode: state.showGhostMode = value
+                    case FenixuzDefaultsKey.ghostModeActive: state.ghostModeActive = value
                     case FenixuzDefaultsKey.longPressCameraSelection: state.longPressCameraSelection = value
                     case FenixuzDefaultsKey.showTranslateMessages: state.showTranslateMessages = value
                     case FenixuzDefaultsKey.sttEnabled: state.sttEnabled = value
@@ -357,6 +405,10 @@ class FenixuzSettingsController: TableViewController {
                 guard let self = self else { return }
                 let nav = self.navigationController
                 switch subKey {
+                case "about":
+                    nav?.push(FenixuzAboutController(context))
+                case "tips":
+                    nav?.push(FenixuzTipsController(context))
                 case "text_style":
                     nav?.push(FenixuzTextStyleController(context))
                 case "auto_text":

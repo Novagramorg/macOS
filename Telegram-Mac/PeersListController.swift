@@ -1045,6 +1045,7 @@ class PeerListContainerView : Control {
     private var proxy: ProxyView?
     private var compose:ImageButton?
     private var backButton: ImageButton?
+    private var ghost: ImageButton?
 
     private var contactsSort: TextButton?
 
@@ -1214,6 +1215,8 @@ class PeerListContainerView : Control {
             performSubviewRemoval(view, animated: animated)
             self.compose = nil
         }
+
+        self.updateGhostButton(animated: animated)
         
         let hasForumTitle = state.splitState != .minimisize && (delta != nil || state.appear == .short)
         
@@ -1669,6 +1672,46 @@ class PeerListContainerView : Control {
         self.updateLayout(frame.size, transition: transition)
     }
     
+    // Fenixuz Ghost mode: chat-list tepasidagi tezkor toggle tugmasi (iOS 1:1).
+    // show_ghost_mode_button yoniq bo'lsa ko'rinadi; bosilsa is_ghost_mode_active'ni almashtiradi.
+    fileprivate func updateGhostButton(animated: Bool) {
+        let visible = FenixuzGhostMode.isButtonVisible
+            && self.state?.mode == .plain
+            && self.state?.splitState != .minimisize
+        if visible {
+            let current: ImageButton
+            if let view = self.ghost {
+                current = view
+            } else {
+                current = ImageButton(frame: NSMakeRect(0, 0, 40, 30))
+                current.layer?.cornerRadius = .cornerRadius
+                current.autohighlight = false
+                current.animates = false
+                self.ghost = current
+                statusContainer.addSubview(current)
+                current.set(handler: { [weak self] _ in
+                    FenixuzGhostMode.toggle()
+                    self?.updateGhostButton(animated: false)
+                }, for: .Click)
+            }
+            let icon: CGImage?
+            if FenixuzGhostMode.isActive {
+                icon = NSImage(named: "FenixGhostActive")?.precomposed(flipVertical: true, scale: System.backingScale)
+            } else {
+                icon = NSImage(named: "FenixGhostInactive")?.precomposed(theme.colors.grayIcon, flipVertical: true, scale: System.backingScale)
+            }
+            if let icon = icon {
+                current.set(image: icon, for: .Normal)
+                current.set(image: icon, for: .Hover)
+                current.set(image: icon, for: .Highlight)
+            }
+        } else if let view = self.ghost {
+            performSubviewRemoval(view, animated: animated)
+            self.ghost = nil
+        }
+        needsLayout = true
+    }
+
     func updateLayout(_ size: NSSize, transition: ContainedViewLayoutTransition) {
         
         
@@ -1750,6 +1793,16 @@ class PeerListContainerView : Control {
                 transition.updateAlpha(view: compose, alpha: 1)
             } else {
                 transition.updateAlpha(view: compose, alpha: progress)
+            }
+        }
+
+        if let ghost = ghost {
+            controlPoint.x -= componentSize.width
+            transition.updateFrame(view: ghost, frame: CGRect(origin: controlPoint, size: componentSize))
+            if state.splitState == .minimisize {
+                transition.updateAlpha(view: ghost, alpha: 1)
+            } else {
+                transition.updateAlpha(view: ghost, alpha: progress)
             }
         }
         
