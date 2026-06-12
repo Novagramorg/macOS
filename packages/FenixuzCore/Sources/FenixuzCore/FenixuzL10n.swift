@@ -322,25 +322,25 @@ public struct FenixuzL10n {
 
     public var iap_block_title: String {
         pick(
-            en: "Telegram Premium",
-            uz: "Telegram Premium",
-            ru: "Telegram Premium"
+            en: "Premium unavailable",
+            uz: "Premium mavjud emas",
+            ru: "Premium недоступен"
         )
     }
 
     public var iap_block_message: String {
         pick(
-            en: "Premium subscriptions are not sold in this app. To subscribe to Telegram Premium, please install the official Telegram app from the App Store and subscribe there.",
-            uz: "Premium obuna bu ilovada sotilmaydi. Telegram Premium'ga obuna bo'lish uchun App Store'dan rasmiy Telegram ilovasini o'rnating va obunani o'sha yerda amalga oshiring.",
-            ru: "Premium-подписка в этом приложении не продаётся. Чтобы подписаться на Telegram Premium, установите официальное приложение Telegram из Mac App Store и оформите подписку там."
+            en: "Premium subscriptions are not available in this app.",
+            uz: "Premium obuna bu ilovada mavjud emas.",
+            ru: "Premium-подписка в этом приложении недоступна."
         )
     }
 
     public var iap_block_open_app_store: String {
         pick(
-            en: "Open App Store",
-            uz: "App Store'da ochish",
-            ru: "Открыть App Store"
+            en: "OK",
+            uz: "OK",
+            ru: "OK"
         )
     }
 
@@ -434,7 +434,7 @@ public struct FenixuzL10n {
         ("fr-CA", "🇨🇦 Français (CA)"),
         ("es-MX", "🇲🇽 Español (MX)"),
         ("zh-TW", "🇹🇼 中文 (繁體)"),
-        ("pt-PT", "🇵🇹 Português (PT)"),
+        ("pt-PT", "🇵🇹 Português (PT)")
     ]
 
     public static func sttLanguageName(for localeId: String) -> String {
@@ -554,16 +554,16 @@ public struct FenixuzL10n {
         switch key {
         case "en": return pick(en: "English", uz: "Ingliz tili", ru: "Английский")
         case "ru": return pick(en: "Russian", uz: "Rus tili", ru: "Русский")
-        case "uz": return pick(en: "Uzbek",   uz: "O'zbek tili", ru: "Узбекский")
+        case "uz": return pick(en: "Uzbek", uz: "O'zbek tili", ru: "Узбекский")
         case "tr": return pick(en: "Turkish", uz: "Turk tili", ru: "Турецкий")
-        case "de": return pick(en: "German",  uz: "Nemis tili", ru: "Немецкий")
-        case "fr": return pick(en: "French",  uz: "Fransuz tili", ru: "Французский")
+        case "de": return pick(en: "German", uz: "Nemis tili", ru: "Немецкий")
+        case "fr": return pick(en: "French", uz: "Fransuz tili", ru: "Французский")
         case "es": return pick(en: "Spanish", uz: "Ispan tili", ru: "Испанский")
         case "it": return pick(en: "Italian", uz: "Italyan tili", ru: "Итальянский")
-        case "ar": return pick(en: "Arabic",  uz: "Arab tili", ru: "Арабский")
+        case "ar": return pick(en: "Arabic", uz: "Arab tili", ru: "Арабский")
         case "zh": return pick(en: "Chinese", uz: "Xitoy tili", ru: "Китайский")
         case "ja": return pick(en: "Japanese", uz: "Yapon tili", ru: "Японский")
-        case "ko": return pick(en: "Korean",  uz: "Koreys tili", ru: "Корейский")
+        case "ko": return pick(en: "Korean", uz: "Koreys tili", ru: "Корейский")
         default:   return key
         }
     }

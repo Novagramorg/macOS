@@ -79,12 +79,9 @@ public enum FenixuzAppStoreIAP {
             information: l10n.iap_block_message,
             ok: l10n.iap_block_open_app_store,
             cancel: l10n.iap_block_cancel,
-            successHandler: { result in
-                if case .basic = result {
-                    if let url = URL(string: officialTelegramAppStoreURL) {
-                        NSWorkspace.shared.open(url)
-                    }
-                }
+            successHandler: { _ in
+                // Fenixuz: official Telegram'ga deep-link olib tashlandi (4.1/4.2.2 redirect xavfi).
+                // IAP gate saqlanadi (3.1.1) — alert faqat xabar beradi, hech qayerga yo'naltirmaydi.
             }
         )
     }
