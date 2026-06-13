@@ -1013,15 +1013,8 @@ class AccountViewController: TelegramGenericViewController<AccountControllerView
 
         let atomicSize = self.atomicSize
 
-        let appUpdateState: Signal<Any?, NoError>
-        #if APP_STORE
-            appUpdateState = .single(nil)
-        #else
-        // Fenixuz (§7 — updates disabled): don't subscribe to appUpdateStateSignal in Debug; its
-        // getter builds AppUpdateState(items: [SUAppcastItem]) and crashes (null Sparkle metadata).
-        // Mirror the APP_STORE inert path.
-        appUpdateState = .single(nil)
-        #endif
+        // Fenixuz (§7 — updates disabled): no live update-state; emit nil so the settings list builds.
+        let appUpdateState: Signal<Any?, NoError> = .single(nil)
 
         let sessionsCount = context.activeSessionsContext.state |> map {
             $0.sessions.count

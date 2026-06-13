@@ -16,22 +16,20 @@ import Postbox
 import SwiftSignalKit
 import Sparkle
 
-
-
-final class TelegramUpdater : NSObject, SUUpdaterPrivate {
+final class TelegramUpdater: NSObject, SUUpdaterPrivate {
     var delegate: SUUpdaterDelegate!
-    
+
     var userAgentString: String!
-    
+
     var domain: String! = nil
     var host: String! = nil
-    
-    var httpHeaders: [AnyHashable : Any]!
-    
+
+    var httpHeaders: [AnyHashable: Any]!
+
     var decryptionPassword: String!
-    
+
     var sparkleBundle: Bundle!
-    
+
     override init() {
         self.sparkleBundle = Bundle(for: SUUpdateDriver.self)
     }
@@ -44,24 +42,22 @@ extension SUAppcastItem {
             updateText = updateText.replacingOccurrences(of: "   ", with: "  ", options: [], range: range)
         }
         updateText = updateText.replacingOccurrences(of: "•", with: "\n•", options: [], range: nil)
-        
+
         if updateText.first == "\n" {
             updateText.removeFirst()
         }
         updateText = updateText.replacingOccurrences(of: "\t", with: "  ", options: [], range: nil)
         return updateText
     }
-    
+
     var versionTitle: String {
         return "Version \(self.displayVersionString!) (\(self.versionString!))"
     }
 }
 
-
-
-enum AppUpdateLoadingState : Equatable {
+enum AppUpdateLoadingState: Equatable {
     case initializing
-    case loading(item:SUAppcastItem, current: Int, total: Int)
+    case loading(item: SUAppcastItem, current: Int, total: Int)
     case hasUpdate(SUAppcastItem)
     case readyToInstall(SUAppcastItem)
     case uptodate
@@ -74,49 +70,32 @@ private let initialState = AppUpdateState(items: [], loadingState: .initializing
 private let statePromise: ValuePromise<AppUpdateState> = ValuePromise(initialState, ignoreRepeated: true)
 private let stateValue = Atomic(value: initialState)
 
-var appUpdateStateSignal: Signal<AppUpdateState, NoError> {
-    // Fenixuz (FORK_NOTES §7 — updates disabled). Two bugs avoided here:
-    //  1) the global statePromise/initialState crash the Debug (!APP_STORE) build on launch
-    //     (initialState = AppUpdateState(items: [SUAppcastItem]()) hits null ObjC metadata during
-    //     early static init), and
-    //  2) `.never()` removed the crash but left the app running with NO WINDOW (a consumer waits
-    //     for the first value of this signal before the UI proceeds).
-    // So emit one inert `.uptodate` state lazily at subscription time (Sparkle metadata is
-    // available by then) — UI consumers proceed, the disabled update button stays hidden, no
-    // crash, no global access. Re-enable ONLY together with Sparkle (§7 — confirm first).
-    return Signal { subscriber in
-        subscriber.putNext(AppUpdateState(items: [], loadingState: .uptodate))
-        subscriber.putCompletion()
-        return EmptyDisposable
-    }
-}
+// Fenixuz (FORK_NOTES §7): `appUpdateStateSignal` removed — Sparkle disabled, no live consumers.
 
-private let updateState:((AppUpdateState)->AppUpdateState) -> Void = { f in
+private let updateState: ((AppUpdateState) -> AppUpdateState) -> Void = { f in
     statePromise.set(stateValue.modify(f))
 }
 private let updater = TelegramUpdater()
-private var driver:SUBasicUpdateDriver?
+private var driver: SUBasicUpdateDriver?
 private let host = SUHost(bundle: Bundle.main)
 
 func updateApplication(sharedContext: SharedAccountContext) {
 
-    
     let state = stateValue.with {$0.loadingState}
     switch state {
     case let .readyToInstall(item):
         var text: String = "Fenixuz was updated to \(item.versionTitle.lowercased())"
         text += "\n\n"
-        
+
         text += item.updateText
-        
-        
+
         _ = (sharedContext.activeAccountsWithInfo |> take(1) |> mapToSignal { _, accounts -> Signal<Never, NoError> in
             return combineLatest(accounts.map { addAppUpdateText($0.account.postbox, applyText: text) }) |> ignoreValues
-        } |> deliverOnMainQueue).start(completed: { 
+        } |> deliverOnMainQueue).start(completed: {
               driver?.install(withToolAndRelaunch: true)
-            
+
         })
-        
+
     case .installing:
         break
     default:
@@ -124,15 +103,14 @@ func updateApplication(sharedContext: SharedAccountContext) {
     }
 }
 
-
-struct AppUpdateState : Equatable {
+struct AppUpdateState: Equatable {
     let items: [SUAppcastItem]
     let loadingState: AppUpdateLoadingState
-    
+
     fileprivate init(items: [SUAppcastItem], loadingState: AppUpdateLoadingState) {
         self.items = items
         self.loadingState = loadingState
-        
+
     }
     func withUpdatedItems(_ items: [SUAppcastItem]) -> AppUpdateState {
         return AppUpdateState(items: items, loadingState: self.loadingState)
@@ -142,7 +120,7 @@ struct AppUpdateState : Equatable {
     }
 }
 
-extension String{
+extension String {
     var html2Attributed: NSAttributedString? {
         do {
             guard let data = data(using: String.Encoding.utf8) else {
@@ -169,93 +147,87 @@ private let _id_unarchiving: InputDataIdentifier = InputDataIdentifier("_id_unar
 
 private func appUpdateEntries(state: AppUpdateState) -> [InputDataEntry] {
     var entries: [InputDataEntry] = []
-    
+
     var sectionId: Int32 = 0
     var index: Int32 = 0
-    
+
     entries.append(.sectionId(sectionId, type: .normal))
     sectionId += 1
 
     var currentItem: SUAppcastItem?
-    
+
     switch state.loadingState {
     case let .failed(error):
         entries.append(.general(sectionId: sectionId, index: index, value: .none, error: nil, identifier: _id_check_for_updates, data: InputDataGeneralData(name: strings().appUpdateCheckForUpdates, color: theme.colors.accent, icon: nil, type: .none, viewType: .singleItem, action: nil)))
         index += 1
-        
+
         entries.append(.desc(sectionId: sectionId, index: index, text: .plain(error.localizedDescription), data: InputDataGeneralTextData(color: theme.colors.redUI, detectBold: false, viewType: .textBottomItem)))
         index += 1
-        
+
     case let .hasUpdate(item):
-        
+
         entries.append(.general(sectionId: sectionId, index: index, value: .none, error: nil, identifier: _id_download_update, data: InputDataGeneralData(name: strings().appUpdateDownloadUpdate, color: theme.colors.accent, icon: nil, type: .none, viewType: .singleItem, action: nil)))
         index += 1
-        
+
         currentItem = item
     case .initializing:
         entries.append(.general(sectionId: sectionId, index: index, value: .none, error: nil, identifier: _id_initializing, data: InputDataGeneralData(name: strings().appUpdateRetrievingInfo, color: theme.colors.grayText, icon: nil, type: .none, viewType: .singleItem, action: nil)))
         index += 1
     case let .loading(item, current, total):
-        
+
         entries.append(.general(sectionId: sectionId, index: index, value: .none, error: nil, identifier: _id_downloading, data: InputDataGeneralData(name: "\(strings().appUpdateDownloading)  \(String.prettySized(with: current) + " / " + String.prettySized(with: total))", color: theme.colors.grayText, icon: nil, type: .none, viewType: .singleItem, action: nil)))
         index += 1
-        
+
         currentItem = item
     case .uptodate:
         entries.append(.general(sectionId: sectionId, index: index, value: .none, error: nil, identifier: _id_check_for_updates, data: InputDataGeneralData(name: strings().appUpdateCheckForUpdates, color: theme.colors.accent, icon: nil, type: .none, viewType: .singleItem, action: nil)))
         index += 1
-        
+
         entries.append(.desc(sectionId: sectionId, index: index, text: .plain(strings().appUpdateUptodate), data: InputDataGeneralTextData(detectBold: false, viewType: .textBottomItem)))
         index += 1
     case let .unarchiving(item):
         entries.append(.general(sectionId: sectionId, index: index, value: .none, error: nil, identifier: _id_unarchiving, data: InputDataGeneralData(name: strings().appUpdateUnarchiving, color: theme.colors.grayText, icon: nil, type: .none, viewType: .singleItem, action: nil)))
         index += 1
-        
+
         currentItem = item
     case let .readyToInstall(item):
         entries.append(.general(sectionId: sectionId, index: index, value: .none, error: nil, identifier: _id_install_update, data: InputDataGeneralData(name: strings().updateUpdateTelegram, color: theme.colors.accent, icon: nil, type: .none, viewType: .singleItem, action: nil)))
         index += 1
-        
+
         currentItem = item
     case .installing:
         break
     }
-    
-    
+
     if let item = currentItem {
-        
+
         entries.append(.desc(sectionId: sectionId, index: index, text: .plain(strings().appUpdateNewestAvailable), data: InputDataGeneralTextData(detectBold: false, viewType: .textTopItem)))
         index += 1
-        
+
         entries.append(.sectionId(sectionId, type: .normal))
         sectionId += 1
-    
+
         let text = "**" + item.versionTitle + "**" + "\n" + item.updateText
         entries.append(InputDataEntry.custom(sectionId: sectionId, index: index, value: .none, identifier: InputDataIdentifier(item.fileURL.path), equatable: nil, comparable: nil, item: { initialSize, stableId in
             return GeneralTextRowItem(initialSize, stableId: stableId, text: text, textColor: theme.colors.listGrayText, fontSize: 13, isTextSelectable: true, viewType: .textTopItem)
         }))
         index += 1
     }
-    
-    
+
     entries.append(.sectionId(sectionId, type: .normal))
     sectionId += 1
 
-    
     return entries
 }
 
-
-
 func AppUpdateViewController() -> InputDataController {
-    
+
     let signal: Signal<InputDataSignalValue, NoError> = statePromise.get() |> deliverOnResourceQueue |> map { value in
         return appUpdateEntries(state: value)
     } |> map { InputDataSignalValue(entries: $0) }
-    
 
     return InputDataController(dataSignal: signal, title: strings().appUpdateTitle, validateData: { data in
-        
+
         if let _ = data[_id_download_update] {
             driver?.downloadUpdate()
         }
@@ -265,13 +237,12 @@ func AppUpdateViewController() -> InputDataController {
         if let _ = data[_id_install_update] {
             driver?.install(withToolAndRelaunch: true)
         }
-        
+
         return .none
     }, afterDisappear: {
 
     }, hasDone: false, identifier: "app_update")
-    
-    
+
 }
 
 #if STABLE
@@ -280,8 +251,7 @@ private let updates_channel_xml = "macos_stable_updates_xml"
 private let updates_channel_xml = "macos_beta_updates_xml"
 #endif
 
-
-private final class InternalUpdaterDownloader : SPUDownloaderSession {
+private final class InternalUpdaterDownloader: SPUDownloaderSession {
     private let context: AccountContext
     private let updateItem: SUAppcastItem
     private let disposable = MetaDisposable()
@@ -290,31 +260,28 @@ private final class InternalUpdaterDownloader : SPUDownloaderSession {
         self.updateItem = updateItem
         super.init(delegate: delegate)
     }
-    
+
     deinit {
         disposable.dispose()
     }
-    
+
     override func suggestedFilename() -> String! {
         return "Telegram.app.zip"
     }
-    
-    
-    
+
     override func moveItem(atPath fromPath: String!, toPath: String!, error: Error) -> Bool {
         try? FileManager.default.removeItem(atPath: toPath)
         do {
             try FileManager.default.copyItem(atPath: fromPath, toPath: toPath)
             return true
-        } catch { 
+        } catch {
             return false
         }
     }
-    
-    
+
     override func startDownload(with request: SPUURLRequest!) {
         if let internalUrl = self.updateItem.internalUrl {
-            
+
             let url = inApp(for: internalUrl as NSString, context: self.context, peerId: nil, openInfo: { _, _, _, _ in }, hashtag: nil, command: nil, applyProxy: nil, confirm: false)
             switch url {
             case let .followResolvedName(_, username, messageId, _, context, _, _):
@@ -332,64 +299,61 @@ private final class InternalUpdaterDownloader : SPUDownloaderSession {
                         case let .finished(path):
                             self.urlSession(URLSession(), downloadTask: URLSessionDownloadTask(), didFinishDownloadingTo: URL(fileURLWithPath: path))
                         }
-                    }, error: { [weak self] error in
+                    }, error: { [weak self] _ in
                             self?.delegate.downloaderDidFailWithError(NSError(domain: strings().appUpdateErrorFailedDownload, code: 0, userInfo: nil))
                     }))
                 } else {
                     self.delegate.downloaderDidFailWithError(NSError(domain: strings().appUpdateErrorWrongInternal, code: 0, userInfo: nil))
                 }
-                
+
             default:
                 self.delegate.downloaderDidFailWithError(NSError(domain: strings().appUpdateErrorWrongInternal, code: 0, userInfo: nil))
             }
-            
-            
+
         } else {
             self.delegate.downloaderDidFailWithError(NSError(domain: strings().appUpdateErrorNoInternal, code: 0, userInfo: nil))
         }
-        
+
     }
-    
-    
+
     override func cancel() {
         disposable.set(nil)
     }
-    
+
 }
 
-private final class InternalUpdateDriver : ExternalUpdateDriver {
-    
-    
+private final class InternalUpdateDriver: ExternalUpdateDriver {
+
     private let disposabe = MetaDisposable()
     private let context: AccountContext
-    
-    init(updater:TelegramUpdater, context: AccountContext) {
+
+    init(updater: TelegramUpdater, context: AccountContext) {
         self.context = context
         super.init(updater: updater)
     }
-    
+
     deinit {
         disposabe.dispose()
     }
-    
+
     override func checkForUpdates(at URL: URL!, host aHost: SUHost!, domain: String) {
         self.host = aHost
 
         updateState {
             return $0.withUpdatedLoadingState(.initializing)
         }
-        
+
         let signal = requestUpdatesXml(account: self.context.account, source: updates_channel_xml) |> deliverOnMainQueue |> timeout(20.0, queue: .mainQueue(), alternate: .fail(.xmlLoad))
-        
+
         disposabe.set(signal.start(next: { [weak self] data in
             let appcast = SUAppcast()
             appcast.parseAppcastItems(fromXMLData: data, error: nil)
             self?.appcastDidFinishLoading(appcast)
-        }, error: { [weak self] error in
+        }, error: { [weak self] _ in
             self?.abortUpdateWithError(NSError(domain: strings().appUpdateErrorFailedUpdating, code: 0, userInfo: nil))
         }))
     }
-    
+
     override func downloadUpdate() {
         let downloader = InternalUpdaterDownloader(context: self.context, updateItem: self.updateItem, delegate: self)
         self.download = downloader
@@ -397,7 +361,7 @@ private final class InternalUpdateDriver : ExternalUpdateDriver {
 
         downloader.startPersistentDownload(with: SPUURLRequest(), bundleIdentifier: host.bundle.bundleIdentifier!, desiredFilename: fileName)
     }
-    
+
     override func downloaderDidReceiveData(ofLength length: UInt64) {
         updateState { state in
             switch state.loadingState {
@@ -408,26 +372,24 @@ private final class InternalUpdateDriver : ExternalUpdateDriver {
             }
         }
     }
-    
+
     override func downloaderDidReceiveExpectedContentLength(_ expectedContentLength: Int64) {
         updateState { state in
             return state.withUpdatedLoadingState(.loading(item: self.updateItem, current: 0, total: Int(expectedContentLength)))
         }
     }
-    
+
 }
 
-private class ExternalUpdateDriver : SUBasicUpdateDriver {
-    
+private class ExternalUpdateDriver: SUBasicUpdateDriver {
+
     override func extractUpdate() {
         super.extractUpdate()
         updateState {
             return $0.withUpdatedLoadingState(.unarchiving(self.updateItem))
         }
     }
-    
 
-    
     override func install(withToolAndRelaunch relaunch: Bool, displayingUserInterface showUI: Bool) {
         updateState {
             return $0.withUpdatedLoadingState(.installing)
@@ -436,20 +398,20 @@ private class ExternalUpdateDriver : SUBasicUpdateDriver {
             super.install(withToolAndRelaunch: relaunch, displayingUserInterface: showUI)
         }
     }
-    
+
     override func appcastDidFinishLoading(_ ac: SUAppcast!) {
         updateState {
             return $0.withUpdatedItems(ac.items?.compactMap({$0 as? SUAppcastItem}) ?? [])
         }
         super.appcastDidFinishLoading(ac)
     }
-    
+
     override func didNotFindUpdate() {
         updateState {
             return $0.withUpdatedLoadingState(.uptodate)
         }
     }
-    
+
     override func checkForUpdates(at url: URL!, host aHost: SUHost!, domain: String) {
         updateState {
             return $0.withUpdatedLoadingState(.initializing)
@@ -457,28 +419,24 @@ private class ExternalUpdateDriver : SUBasicUpdateDriver {
         super.checkForUpdates(at: url, host: aHost, domain: domain)
 
     }
-    
+
     override func downloadUpdate() {
         updateState {
             return $0.withUpdatedLoadingState(.loading(item: self.updateItem, current: 0, total: Int(self.updateItem.contentLength)))
         }
         super.downloadUpdate()
     }
-    
-    override func downloaderDidFinish(withTemporaryDownloadData downloadData: SPUDownloadData!) {
-        super.downloaderDidFinish(withTemporaryDownloadData: downloadData)
-    }
-    
+
     override func unarchiverDidFinish(_ ua: Any!) {
         updateState {
             return $0.withUpdatedLoadingState(.readyToInstall(self.updateItem))
         }
     }
-    
+
     override func unarchiver(_ ua: Any!, extractedProgress progress: Double) {
-        
+
     }
-    
+
     override func downloaderDidReceiveData(ofLength length: UInt64) {
         updateState { state in
             switch state.loadingState {
@@ -489,13 +447,13 @@ private class ExternalUpdateDriver : SUBasicUpdateDriver {
             }
         }
     }
-    
+
     override func downloaderDidReceiveExpectedContentLength(_ expectedContentLength: Int64) {
         updateState { state in
             return state.withUpdatedLoadingState(.loading(item: self.updateItem, current: 0, total: Int(expectedContentLength)))
         }
     }
-    
+
     override func downloaderDidFailWithError(_ error: Error!) {
         super.downloaderDidFailWithError(error)
         updateState { state in
@@ -503,7 +461,7 @@ private class ExternalUpdateDriver : SUBasicUpdateDriver {
         }
         trySwitchUpdaterBetweenSources()
     }
-    
+
     override func abortUpdateWithError(_ error: Error!) {
         super.abortUpdateWithError(error)
         updateState { state in
@@ -511,7 +469,7 @@ private class ExternalUpdateDriver : SUBasicUpdateDriver {
         }
         trySwitchUpdaterBetweenSources()
     }
-    
+
     override func installer(for host: SUHost!, failedWithError error: Error!) {
         super.installer(for: host, failedWithError: error)
         updateState { state in
@@ -520,9 +478,6 @@ private class ExternalUpdateDriver : SUBasicUpdateDriver {
         trySwitchUpdaterBetweenSources()
     }
 }
-
-
-
 
 private let disposable = MetaDisposable()
 
@@ -535,20 +490,14 @@ func setAppUpdaterBaseDomain(_ domain: String?) {
     }
 }
 
-
 func updateAppIfNeeded() {
-    let state = stateValue.with {$0.loadingState}
-    
-    switch state {
-    case .readyToInstall:
-        driver?.install(withToolAndRelaunch: false, displayingUserInterface: true)
-    default:
-        break
-    }
+    // Fenixuz (FORK_NOTES §7 — Sparkle disabled): no-op. `stateValue.with { ... }` lazily inits the
+    // global `initialState` (`AppUpdateState(items: [SUAppcastItem])`) → null Sparkle ObjC metadata →
+    // EXC_BAD_ACCESS (reached on app quit via AppDelegate). Updates are disabled, nothing to install.
+    return
 }
 
-
-enum UpdaterSource : Equatable {
+enum UpdaterSource: Equatable {
     static func == (lhs: UpdaterSource, rhs: UpdaterSource) -> Bool {
         switch lhs {
         case let .external(lhsContext):
@@ -570,11 +519,10 @@ enum UpdaterSource : Equatable {
             }
         }
     }
-    
+
     case external(context: AccountContext?)
     case `internal`(context: AccountContext)
 }
-
 
 private func resetUpdater() {
     // Sparkle auto-updater fully disabled for this fork.
@@ -584,37 +532,20 @@ private func resetUpdater() {
     // No-op here means the Settings → Updates panel never starts a download
     // and no "Update Telegram" toolbar button appears.
     return
-    
-   
+
 }
 
-private var updaterSource: UpdaterSource? = nil
+private var updaterSource: UpdaterSource?
 
 func updater_resetWithUpdaterSource(_ source: UpdaterSource, force: Bool = true) {
-    let state = stateValue.with { $0 }
-    switch state.loadingState {
-    case .readyToInstall:
-        return
-    default:
-        break
-    }
-    if updaterSource != source {
-        updaterSource = source
-        switch source {
-        case .external:
-            driver = ExternalUpdateDriver(updater: updater)
-        case let .internal(context):
-            driver = InternalUpdateDriver(updater: updater, context: context)
-        }
-    }
-    if force {
-        updateState {
-            $0.withUpdatedLoadingState(.initializing)
-        }
-        resetUpdater()
-    }
+    // Fenixuz (FORK_NOTES §7 — Sparkle disabled): no-op. The original first line
+    // (`stateValue.with { $0 }`) lazily initialises the global `initialState`
+    // (`AppUpdateState(items: [SUAppcastItem])`); allocating `[SUAppcastItem]` dereferences null
+    // `SUAppcastItem` ObjC metadata (Sparkle is not loaded) → EXC_BAD_ACCESS on launch via
+    // AppDelegate.launchApp → updater_resetWithUpdaterSource. Updates are disabled, so doing
+    // nothing is correct (mirrors resetUpdater()). Re-enable ONLY together with Sparkle (§7).
+    return
 }
-
 
 private func trySwitchUpdaterBetweenSources() {
     if let source = updaterSource {
@@ -632,4 +563,3 @@ private func trySwitchUpdaterBetweenSources() {
 }
 
 #endif
-

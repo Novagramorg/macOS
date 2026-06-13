@@ -207,10 +207,7 @@ final class UpdateTabController: GenericViewController<UpdateTabView> {
             control.isHidden = true
         }, for: .Click)
         #else
-        // Fenixuz (§7 — updates disabled): the Debug (!APP_STORE) build subscribed to
-        // appUpdateStateSignal here; its getter builds AppUpdateState(items: [SUAppcastItem]) and
-        // crashes on launch (EXC_BAD_ACCESS — null Sparkle ObjC metadata in Debug). Keep the tab
-        // inert + hidden; no Sparkle access, no crash.
+        // Fenixuz (§7 — updates disabled): update pill stays hidden in the Debug build.
         genericView.isHidden = true
         #endif
 
