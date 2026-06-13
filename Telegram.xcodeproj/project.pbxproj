@@ -268,7 +268,6 @@
 		274B9E44273035DE009993C7 /* ChatCalendarHeaderRowItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 274B9E43273035DE009993C7 /* ChatCalendarHeaderRowItem.swift */; };
 		274BB56D264013AD00620D03 /* cameraon.tgs in Resources */ = {isa = PBXBuildFile; fileRef = 274BB56C264013AC00620D03 /* cameraon.tgs */; };
 		274BB570264013B900620D03 /* cameraoff.tgs in Resources */ = {isa = PBXBuildFile; fileRef = 274BB56F264013B800620D03 /* cameraoff.tgs */; };
-		274DF1DB2DC0BE0400188E7A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 274DF1DA2DC0BE0400188E7A /* GoogleService-Info.plist */; };
 		274E58602A825A6600EEBDBF /* PeersStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 274E585F2A825A6600EEBDBF /* PeersStatusView.swift */; };
 		2750B8C22B887E9C0035C37F /* business_chatbot.tgs in Resources */ = {isa = PBXBuildFile; fileRef = 2750B8BD2B887E980035C37F /* business_chatbot.tgs */; };
 		2750B8C32B887E9C0035C37F /* business_hours.tgs in Resources */ = {isa = PBXBuildFile; fileRef = 2750B8BE2B887E990035C37F /* business_hours.tgs */; };
@@ -1968,7 +1967,6 @@
 		2748C56027BA477900F05503 /* Auth_Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth_Token.swift; sourceTree = "<group>"; };
 		2748C56227BA53C800F05503 /* Auth_Loading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth_Loading.swift; sourceTree = "<group>"; };
 		2748C56427BA959F00F05503 /* Auth_PhoneNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth_PhoneNumber.swift; sourceTree = "<group>"; };
-		2748D44427C61DCF0057CF99 /* libtgvoip.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = libtgvoip.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2749527F2AA1D8AB00499498 /* SuspiciousRevokeModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuspiciousRevokeModal.swift; sourceTree = "<group>"; };
 		274952812AA1E79E00499498 /* hand_animation.tgs */ = {isa = PBXFileReference; lastKnownFileType = file; path = hand_animation.tgs; sourceTree = "<group>"; };
 		274952842AA472F600499498 /* BoostChannelModalController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoostChannelModalController.swift; sourceTree = "<group>"; };
@@ -1984,7 +1982,6 @@
 		274B9E43273035DE009993C7 /* ChatCalendarHeaderRowItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatCalendarHeaderRowItem.swift; sourceTree = "<group>"; };
 		274BB56C264013AC00620D03 /* cameraon.tgs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cameraon.tgs; sourceTree = "<group>"; };
 		274BB56F264013B800620D03 /* cameraoff.tgs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cameraoff.tgs; sourceTree = "<group>"; };
-		274DF1DA2DC0BE0400188E7A /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		274E585F2A825A6600EEBDBF /* PeersStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeersStatusView.swift; sourceTree = "<group>"; };
 		275045E425EE271D00872D20 /* GroupCallDisplayAsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCallDisplayAsController.swift; sourceTree = "<group>"; };
 		2750B8BD2B887E980035C37F /* business_chatbot.tgs */ = {isa = PBXFileReference; lastKnownFileType = file; path = business_chatbot.tgs; sourceTree = "<group>"; };
@@ -2824,8 +2821,6 @@
 		A7393D452409044C00CE44CA /* ChannelOverviewStatsRowItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelOverviewStatsRowItem.swift; sourceTree = "<group>"; };
 		A742CDCC240FB32F00C6B69B /* ChatListFilterRecommendedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListFilterRecommendedItem.swift; sourceTree = "<group>"; };
 		A742CE44241A517800C6B69B /* ChannelRecentPostRowItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelRecentPostRowItem.swift; sourceTree = "<group>"; };
-		A74EB06F237961A1005F55AE /* AppCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppCenter.framework; path = submodules/AppCenter/AppCenter.framework; sourceTree = "<group>"; };
-		A74EB070237961A1005F55AE /* AppCenterCrashes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppCenterCrashes.framework; path = submodules/AppCenter/AppCenterCrashes.framework; sourceTree = "<group>"; };
 		A7565EAD23BE02AF0031EADE /* ChatGradientModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatGradientModel.swift; sourceTree = "<group>"; };
 		A767DD4023F2BB3200366F76 /* ShortcutListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutListController.swift; sourceTree = "<group>"; };
 		A76C8A9D2420FFE400FDB071 /* folder_empty.tgs */ = {isa = PBXFileReference; lastKnownFileType = file; path = folder_empty.tgs; sourceTree = "<group>"; };
@@ -3251,7 +3246,6 @@
 		D004BD2A23153415009A54B1 /* ThemePreviewModalController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemePreviewModalController.swift; sourceTree = "<group>"; };
 		D00746C9257691760000DF74 /* StickerShimmerEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerShimmerEffectView.swift; sourceTree = "<group>"; };
 		D00747032577AF0B0000DF74 /* PushToTalkRowItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushToTalkRowItem.swift; sourceTree = "<group>"; };
-		D0076EE725685A50007EF588 /* AppCenter.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AppCenter.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0076EEA25685BB5007EF588 /* libbz2.1.0.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.1.0.tbd; path = usr/lib/libbz2.1.0.tbd; sourceTree = SDKROOT; };
 		D00B191B24E54BA3006CCB87 /* CallReceptionControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallReceptionControl.swift; sourceTree = "<group>"; };
 		D00B191D24E54F20006CCB87 /* CallStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallStatusView.swift; sourceTree = "<group>"; };
@@ -3317,15 +3311,12 @@
 		D0830FC324127468006198E7 /* new_folder.tgs */ = {isa = PBXFileReference; lastKnownFileType = file; path = new_folder.tgs; sourceTree = "<group>"; };
 		D0906CFB254BFE1D000E6961 /* ModalPreviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalPreviews.swift; sourceTree = "<group>"; };
 		D093474D242DCFC4000ECA88 /* PeerMediaGroupPeersController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerMediaGroupPeersController.swift; sourceTree = "<group>"; };
-		D0983E162568373E00467703 /* AppCenterAnalytics.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AppCenterAnalytics.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		D0983E182568373E00467703 /* AppCenterCrashes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AppCenterCrashes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D098C7151D7E175A007784E4 /* Telegram.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Telegram.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D098C7181D7E175A007784E4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D098C71A1D7E175A007784E4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D098C71F1D7E175A007784E4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D098C7381D7E1A62007784E4 /* Telegram-Mac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Telegram-Mac.entitlements"; sourceTree = "<group>"; };
 		D098C7391D7E1C40007784E4 /* AuthController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthController.swift; sourceTree = "<group>"; };
-		D09D836D24A6205500120F73 /* libtgvoip.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = libtgvoip.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D09D9DF0229C27A700378796 /* AnimatedStickerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedStickerUtils.swift; sourceTree = "<group>"; };
 		D0A2764D249C9D6B005E3C77 /* PeerPhotos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerPhotos.swift; sourceTree = "<group>"; };
 		D0A2764F249CE588005E3C77 /* GroupsStatsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupsStatsController.swift; sourceTree = "<group>"; };
@@ -5899,7 +5890,6 @@
 				C21074231E77F5DF006EE5EF /* dsa_pub_prod.pem */,
 				C232EA3C1E1C06EF00C4D38C /* dsa_pub.pem */,
 				C252532C1DF0440300ADBC98 /* begin_record.caf */,
-				274DF1DA2DC0BE0400188E7A /* GoogleService-Info.plist */,
 				C27AAFE51DE9D2EE009B9629 /* PhoneCountries.txt */,
 				274B9E3F273008EB009993C7 /* sent.mp3 */,
 				C250B01B1DB670B4004E9FBE /* url-schemes.txt */,
@@ -6820,7 +6810,6 @@
 				279BD40B29B71FA200A8B640 /* Network.framework */,
 				27D913092833A1C9007CF40F /* StoreKit.framework */,
 				27034075282CF79E00D0156C /* SceneKit.framework */,
-				2748D44427C61DCF0057CF99 /* libtgvoip.framework */,
 				27D43DB327917798006968A6 /* libmac_framework_objc_static.a */,
 				27D43DB12791774A006968A6 /* libcrypto.a */,
 				27D43DAF27917747006968A6 /* libssl.a */,
@@ -6839,16 +6828,10 @@
 				271999E62683C04B000DE2B7 /* MetalPerformanceShaders.framework */,
 				272C182F267D00350030B5FB /* CoreMediaIO.framework */,
 				D0076EEA25685BB5007EF588 /* libbz2.1.0.tbd */,
-				D0076EE725685A50007EF588 /* AppCenter.framework */,
-				D0983E162568373E00467703 /* AppCenterAnalytics.framework */,
-				D0983E182568373E00467703 /* AppCenterCrashes.framework */,
-				D09D836D24A6205500120F73 /* libtgvoip.framework */,
 				D06E38AB24A5F3B700C7D03A /* Metal.framework */,
 				D06E38AA24A5F3B700C7D03A /* MetalKit.framework */,
 				A7377E5B23B5E99500AD3ADD /* libxml2.tbd */,
 				A71DC82A23858311000EEDE2 /* CoreSpotlight.framework */,
-				A74EB06F237961A1005F55AE /* AppCenter.framework */,
-				A74EB070237961A1005F55AE /* AppCenterCrashes.framework */,
 				A7ED5DAE236C7CE100040372 /* RLottie.framework */,
 				9F6FF3212248E298004364FE /* UserNotifications.framework */,
 				9F4EEF8321D4F59C002C3B33 /* Accelerate.framework */,
@@ -7443,7 +7426,6 @@
 				27CB174E276325C600DD25E0 /* menu_call.tgs in Resources */,
 				274B9E40273008EB009993C7 /* sent.mp3 in Resources */,
 				27803BF927A3E944007B0FA9 /* menu_folder_read.tgs in Resources */,
-				274DF1DB2DC0BE0400188E7A /* GoogleService-Info.plist in Resources */,
 				9F03680F22771A9700456348 /* anim_unarchive.json in Resources */,
 				27CE155B297966D8001F8CE8 /* emoji_category_away.tgs in Resources */,
 				27CCE83A2B839C1200F7C687 /* lighterTexture.jpg in Resources */,
@@ -9037,7 +9019,6 @@
 					"$(PROJECT_DIR)",
 					"$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks",
 					"$(PROJECT_DIR)/submodules",
-					"$(PROJECT_DIR)/submodules/AppCenter",
 				);
 				GCC_C_LANGUAGE_STANDARD = c17;
 				GCC_OPTIMIZATION_LEVEL = 2;
@@ -9046,7 +9027,6 @@
 				GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = NO;
 				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = NO;
 				HEADERMAP_USES_VFS = YES;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/submodules/libtgvoip";
 				INFOPLIST_FILE = "Telegram-Mac/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Fenixuz;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -9269,7 +9249,6 @@
 					"$(PROJECT_DIR)",
 					"$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks",
 					"$(PROJECT_DIR)/submodules",
-					"$(PROJECT_DIR)/submodules/AppCenter",
 				);
 				GCC_C_LANGUAGE_STANDARD = c17;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -9278,7 +9257,6 @@
 				GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = NO;
 				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = NO;
 				HEADERMAP_USES_VFS = YES;
-				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/submodules/libtgvoip";
 				INFOPLIST_FILE = "Telegram-Mac/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Fenixuz;
 				LD_RUNPATH_SEARCH_PATHS = (
