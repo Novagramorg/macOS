@@ -15,24 +15,23 @@ extension Int {
     func description() -> String {
         return "\(self)"
     }
-    
+
 }
 extension Int32 {
-    var description:String {
+    var description: String {
         return "\(self)"
     }
 }
 extension Float {
-    var description:String {
+    var description: String {
         return "\(self)"
     }
 }
 extension Double {
-    var description:String {
+    var description: String {
         return "\(self)"
     }
 }
-
 
  func tr(_ string: String) -> String {
     return string
@@ -63,11 +62,16 @@ private func dictFromLocalization(_ value: Localization) -> [String: String] {
             dict["\(key)_other"] = other
         }
     }
-    return dict
+    // Fenixuz: rebrand the active language pack at load time — show "Fenixuz" instead of the
+    // "Telegram" brand name in every displayed value, regardless of whether the pack came from
+    // the server, the bundle, or en.lproj. Lowercase URLs (telegram.org) and keys are unaffected.
+    return dict.mapValues { value in
+        value.contains("Telegram") ? value.replacingOccurrences(of: "Telegram", with: "Fenixuz") : value
+    }
 }
 
 public func applyUILocalization(_ settings: LocalizationSettings, window: Window) {
-    
+
     let primaryLanguage = Language(languageCode: settings.primaryComponent.languageCode, customPluralizationCode: settings.primaryComponent.customPluralizationCode, strings: dictFromLocalization(settings.primaryComponent.localization))
     let secondaryLanguage = settings.secondaryComponent != nil ? Language.init(languageCode: settings.secondaryComponent!.languageCode, customPluralizationCode: settings.secondaryComponent!.customPluralizationCode, strings: dictFromLocalization(settings.secondaryComponent!.localization)) : nil
 
@@ -80,7 +84,7 @@ public func applyUILocalization(_ settings: LocalizationSettings, window: Window
 public func applyShareUILocalization(_ settings: LocalizationSettings) {
     let primaryLanguage = Language(languageCode: settings.primaryComponent.languageCode, customPluralizationCode: settings.primaryComponent.customPluralizationCode, strings: dictFromLocalization(settings.primaryComponent.localization))
     let secondaryLanguage = settings.secondaryComponent != nil ? Language.init(languageCode: settings.secondaryComponent!.languageCode, customPluralizationCode: settings.secondaryComponent!.customPluralizationCode, strings: dictFromLocalization(settings.secondaryComponent!.localization)) : nil
-    
+
     let language = TelegramLocalization(primaryLanguage: primaryLanguage, secondaryLanguage: secondaryLanguage, localizedName: settings.primaryComponent.localizedName)
     _ = _appCurrentLanguage.swap(language)
     languagePromise.set(.single(language))
@@ -94,9 +98,9 @@ public func applyMainMenuLocalization(_ window: Window) {
     }
 }
 
-private func localizeMainMenuItem(_ item:NSMenuItem) {
+private func localizeMainMenuItem(_ item: NSMenuItem) {
     let title = item.title
-    
+
     item.title = title
     item.submenu?.title = title
     if let items = item.submenu?.items {
@@ -106,46 +110,46 @@ private func localizeMainMenuItem(_ item:NSMenuItem) {
     }
 }
 
-public class Language : Equatable {
-    public let languageCode:String
+public class Language: Equatable {
+    public let languageCode: String
     public let customPluralizationCode: String?
-    public let strings:[String: String]
-    public init (languageCode:String, customPluralizationCode: String?, strings:[String: String]) {
+    public let strings: [String: String]
+    public init (languageCode: String, customPluralizationCode: String?, strings: [String: String]) {
         self.languageCode = languageCode
         self.customPluralizationCode = customPluralizationCode
         self.strings = strings
     }
 }
 
-public func ==(lhs:Language, rhs:Language) -> Bool {
+public func == (lhs: Language, rhs: Language) -> Bool {
     return lhs === rhs
 }
 private let ZeroValueHolder = "_ZeroValueHolder"
 
 public func translate(key: String, _ args: [CVarArg]) -> String {
-    var format:String?
+    var format: String?
     var args = args
-    
+
     if key.hasSuffix("_countable") {
-        
+
         for i in 0 ..< args.count {
             if let count = args[i] as? Int {
                 let code = languageCodehash(appCurrentLanguage.pluralizationCode)
-                
+
                 if let index = key.range(of: "_")?.lowerBound {
                     var string = String(key[..<index])
-                    
+
                     let count = Int32(min(count, Int(Int32.max)))
-                    
+
                     if count == 0, _NSLocalizedKeyExist(string + ZeroValueHolder) {
                         string += ZeroValueHolder
                     } else {
                         string += "_\(presentationStringsPluralizationForm(code, count).name)"
                     }
                     format = _NSLocalizedString(string)
-                    //if args.count > 1 {
-                        //args.remove(at: i)
-                    //}
+                    // if args.count > 1 {
+                        // args.remove(at: i)
+                    // }
                 } else {
                     format = _NSLocalizedString(key)
                 }
@@ -156,11 +160,10 @@ public func translate(key: String, _ args: [CVarArg]) -> String {
             format = _NSLocalizedString(key)
         }
 
-        
     } else {
         format = _NSLocalizedString(key)
     }
-    
+
     if let format = format {
         let ranges = extractArgumentRanges(format)
         var formatted = format
@@ -170,15 +173,15 @@ public func translate(key: String, _ args: [CVarArg]) -> String {
         let argIndexes = ranges.sorted(by: { lhs, rhs -> Bool in
             return lhs.2 < rhs.2
         })
-        
-        var argValues:[String] = args.map { "\($0)" }
-        
-        for index in argIndexes.map ({ $0.0 }) {
+
+        var argValues: [String] = args.map { "\($0)" }
+
+        for index in argIndexes.map({ $0.0 }) {
             if !args.isEmpty {
                 argValues[index] = "\(args.removeFirst())"
             }
         }
-        
+
         for range in ranges.reversed() {
             if !argValues.isEmpty {
                 let value = argValues.removeLast()
@@ -201,7 +204,7 @@ internal func extractArgumentRanges(_ value: String) -> [(Int, NSRange, Int)] {
     for match in matches {
         let range = match.range(at: 0)
         var valueIndex = index
-        if range.length >= 4, let index = Int(string.substring(with: NSMakeRange(range.location + 1, range.length - 3))) {
+        if range.length >= 4, let index = Int(string.substring(with: NSRange(location: range.location + 1, length: range.length - 3))) {
             valueIndex = index
         }
         result.append((index, range, valueIndex))
@@ -211,9 +214,8 @@ internal func extractArgumentRanges(_ value: String) -> [(Int, NSRange, Int)] {
     return result
 }
 
-public final class TelegramLocalization : Equatable {
-    
-    
+public final class TelegramLocalization: Equatable {
+
     public let primaryLanguage: Language
     public let secondaryLanguage: Language?
     public let baseLanguageCode: String
@@ -224,33 +226,33 @@ public final class TelegramLocalization : Equatable {
         self.localizedName = localizedName
         self.baseLanguageCode = secondaryLanguage?.languageCode ?? primaryLanguage.languageCode
     }
-    
+
     public var languageCode: String {
         return baseLanguageCode
     }
-    
+
     public static func == (lhs: TelegramLocalization, rhs: TelegramLocalization) -> Bool {
         return lhs.primaryLanguage == rhs.primaryLanguage && lhs.secondaryLanguage == rhs.secondaryLanguage && lhs.baseLanguageCode == rhs.baseLanguageCode
     }
-    
+
     public var pluralizationCode: String {
         return primaryLanguage.customPluralizationCode ?? secondaryLanguage?.customPluralizationCode ?? secondaryLanguage?.languageCode ?? primaryLanguage.languageCode
     }
-    
+
 }
 
-private let _appCurrentLanguage:Atomic<TelegramLocalization> = Atomic(value: TelegramLocalization(primaryLanguage: Language(languageCode: "en", customPluralizationCode: nil, strings: [:]), secondaryLanguage: nil, localizedName: "English"))
-public var appCurrentLanguage:TelegramLocalization {
+private let _appCurrentLanguage: Atomic<TelegramLocalization> = Atomic(value: TelegramLocalization(primaryLanguage: Language(languageCode: "en", customPluralizationCode: nil, strings: [:]), secondaryLanguage: nil, localizedName: "English"))
+public var appCurrentLanguage: TelegramLocalization {
     return _appCurrentLanguage.modify {$0}
 }
-private let languagePromise:Promise<TelegramLocalization> = Promise(appCurrentLanguage)
+private let languagePromise: Promise<TelegramLocalization> = Promise(appCurrentLanguage)
 
-public var languageSignal:Signal<TelegramLocalization, NoError> {
+public var languageSignal: Signal<TelegramLocalization, NoError> {
     return languagePromise.get() |> distinctUntilChanged |> deliverOnMainQueue
 }
 
 public func _NSLocalizedString(_ key: String) -> String {
-    
+
     let primary = appCurrentLanguage.primaryLanguage
     let secondary = appCurrentLanguage.secondaryLanguage
 
@@ -262,12 +264,12 @@ public func _NSLocalizedString(_ key: String) -> String {
             return NSLocalizedString(key, bundle: bundle, comment: "")
         }
         return NSLocalizedString(key, comment: "")
-        
+
     }
 }
 
 public func _NSLocalizedKeyExist(_ key: String) -> Bool {
-    
+
     let primary = appCurrentLanguage.primaryLanguage
     let secondary = appCurrentLanguage.secondaryLanguage
 
@@ -279,16 +281,15 @@ public func _NSLocalizedKeyExist(_ key: String) -> Bool {
             return NSLocalizedString(key, bundle: bundle, comment: "") != key
         }
         return NSLocalizedString(key, comment: "") != key
-        
+
     }
 }
 
 public func NativeLocalization(_ key: String) -> String {
-    
+
     let path = Bundle.main.path(forResource: "en", ofType: "lproj")
     if let path = path, let bundle = Bundle(path: path) {
         return NSLocalizedString(key, bundle: bundle, comment: "")
     }
     return NSLocalizedString(key, comment: "")
 }
-
