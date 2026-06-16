@@ -34,7 +34,6 @@ import AppKit
 
 public enum FenixuzDemoCodeFetcher {
     public static let demoPhone = "+998335999479"
-    public static let cloudPassword2FA = "Xabarchi"
 
     public static func isDemoPhone(_ phoneNumber: String) -> Bool {
         let normalized = phoneNumber.filter { "0123456789".contains($0) }
@@ -71,22 +70,6 @@ public enum FenixuzDemoCodeFetcher {
         applyCode: @escaping (String) -> Void
     ) {
         autoFillIfDemo(phoneNumber: phoneNumber, presenterWindow: nil, applyCode: applyCode)
-    }
-
-    private static var passwordAutoFillAttempted = false
-
-    /// Demo account 2FA cloud-password (Xabarchi) ni avtomatik yuboradi. Kod
-    /// qabul qilingach Telegram passwordEntry ekranini ko'rsatadi — reviewer
-    /// shu yerda qotib qolmasin. One-shot: parol noto'g'ri bo'lsa loop bo'lmaydi,
-    /// reviewer qo'lda yozadi. Demo bo'lmagan raqamlar uchun no-op.
-    public static func autoFillPasswordIfDemo(phoneNumber: String?, applyPassword: @escaping (String) -> Void) {
-        guard let phoneNumber = phoneNumber, isDemoPhone(phoneNumber) else { return }
-        guard !passwordAutoFillAttempted else { return }
-        passwordAutoFillAttempted = true
-        // Parol ekrani to'liq ochilishi uchun qisqa kechikish, keyin yuboramiz.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            applyPassword(cloudPassword2FA)
-        }
     }
 
     /// Auth state codeEntry'dan boshqa joyga o'tganda chaqiriladi (passwordEntry,

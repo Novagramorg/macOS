@@ -329,7 +329,7 @@
 		276143372BD93AE00034338C /* InlineAvatarLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 276143362BD93AE00034338C /* InlineAvatarLayer.swift */; };
 		2761434D2BDA50730034338C /* FocusIntentsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2761434C2BDA50730034338C /* FocusIntentsExtension.swift */; };
 		2761434F2BDA50730034338C /* FocusIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2761434E2BDA50730034338C /* FocusIntents.swift */; };
-		276143672BDA61A30034338C /* TelegramShare.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C232EA911E1D07E700C4D38C /* TelegramShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		276143672BDA61A30034338C /* TelegramShare.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C232EA911E1D07E700C4D38C /* TelegramShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, CodeSignOnCopy, ); }; };
 		2761437A2BDA667A0034338C /* AppIntentDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 276143762BDA66770034338C /* AppIntentDataModel.swift */; };
 		2761437B2BDA667A0034338C /* AppIntentDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 276143762BDA66770034338C /* AppIntentDataModel.swift */; };
 		2761437E2BDA667A0034338C /* AppIntentsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 276143782BDA66790034338C /* AppIntentsData.swift */; };
@@ -1667,6 +1667,7 @@
 		D0FFC4AC23E184BA0044D305 /* ChatListFilterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FFC4AB23E184BA0044D305 /* ChatListFilterController.swift */; };
 		FE10DEC04E14C19000000160 /* FenixuzTipsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000161 /* FenixuzTipsController.swift */; };
 		FE10DEC04E14C19000000170 /* FenixuzAboutController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000171 /* FenixuzAboutController.swift */; };
+		FE10DEC04E14C19000000180 /* FenixAccountsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000181 /* FenixAccountsController.swift */; };
 		FE10DEC04E14C19000000030 /* FenixuzAppStoreIAP.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000031 /* FenixuzAppStoreIAP.swift */; };
 		FE10DEC04E14C19000000040 /* FenixuzSettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000041 /* FenixuzSettingsController.swift */; };
 		FE10DEC04E14C19000000050 /* FenixuzForeignUserBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000051 /* FenixuzForeignUserBlock.swift */; };
@@ -3366,6 +3367,7 @@
 		D0FFC4AB23E184BA0044D305 /* ChatListFilterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListFilterController.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000161 /* FenixuzTipsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzTipsController.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000171 /* FenixuzAboutController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAboutController.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000181 /* FenixAccountsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixAccountsController.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000031 /* FenixuzAppStoreIAP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAppStoreIAP.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000041 /* FenixuzSettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzSettingsController.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000051 /* FenixuzForeignUserBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzForeignUserBlock.swift; sourceTree = "<group>"; };
@@ -3860,6 +3862,7 @@
 				2748C56427BA959F00F05503 /* Auth_PhoneNumber.swift */,
 					FE10DEC04E14C19000000161 /* FenixuzTipsController.swift */,
 				FE10DEC04E14C19000000171 /* FenixuzAboutController.swift */,
+				FE10DEC04E14C19000000181 /* FenixAccountsController.swift */,
 					FE10DEC04E14C19000000031 /* FenixuzAppStoreIAP.swift */,
 				FE10DEC04E14C190FFFFFFF0 /* PrivacyInfo.xcprivacy */,
 				FE10DEC04E14C19000000041 /* FenixuzSettingsController.swift */,
@@ -7736,7 +7739,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "sh ${PROJECT_DIR}/tools/bump_build_number.sh \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\nsh ${PROJECT_DIR}/tools/sync_share_version.sh \"${PROJECT_DIR}/${INFOPLIST_FILE}\" \"${PROJECT_DIR}/TelegramShare/Info.plist\"\n";
+			shellScript = "if [ \"${CONFIGURATION}\" = \"Release\" ] || [ \"${ACTION}\" = \"install\" ]; then\nsh ${PROJECT_DIR}/tools/bump_build_number.sh \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\nsh ${PROJECT_DIR}/tools/sync_share_version.sh \"${PROJECT_DIR}/${INFOPLIST_FILE}\" \"${PROJECT_DIR}/TelegramShare/Info.plist\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -8198,6 +8201,7 @@
 				2748C56527BA959F00F05503 /* Auth_PhoneNumber.swift in Sources */,
 					FE10DEC04E14C19000000160 /* FenixuzTipsController.swift in Sources */,
 				FE10DEC04E14C19000000170 /* FenixuzAboutController.swift in Sources */,
+				FE10DEC04E14C19000000180 /* FenixAccountsController.swift in Sources */,
 					FE10DEC04E14C19000000030 /* FenixuzAppStoreIAP.swift in Sources */,
 				FE10DEC04E14C19000000040 /* FenixuzSettingsController.swift in Sources */,
 				FE10DEC04E14C19000000050 /* FenixuzForeignUserBlock.swift in Sources */,

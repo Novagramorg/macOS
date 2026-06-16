@@ -11,108 +11,98 @@ import TGUIKit
 import TelegramCore
 import Postbox
 import SwiftSignalKit
-import ApiCredentials
 import InAppSettings
 import Dock
 
-extension TelegramApplicationIcons.Icon {
-    var path: String {
-        return iconsFolder + "/" + self.file.fileName!
-    }
-    
-    func resourcePath(_ context: AccountContext) -> String? {
-        if self.file.fileName == TelegramApplicationIcons.Icon.defaultIconName {
-            return nil
-        } else {
-            return context.account.postbox.mediaBox.resourcePath(self.file.resource)
-        }
-    }
-    
-    var isPremium: Bool {
-        if let fileName = file.fileName, fileName.contains("Premium") {
-            return true
-        }
-        return false
-    }
-    
-    static let defaultIconName = "Default.icns"
+// MARK: - Fenixuz local app icons
+// Bizning brend iconlar. Rasmiy Telegram server iconlari (@macos_app_icons) o'rniga
+// app bundle'dagi Assets.xcassets/FenixuzAppIcons/*.dataset dan o'qiladi. Hammasi Free —
+// premium gate yo'q.
+
+struct FenixuzAppIcon: Equatable {
+    let name: String        // DockSettings.iconSelected uchun kalit
+    let assetName: String   // NSDataAsset nomi (preview + .icns manbasi)
+    let isDefault: Bool     // default = custom icon tozalanadi (bundle AppIcon ishlatiladi)
 }
 
-private var iconsFolder: String {
-    return ApiEnvironment.containerURL!.appendingPathComponent("icons").path
+enum FenixuzAppIcons {
+    static let defaultName = "Default"
+
+    static let all: [FenixuzAppIcon] = [
+        .init(name: "Default", assetName: "FenixuzIcon_RedWhite", isDefault: true),
+        .init(name: "GreenWhite", assetName: "FenixuzIcon_GreenWhite", isDefault: false),
+        .init(name: "WhiteRed", assetName: "FenixuzIcon_WhiteRed", isDefault: false),
+        .init(name: "WhiteGreen", assetName: "FenixuzIcon_WhiteGreen", isDefault: false),
+        .init(name: "RedDark", assetName: "FenixuzIcon_RedDark", isDefault: false),
+        .init(name: "GreenDark", assetName: "FenixuzIcon_GreenDark", isDefault: false),
+        .init(name: "WhiteBlue", assetName: "FenixuzIcon_WhiteBlue", isDefault: false),
+        .init(name: "WhiteGraphite", assetName: "FenixuzIcon_WhiteGraphite", isDefault: false)
+    ]
+
+    static func icon(forSelected selected: String?) -> FenixuzAppIcon {
+        if let selected, let match = all.first(where: { $0.name == selected }) {
+            return match
+        }
+        return all[0]
+    }
+
+    static func previewImage(_ icon: FenixuzAppIcon) -> NSImage? {
+        guard let asset = NSDataAsset(name: icon.assetName) else { return nil }
+        return NSImage(data: asset.data)
+    }
+
+    private static var cacheDir: String {
+        let dir = NSTemporaryDirectory() + "FenixuzAppIcons"
+        try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        return dir
+    }
+
+    // .icns ni diskka yozib yo'lini qaytaradi. Default icon uchun nil — bu holda
+    // setCustomAppIcon custom iconni tozalaydi va bundle AppIcon qaytadi.
+    static func icnsPath(_ icon: FenixuzAppIcon) -> String? {
+        if icon.isDefault { return nil }
+        guard let asset = NSDataAsset(name: icon.assetName) else { return nil }
+        let path = cacheDir + "/" + icon.assetName + ".icns"
+        if !FileManager.default.fileExists(atPath: path) {
+            try? asset.data.write(to: URL(fileURLWithPath: path))
+        }
+        return path
+    }
+
+    static func apply(_ icon: FenixuzAppIcon, silence: Bool = false) {
+        Dock.setCustomAppIcon(path: icnsPath(icon), silence: silence)
+    }
 }
+
+// MARK: - Launch re-apply
 
 final class DockControl {
-    
-    private let promise: ValuePromise<TelegramApplicationIcons> = .init()
-    
-    var icons: Signal<TelegramApplicationIcons, NoError> {
-        return promise.get()
-    }
-    
-    private let disposable = MetaDisposable()
-    
-    private let fetch = DisposableSet()
-    private let data = DisposableSet()
-    
-    private let engine: TelegramEngine
+
     private let accountManager: AccountManager<TelegramAccountManagerTypes>
     private let update = MetaDisposable()
-    private let applyResource = MetaDisposable()
+
     init(_ engine: TelegramEngine, accountManager: AccountManager<TelegramAccountManagerTypes>) {
-        self.engine = engine
         self.accountManager = accountManager
-        loadResources()
-        
-        silence()
+        reapplyOnLaunch()
     }
-    
-    private func loadResources() {
-        disposable.set((engine.resources.applicationIcons() |> deliverOnMainQueue).start(next: { [weak self] icons in
-            self?.update(icons)
+
+    // Tanlangan Fenixuz iconni har ishga tushganda qayta qo'llaymiz — app yangilanganda
+    // bundle resource fork yo'qolishi mumkin. Default tanlangan bo'lsa hech narsa qilmaymiz.
+    private func reapplyOnLaunch() {
+        let signal = dockSettings(accountManager: accountManager) |> take(1) |> deliverOnMainQueue
+        update.set(signal.start(next: { settings in
+            let icon = FenixuzAppIcons.icon(forSelected: settings.iconSelected)
+            if !icon.isDefault {
+                FenixuzAppIcons.apply(icon, silence: true)
+            }
         }))
     }
-    
-    private func update(_ icons: TelegramApplicationIcons) {
-        for icon in icons.icons {
-            let fetchDispsable = fetchedMediaResource(mediaBox: engine.account.postbox.mediaBox, userLocation: .other, userContentType: .other, reference: .media(media: AnyMediaReference.message(message: icon.reference, media: icon.file), resource: icon.file.resource)).start()
-            fetch.add(fetchDispsable)
-        }
-        self.promise.set(icons)
-    }
-    
-    private func silence() {
-        let signal = combineLatest(engine.resources.applicationIcons(), dockSettings(accountManager: accountManager)) |> deliverOnMainQueue
-        update.set(signal.start(next: { [weak self] icons, settings in
-            if let self, let selected = settings.iconSelected, selected != TelegramApplicationIcons.Icon.defaultIconName {
-                if let icon = icons.icons.first(where: { $0.file.fileName == selected }) {
-                    let resource = self.engine.account.postbox.mediaBox.resourceData(icon.file.resource) |> filter { $0.complete } |> take(1) |> deliverOnMainQueue
-                    self.applyResource.set(resource.start(next: { resource in
-                        Dock.setCustomAppIcon(path: resource.path, silence: true)
-                    }))
-                }
-            } 
-        }))
-    }
-    
+
     func clear() {
         update.dispose()
-        data.dispose()
-        fetch.dispose()
-        disposable.dispose()
-        applyResource.dispose()
     }
-    
+
     deinit {
         clear()
     }
 }
-
-//
-//private func moveIconToCache(path: String, icon: TelegramApplicationIcons.Icon) {
-//    try? FileManager.default.createDirectory(at: URL(fileURLWithPath: iconsFolder), withIntermediateDirectories: true, attributes: nil)
-//    
-//    if let fileName = icon.file.fileName {
-//        try? FileManager.default.copyItem(atPath: path, toPath: iconsFolder + "/" + fileName)
-//    }
-//}

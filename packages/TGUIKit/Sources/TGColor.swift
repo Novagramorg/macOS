@@ -270,11 +270,11 @@ public extension NSColor {
 
     
     static var link:NSColor {
-        return .colorFromRGB(rgbValue: 0x2481cc)
+        return .colorFromRGB(rgbValue: 0xb40000)
     }
     
     static var accent:NSColor {
-        return .colorFromRGB(rgbValue: 0x2481cc)
+        return .colorFromRGB(rgbValue: 0xb40000)
     }
     
     static var redUI:NSColor {

@@ -719,6 +719,12 @@ class MainViewController: TelegramViewController {
         return current == navigation
     }
 
+    // Fenixuz: chat-folder rail belongs only with the Chats tab. The chats tab's
+    // controller is `navigation`, so current == navigation means Chats is active.
+    var isChatListSelected: Bool {
+        return self.tabController.current == navigation
+    }
+
     override func updateFrame(_ frame: NSRect, transition: ContainedViewLayoutTransition) {
         super.updateFrame(frame, transition: transition)
         self.tabController.updateFrame(frame.size.bounds, transition: transition)

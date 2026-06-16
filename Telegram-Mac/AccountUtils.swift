@@ -12,8 +12,7 @@ import Postbox
 import TelegramCore
 import InAppSettings
 
-let maximumNumberOfAccounts = 3
-
+let maximumNumberOfAccounts = 999
 
 func activeAccountsAndPeers(context: AccountContext, includePrimary: Bool = false) -> Signal<((Account, Peer)?, [(Account, Peer, Int32)]), NoError> {
     let sharedContext = context.sharedContext
@@ -39,7 +38,7 @@ func activeAccountsAndPeers(context: AccountContext, includePrimary: Bool = fals
             for (_, account, _) in activeAccounts {
                 accounts.append(accountWithPeer(account))
             }
-            
+
             return combineLatest(accounts)
                 |> map { accounts -> ((Account, Peer)?, [(Account, Peer, Int32)]) in
                     var primaryRecord: (Account, Peer)?

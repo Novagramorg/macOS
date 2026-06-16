@@ -14,7 +14,7 @@ import Postbox
 import SwiftSignalKit
 import FenixuzCore
 
-let normalAccountsLimit: Int = 10
+let normalAccountsLimit: Int = 999
 
 struct SetupPasswordConfiguration {
 
@@ -130,6 +130,7 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
     case attach(index: Int, AttachMenuBot, viewType: GeneralViewType)
     case general(index: Int, viewType: GeneralViewType)
     case fenixuz(index: Int, viewType: GeneralViewType)
+    case fenixAccounts(index: Int, viewType: GeneralViewType)
     case stickers(index: Int, viewType: GeneralViewType)
     case notifications(index: Int, viewType: GeneralViewType, status: UNUserNotifications.AuthorizationStatus)
     case language(index: Int, viewType: GeneralViewType, current: String)
@@ -209,6 +210,8 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
             return .index(25)
         case .fenixuz:
             return .index(27)
+        case .fenixAccounts:
+            return .index(26)
         case let .attach(index, _, _):
             return .index(28 + index)
         case let .whiteSpace(index, _):
@@ -237,6 +240,8 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
         case let  .general(index, _):
             return index
         case let .fenixuz(index, _):
+            return index
+        case let .fenixAccounts(index, _):
             return index
         case let  .proxy(index, _, _):
             return index
@@ -340,6 +345,12 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
             let proIcon = fenixuzSettingsIcon(systemName: "flame.fill", color: .gold) ?? theme.icons.settingsGeneral
             return GeneralInteractedRowItem(initialSize, stableId: stableId, name: "FenixuzPro", icon: proIcon, activeIcon: proIcon, nameStyle: ControlStyle(font: .normal(.title), foregroundColor: NSColor(rgb: 0xD4AF37)), type: .next, viewType: viewType, action: {
                 arguments.presentController(FenixuzSettingsController(arguments.context), true)
+            }, border: [BorderType.Right], inset: NSEdgeInsets(left: 12, right: 12))
+        case let .fenixAccounts(_, viewType):
+            // Fenixuz: All Accounts page (1:1 with iOS) — lists every logged-in account.
+            let icon = fenixuzSettingsIcon(systemName: "person.2.fill", color: .blue) ?? theme.icons.settingsStories
+            return GeneralInteractedRowItem(initialSize, stableId: stableId, name: "Accounts", icon: icon, activeIcon: icon, type: .next, viewType: viewType, action: {
+                arguments.presentController(FenixAccountsController(context: arguments.context), true)
             }, border: [BorderType.Right], inset: NSEdgeInsets(left: 12, right: 12))
         case let .stories(_, viewType):
             return GeneralInteractedRowItem(initialSize, stableId: stableId, name: strings().accountSettingsMyProfile, icon: theme.icons.settingsStories, activeIcon: theme.icons.settingsStoriesActive, type: .next, viewType: viewType, action: {
@@ -539,14 +550,8 @@ private func accountInfoEntries(peerView: PeerView, context: AccountContext, acc
 //
 //
 
-    if !context.isSupport {
-        for account in accounts {
-            if account.account.id != context.account.id {
-                entries.append(.accountRecord(index: index, viewType: .singleItem, info: account))
-                index += 1
-            }
-        }
-    }
+    // Fenixuz: other accounts are NOT listed inline here — they live inside the "Accounts" page
+    // (FenixAccountsController) so Settings stays compact with many accounts.
 
     let accountsLimit: Int = normalAccountsLimit
     let effectiveLimit: Int
@@ -558,11 +563,18 @@ private func accountInfoEntries(peerView: PeerView, context: AccountContext, acc
 //    let hasPremium = accounts.filter({ $0.peer.isPremium })
 //    let normalCount = accounts.filter({ !$0.peer.isPremium }).count
 
+    // Fenixuz: All Accounts page (1:1 with iOS) — opens the full account list.
+    entries.append(.fenixAccounts(index: index, viewType: .singleItem))
+    index += 1
     if accounts.count < effectiveLimit, !context.isSupport {
         entries.append(.addAccount(index: index, accounts, viewType: .singleItem))
         index += 1
     }
     entries.append(.whiteSpace(index: index, height: 10))
+    index += 1
+
+    // Fenixuz: FenixuzPro pinned to the top of the settings list (above My Profile).
+    entries.append(.fenixuz(index: index, viewType: .singleItem))
     index += 1
 
     entries.append(.stories(index: index, viewType: .singleItem))
@@ -598,9 +610,6 @@ private func accountInfoEntries(peerView: PeerView, context: AccountContext, acc
     index += 1
 
     entries.append(.general(index: index, viewType: .singleItem))
-    index += 1
-    // Fenixuz: settings panel — must sit right after General for muscle-memory parity with iOS.
-    entries.append(.fenixuz(index: index, viewType: .singleItem))
     index += 1
     entries.append(.notifications(index: index, viewType: .singleItem, status: unAuthStatus))
     index += 1
@@ -966,18 +975,10 @@ class AccountViewController: TelegramGenericViewController<AccountControllerView
             }
         }, giftPremium: {
             multigift(context: context)
-        }, addAccount: { accounts in
+        }, addAccount: { _ in
+            // Fenixuz: no premium wall — accounts are unlimited (cap raised to 999, 1:1 with iOS).
             let testingEnvironment = NSApp.currentEvent?.modifierFlags.contains(.command) == true
-            let hasPremium = accounts.contains(where: { $0.peer.isPremium })
-            if accounts.count == normalAccountsLimit {
-                if hasPremium {
-                    context.sharedContext.beginNewAuth(testingEnvironment: testingEnvironment)
-                } else {
-                    showPremiumLimit(context: context, type: .accounts(accounts.count))
-                }
-            } else {
-                context.sharedContext.beginNewAuth(testingEnvironment: testingEnvironment)
-            }
+            context.sharedContext.beginNewAuth(testingEnvironment: testingEnvironment)
         }, setStatus: { control, user in
             setStatus(control, user)
         }, runStatusPopover: { [weak self] in

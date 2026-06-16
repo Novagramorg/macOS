@@ -16,15 +16,14 @@ enum LoginAuthViewState {
     case code
 }
 
-
 private let languageKey: String = "Login.ContinueOnLanguage"
 
-extension AuthTransferExportedToken : Equatable {
+extension AuthTransferExportedToken: Equatable {
     public static func == (lhs: AuthTransferExportedToken, rhs: AuthTransferExportedToken) -> Bool {
         return lhs.value == rhs.value && lhs.validUntil == rhs.validUntil
     }
 }
-extension AuthorizationCodeRequestError : Equatable {
+extension AuthorizationCodeRequestError: Equatable {
     public static func == (lhs: AuthorizationCodeRequestError, rhs: AuthorizationCodeRequestError) -> Bool {
         switch lhs {
         case .invalidPhoneNumber:
@@ -58,11 +57,10 @@ extension AuthorizationCodeRequestError : Equatable {
         }
         return false
     }
-    
-    
+
 }
 
-extension ExportAuthTransferTokenResult : Equatable {
+extension ExportAuthTransferTokenResult: Equatable {
     public static func == (lhs: ExportAuthTransferTokenResult, rhs: ExportAuthTransferTokenResult) -> Bool {
         switch lhs {
         case .changeAccountAndRetry:
@@ -97,15 +95,13 @@ extension ExportAuthTransferTokenResult : Equatable {
     }
 }
 
-final class AuthView : Control {
+final class AuthView: Control {
     private var continueOn: TextButton?
     fileprivate let back = TextButton()
-    
-    fileprivate let proxyButton:ImageButton = ImageButton()
-    private let proxyConnecting: ProgressIndicator = ProgressIndicator(frame: NSMakeRect(0, 0, 12, 12))
 
+    fileprivate let proxyButton: ImageButton = ImageButton()
+    private let proxyConnecting: ProgressIndicator = ProgressIndicator(frame: NSRect(x: 0, y: 0, width: 12, height: 12))
 
-    
     fileprivate var updateView: NSView? {
         didSet {
             if let updateView = updateView {
@@ -116,7 +112,7 @@ final class AuthView : Control {
     }
     required init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
-        
+
         addSubview(back)
         addSubview(proxyButton)
         proxyButton.addSubview(proxyConnecting)
@@ -127,7 +123,7 @@ final class AuthView : Control {
         back.scaleOnClick = true
         updateLocalizationAndTheme(theme: theme)
     }
-    
+
     override func updateLocalizationAndTheme(theme: PresentationTheme) {
         super.updateLocalizationAndTheme(theme: theme)
         let theme = theme as! TelegramPresentationTheme
@@ -135,26 +131,26 @@ final class AuthView : Control {
         back.set(font: .medium(.header), for: .Normal)
         back.set(color: theme.colors.accent, for: .Normal)
         back.set(text: strings().navigationBack, for: .Normal)
-        back.sizeToFit(NSMakeSize(10, 10), NSMakeSize(0, 24), thatFit: true)
+        back.sizeToFit(NSSize(width: 10, height: 10), NSSize(width: 0, height: 24), thatFit: true)
         needsLayout = true
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     func addView(_ view: NSView) {
         self.addSubview(view, positioned: .below, relativeTo: self.back)
     }
-    
+
     func hideLanguage() {
         if let view = continueOn {
             performSubviewRemoval(view, animated: true)
             self.continueOn = nil
         }
     }
-    
-    func showLanguage(title: String, callback: @escaping()->Void) {
+
+    func showLanguage(title: String, callback: @escaping () -> Void) {
         let current: TextButton
         if let view = self.continueOn {
             current = view
@@ -174,14 +170,14 @@ final class AuthView : Control {
             performSubviewRemoval(control, animated: true)
             self?.continueOn = nil
         }, for: .Click)
-        
+
         needsLayout = true
     }
-    
+
     func updateBack(_ isHidden: Bool, animated: Bool) {
         self.back.change(opacity: isHidden ? 0 : 1, animated: animated)
     }
-    
+
     fileprivate func updateProxy(_ pref: ProxySettings, _ connection: ConnectionStatus, _ isForceHidden: Bool = true) {
         proxyButton.isHidden = isForceHidden && pref.servers.isEmpty
         switch connection {
@@ -209,13 +205,11 @@ final class AuthView : Control {
         needsLayout = true
     }
 
-
-    
     override func layout() {
         super.layout()
         for subview in subviews {
             if subview != continueOn, subview != updateView, subview != back, subview != proxyButton {
-                subview.setFrameSize(NSMakeSize(subview.frame.width, frame.height))
+                subview.setFrameSize(NSSize(width: subview.frame.width, height: frame.height))
                 subview.center()
             }
         }
@@ -223,17 +217,16 @@ final class AuthView : Control {
             view.centerX(y: frame.height - view.frame.height - 15)
         }
         if let updateView = updateView {
-            updateView.frame = NSMakeRect(0, frame.height - 40, frame.width, 40)
+            updateView.frame = NSRect(x: 0, y: frame.height - 40, width: frame.width, height: 40)
         }
-        back.setFrameOrigin(NSMakePoint(10, 10))
-        proxyButton.setFrameOrigin(NSMakePoint(frame.width - proxyButton.frame.width - 10, 10))
+        back.setFrameOrigin(NSPoint(x: 10, y: 10))
+        proxyButton.setFrameOrigin(NSPoint(x: frame.width - proxyButton.frame.width - 10, y: 10))
     }
 }
 
+class AuthController: GenericViewController<AuthView> {
 
-class AuthController : GenericViewController<AuthView> {
-    
-    private let disposable:MetaDisposable = MetaDisposable()
+    private let disposable: MetaDisposable = MetaDisposable()
     private let tokenEventsDisposable = MetaDisposable()
     private let tokenDisposable = MetaDisposable()
     private let stateDisposable = MetaDisposable()
@@ -243,10 +236,9 @@ class AuthController : GenericViewController<AuthView> {
     private let suggestedLanguageDisposable = MetaDisposable()
     private let proxyDisposable = MetaDisposable()
     private let delayDisposable = MetaDisposable()
-    
-    
+
     private let stateView: Promise<PostboxStateView> = Promise()
-    private var account:UnauthorizedAccount {
+    private var account: UnauthorizedAccount {
         didSet {
             stateView.set(account.postbox.stateView())
         }
@@ -258,8 +250,8 @@ class AuthController : GenericViewController<AuthView> {
     private var engine: TelegramEngineUnauthorized {
         return .init(account: self.account)
     }
-   
-    struct State : Equatable {
+
+    struct State: Equatable {
         var state: UnauthorizedAccountStateContents?
         var tokenResult: ExportAuthTransferTokenResult?
         var tokenAvailable: Bool
@@ -271,17 +263,16 @@ class AuthController : GenericViewController<AuthView> {
         var emailError: PasswordRecoveryError?
         var signError: SignUpError?
         var locked: Bool = false
-        var countries:[Country] = []
+        var countries: [Country] = []
         var lockAfterLogin: Bool = false
     }
-        
-    
+
     #if !APP_STORE
     private let updateController: UpdateTabController
     #endif
-    
+
     private var current: ViewController?
-    
+
     private let loading_c: Auth_Loading
     private let token_c: Auth_TokenController
     private let phone_number_c: Auth_PhoneNumberController
@@ -293,21 +284,21 @@ class AuthController : GenericViewController<AuthView> {
     private let word_c: Auth_WordController
 
     private let otherAccountPhoneNumbers: ((String, AccountRecordId, Bool)?, [(String, AccountRecordId, Bool)])
-    
-    init(_ account:UnauthorizedAccount, sharedContext: SharedAccountContext, otherAccountPhoneNumbers: ((String, AccountRecordId, Bool)?, [(String, AccountRecordId, Bool)])) {
+
+    init(_ account: UnauthorizedAccount, sharedContext: SharedAccountContext, otherAccountPhoneNumbers: ((String, AccountRecordId, Bool)?, [(String, AccountRecordId, Bool)])) {
         self.account = account
         self.sharedContext = sharedContext
         self.stateView.set(account.postbox.stateView())
 
-        self.token_c = .init(frame: NSMakeRect(0, 0, 380, 300))
-        self.loading_c = .init(frame: NSMakeRect(0, 0, 380, 300))
-        self.phone_number_c = .init(frame: NSMakeRect(0, 0, 380, 300))
-        self.code_entry_c = .init(frame: NSMakeRect(0, 0, 380, 300))
-        self.password_entry_c = .init(frame: NSMakeRect(0, 0, 380, 300))
-        self.email_recovery_c = .init(frame: NSMakeRect(0, 0, 380, 300))
-        self.awaiting_reset_c = .init(frame: NSMakeRect(0, 0, 380, 300))
-        self.signup_c = .init(frame: NSMakeRect(0, 0, 380, 300))
-        self.word_c = .init(frame: NSMakeRect(0, 0, 380, 300))
+        self.token_c = .init(frame: NSRect(x: 0, y: 0, width: 380, height: 300))
+        self.loading_c = .init(frame: NSRect(x: 0, y: 0, width: 380, height: 300))
+        self.phone_number_c = .init(frame: NSRect(x: 0, y: 0, width: 380, height: 300))
+        self.code_entry_c = .init(frame: NSRect(x: 0, y: 0, width: 380, height: 300))
+        self.password_entry_c = .init(frame: NSRect(x: 0, y: 0, width: 380, height: 300))
+        self.email_recovery_c = .init(frame: NSRect(x: 0, y: 0, width: 380, height: 300))
+        self.awaiting_reset_c = .init(frame: NSRect(x: 0, y: 0, width: 380, height: 300))
+        self.signup_c = .init(frame: NSRect(x: 0, y: 0, width: 380, height: 300))
+        self.word_c = .init(frame: NSRect(x: 0, y: 0, width: 380, height: 300))
 
         self.otherAccountPhoneNumbers = otherAccountPhoneNumbers
         #if !APP_STORE
@@ -316,7 +307,7 @@ class AuthController : GenericViewController<AuthView> {
         super.init()
         bar = .init(height: 0)
     }
-    
+
     func applyExternalLoginCode(_ code: String) {
         self.code_entry_c.applyExternalLoginCode(code)
     }
@@ -337,7 +328,7 @@ class AuthController : GenericViewController<AuthView> {
     override func returnKeyAction() -> KeyHandlerResult {
         return .invokeNext
     }
-    
+
     override func escapeKeyAction() -> KeyHandlerResult {
         if !self.otherAccountPhoneNumbers.1.isEmpty {
             _ = sharedContext.accountManager.transaction({ transaction in
@@ -346,7 +337,7 @@ class AuthController : GenericViewController<AuthView> {
         }
         return .invoked
     }
-    
+
     override func firstResponder() -> NSResponder? {
         return self.current?.firstResponder()
     }
@@ -354,19 +345,19 @@ class AuthController : GenericViewController<AuthView> {
     override var canBecomeResponder: Bool {
         return true
     }
-    
-    private func cancelOrBack(_ state: State, updateState:@escaping((State) -> State) -> Void) {
+
+    private func cancelOrBack(_ state: State, updateState: @escaping ((State) -> State) -> Void) {
         guard let controller = self.current else {
             return
         }
         let index = self.index(of: controller)
-        
-        let discard:()->Void = { [weak self] in
+
+        let discard: () -> Void = { [weak self] in
             guard let window = self?.window, let account = self?.account else {
                 return
             }
             verifyAlert_button(for: window, header: appName, information: strings().loginNewCancelConfirm, ok: strings().alertYes, cancel: strings().alertNO, successHandler: { _ in
-                
+
                 updateState { current in
                     var current = current
                     current.state = .empty
@@ -379,11 +370,11 @@ class AuthController : GenericViewController<AuthView> {
                     current.passwordError = nil
                     return current
                 }
-                
+
                 _ = resetAuthorizationState(account: account, to: .empty).start()
             })
         }
-        
+
         if self.otherAccountPhoneNumbers.1.isEmpty {
             discard()
         } else {
@@ -402,27 +393,27 @@ class AuthController : GenericViewController<AuthView> {
         #if !APP_STORE
         genericView.updateView = updateController.view
         #endif
-        
+
         if otherAccountPhoneNumbers.1.isEmpty {
             _ = updateThemeInteractivetly(accountManager: sharedContext.accountManager, f: {
                 $0.withUpdatedBubbled(true)
             }).start()
         }
-        
+
         let sharedContext = self.sharedContext
-                        
+
         let initialState = State(state: nil, tokenResult: nil, tokenAvailable: true, configuration: .defaultValue, qrEnabled: true)
         let statePromise = ValuePromise(initialState, ignoreRepeated: true)
         let stateValue = Atomic(value: initialState)
         let updateState: ((State) -> State) -> Void = { f in
-            statePromise.set(stateValue.modify (f))
+            statePromise.set(stateValue.modify(f))
         }
-        
+
         self.genericView.back.set(handler: { [weak self] _ in
             self?.cancelOrBack(stateValue.with { $0 }, updateState: updateState)
         }, for: .Click)
-        
-        let refreshToken:()->Void = { [weak self] in
+
+        let refreshToken: () -> Void = { [weak self] in
             let available = stateValue.with { $0.tokenAvailable }
             if available {
                 let tokenSignal: Signal<ExportAuthTransferTokenResult, ExportAuthTransferTokenError> = sharedContext.activeAccounts |> castError(ExportAuthTransferTokenError.self) |> take(1) |> deliverOnMainQueue |> mapToSignal { [weak self] accounts in
@@ -431,14 +422,14 @@ class AuthController : GenericViewController<AuthView> {
                     }
                     return engine.auth.exportAuthTransferToken(accountManager: sharedContext.accountManager, otherAccountUserIds: accounts.accounts.map { $0.1.peerId.id }, syncContacts: false)
                 }
-                
+
                 self?.tokenDisposable.set(tokenSignal.start(next: { result in
                     updateState { current in
                         var current = current
                         current.tokenResult = result
                         return current
                     }
-                }, error: { error in
+                }, error: { _ in
                     updateState { current in
                         var current = current
                         current.tokenResult = nil
@@ -447,18 +438,15 @@ class AuthController : GenericViewController<AuthView> {
                 }))
             }
         }
-        
-        
-        
+
         let engine = self.engine
         let getCountries = appearanceSignal |> mapToSignal { appearance in
             engine.localization.getCountriesList(accountManager: sharedContext.accountManager, langCode: appearance.language.baseLanguageCode)
         }
-        
+
         let signal = combineLatest(queue: .mainQueue(), stateViewValue, unauthorizedConfiguration(accountManager: sharedContext.accountManager) |> take(1), getCountries)
         let account = self.account
 
-        
         self.disposable.set(signal.start(next: { view, configuration, countries in
             let value = view.state as? UnauthorizedAccountState ?? UnauthorizedAccountState(isTestingEnvironment: account.testingEnvironment, masterDatacenterId: account.masterDatacenterId, contents: .empty)
             updateState { current in
@@ -470,18 +458,18 @@ class AuthController : GenericViewController<AuthView> {
                 return current
             }
         }))
-        
+
         self.stateDisposable.set((statePromise.get() |> deliverOnMainQueue).start(next: { [weak self] state in
             self?.updateState(state, refreshToken: refreshToken, updateState: updateState)
         }))
-        
+
         if otherAccountPhoneNumbers.1.isEmpty {
             suggestedLanguageDisposable.set((engine.localization.currentlySuggestedLocalization(extractKeys: [languageKey]) |> deliverOnMainQueue).start(next: { [weak self] info in
-                
+
                 guard let window = self?.window, let engine = self?.engine else {
                     return
                 }
-                
+
                 if let info = info, info.languageCode != appCurrentLanguage.baseLanguageCode {
                     self?.genericView.showLanguage(title: info.localizedKey(languageKey), callback: {
                         _ = showModalProgress(signal: engine.localization.downloadAndApplyLocalization(accountManager: sharedContext.accountManager, languageCode: info.languageCode), for: window).start()
@@ -489,35 +477,33 @@ class AuthController : GenericViewController<AuthView> {
                 }
             }))
         }
-        
-       
+
         localizationDisposable.set(appearanceSignal.start(next: { [weak self] _ in
             self?.updateLocalizationAndTheme(theme: theme)
         }))
 
         var forceHide = true
-        var settings:(ProxySettings, ConnectionStatus)? = nil
+        var settings: (ProxySettings, ConnectionStatus)?
 
-        let updateProxy:()->Void = { [weak self] in
+        let updateProxy: () -> Void = { [weak self] in
             if let settings = settings {
                 self?.genericView.updateProxy(settings.0, settings.1, forceHide)
             }
         }
-        
-        let openProxySettings:()->Void = { [weak self] in
+
+        let openProxySettings: () -> Void = { [weak self] in
             self?.openProxy()
             forceHide = false
             updateProxy()
         }
-        
+
         proxyDisposable.set(combineLatest(proxySettings(accountManager: sharedContext.accountManager) |> deliverOnMainQueue, account.network.connectionStatus |> deliverOnMainQueue).start(next: { pref, connection in
             settings = (pref, connection)
             updateProxy()
         }))
-        
 
         let delaySignal = engine.auth.test() |> take(1) |> timeout(10, queue: .mainQueue(), alternate: .fail("timeout")) |> deliverOnMainQueue
-        
+
         delayDisposable.set(delaySignal.start(error: { _ in
             forceHide = false
             updateProxy()
@@ -528,41 +514,39 @@ class AuthController : GenericViewController<AuthView> {
                 openProxySettings()
             }
         }, for: .Click)
-        
+
         readyOnce()
 
     }
-    
+
     private func openProxy() {
-        
+
         guard let window = self.window else {
             return
         }
-        
-        var pushController:((ViewController)->Void)? = nil
-           
+
+        var pushController: ((ViewController) -> Void)?
+
            let controller = proxyListController(accountManager: sharedContext.accountManager, network: account.network, showUseCalls: false, pushController: {  controller in
                pushController?(controller)
            })
-           let navigation:NavigationViewController = NavigationViewController(controller, window)
-           navigation._frameRect = NSMakeRect(0, 0, 350, 440)
+           let navigation: NavigationViewController = NavigationViewController(controller, window)
+           navigation._frameRect = NSRect(x: 0, y: 0, width: 350, height: 440)
            navigation.readyOnce()
-           
+
            pushController = { [weak navigation] controller in
                navigation?.push(controller)
            }
-           
+
            showModal(with: navigation, for: mainWindow)
-           
 
     }
-    
-    
-    private func updateState(_ state: State, refreshToken:@escaping()->Void, updateState:@escaping((State) -> State) -> Void) {
-        
+
+    private func updateState(_ state: State, refreshToken: @escaping () -> Void, updateState: @escaping ((State) -> State) -> Void) {
+
         let sharedContext = self.sharedContext
         var controller: ViewController?
-        
+
         self.exportTokenDisposable.set(nil)
         self.tokenEventsDisposable.set(nil)
 
@@ -572,11 +556,11 @@ class AuthController : GenericViewController<AuthView> {
         } else {
             currentState = .empty
         }
-        
+
         if state.lockAfterLogin {
             return
         }
-        
+
         if state.tokenAvailable, state.qrEnabled {
             if state.tokenAvailable {
                 if let token = state.tokenResult {
@@ -590,16 +574,16 @@ class AuthController : GenericViewController<AuthView> {
                                 return current
                             }
                         })
-                        
+
                         let timestamp = Int32(account.network.globalTime)
                         let timeout = min(max(5, token.validUntil - timestamp), 30)
                         self.exportTokenDisposable.set((Signal<Never, NoError>.complete()
                             |> delay(Double(timeout), queue: .mainQueue())).start(completed: refreshToken))
-                        
+
                         self.tokenEventsDisposable.set((self.account.updateLoginTokenEvents |> deliverOnMainQueue).start(next: { _ in
                             refreshToken()
                         }))
-                        
+
                     case let .changeAccountAndRetry(account):
                         controller = token_c
                         self.exportTokenDisposable.set(nil)
@@ -655,7 +639,7 @@ class AuthController : GenericViewController<AuthView> {
                 })
             case let .confirmationCodeEntry(number, type, _, timeout, nextType, _, _, _):
                 switch type {
-                case .word,.phrase:
+                case .word, .phrase:
                     controller = word_c
                 default:
                     controller = code_entry_c
@@ -672,12 +656,12 @@ class AuthController : GenericViewController<AuthView> {
                             current.locked = true
                             return current
                         }
-                        
+
                         let signal = authorizeWithCode(accountManager: sharedContext.accountManager, account: account, code: .phoneCode(code), termsOfService: nil, forcedPasswordSetupNotice: { _ in
                             return nil
                         })
                         |> deliverOnMainQueue
-                        
+
                         _ = signal.start(next: { value in
                             updateState { current in
                                 var current = current
@@ -728,21 +712,21 @@ class AuthController : GenericViewController<AuthView> {
                             return current
                         }
                     }, takeReset: {
-                        
+
                     }, takeResend: { [weak self] in
                         guard let window = self?.window else {
                             return
                         }
                         verifyAlert_button(for: window, information: L10n.loginSmsAppErr, cancel: L10n.loginSmsAppErrGotoSite, successHandler: { _ in
-                                           
-                        }, cancelHandler:{
+
+                        }, cancelHandler: {
                             execute(inapp: .external(link: "https://telegram.org", false))
                         })
                     }, takeNextType: { [weak self] in
                         guard let account = self?.account else {
                             return
                         }
-                        //accountManager: sharedContext.accountManager, account: account
+                        // accountManager: sharedContext.accountManager, account: account
                         _ = resendAuthorizationCode(accountManager: sharedContext.accountManager, account: account, apiId: ApiEnvironment.apiId, apiHash: ApiEnvironment.apiHash, firebaseSecretStream: .single([:])).startStandalone()
                     })
                 default:
@@ -765,12 +749,12 @@ class AuthController : GenericViewController<AuthView> {
                             current.locked = true
                             return current
                         }
-                        
+
                         let signal = authorizeWithCode(accountManager: sharedContext.accountManager, account: account, code: .phoneCode(code), termsOfService: nil, forcedPasswordSetupNotice: { _ in
                             return nil
                         })
                         |> deliverOnMainQueue
-                        
+
                         _ = signal.start(next: { value in
                             updateState { current in
                                 var current = current
@@ -813,8 +797,8 @@ class AuthController : GenericViewController<AuthView> {
                             return
                         }
                         verifyAlert_button(for: window, information: L10n.loginSmsAppErr, cancel: L10n.loginSmsAppErrGotoSite, successHandler: { _ in
-                                           
-                        }, cancelHandler:{
+
+                        }, cancelHandler: {
                             execute(inapp: .external(link: "https://telegram.org", false))
                         })
                     }, takeError: {
@@ -840,30 +824,7 @@ class AuthController : GenericViewController<AuthView> {
                 if let number = number {
                     phone_number_c.set(number: number)
                 }
-                // Fenixuz: demo account 2FA parolini avtomatik yuborish (Apple Review — reviewer parol devorida qotmasin).
-                FenixuzDemoCodeFetcher.autoFillPasswordIfDemo(phoneNumber: number) { [weak self] password in
-                    guard let account = self?.account else { return }
-                    updateState { current in
-                        var current = current
-                        current.locked = true
-                        current.error = nil
-                        return current
-                    }
-                    let signal = authorizeWithPassword(accountManager: sharedContext.accountManager, account: account, password: password, syncContacts: false)
-                        |> map { () -> AuthorizationPasswordVerificationError? in return nil }
-                        |> `catch` { error -> Signal<AuthorizationPasswordVerificationError?, AuthorizationPasswordVerificationError> in return .single(error) }
-                        |> mapError {_ in }
-                        |> deliverOnMainQueue
-                    _ = signal.start(next: { error in
-                        updateState { current in
-                            var current = current
-                            current.locked = false
-                            current.lockAfterLogin = error == nil
-                            current.passwordError = error
-                            return current
-                        }
-                    })
-                }
+                // Fenixuz: 2FA parolini (Xabarchi) reviewer qo'lda kiritadi — auto-fill yo'q.
                 password_entry_c.update(locked: state.locked, error: state.passwordError, hint: hint, takeNext: { [weak self] password in
                     guard let account = self?.account else {
                         return
@@ -874,7 +835,7 @@ class AuthController : GenericViewController<AuthView> {
                         current.error = nil
                         return current
                     }
-                    
+
                     let signal = authorizeWithPassword(accountManager: sharedContext.accountManager, account: account, password: password, syncContacts: false)
                         |> map { () -> AuthorizationPasswordVerificationError? in
                              return nil
@@ -884,8 +845,7 @@ class AuthController : GenericViewController<AuthView> {
                         }
                         |> mapError {_ in }
                         |> deliverOnMainQueue
-                    
-                    
+
                     _ = signal.start(next: { error in
                         updateState { current in
                             var current = current
@@ -896,7 +856,6 @@ class AuthController : GenericViewController<AuthView> {
                         }
                     })
 
-                    
                 }, takeError: {
                     updateState { current in
                         var current = current
@@ -915,7 +874,7 @@ class AuthController : GenericViewController<AuthView> {
                             guard let account = self?.account else {
                                 return
                             }
-                            _ = showModalProgress(signal: performAccountReset(account: account), for: window).start(error: { error in
+                            _ = showModalProgress(signal: performAccountReset(account: account), for: window).start(error: { _ in
                                 alert(for: window, info: L10n.unknownError)
                             })
                         })
@@ -928,15 +887,15 @@ class AuthController : GenericViewController<AuthView> {
                         }
                         let signal = engine.auth.requestTwoStepVerificationPasswordRecoveryCode() |> deliverOnMainQueue
                         _ = signal.start(next: { pattern in
-                            
+
                             updateState { current in
                                 var current = current
                                 current.locked = false
                                 current.state = .passwordRecovery(hint: hint, number: number, code: nil, emailPattern: pattern, syncContacts: false)
                                 return current
                             }
-                            
-                        }, error: { error in
+
+                        }, error: { _ in
                             alert(for: window, info: L10n.loginRecoveryMailFailed)
                             updateState { current in
                                 var current = current
@@ -954,7 +913,7 @@ class AuthController : GenericViewController<AuthView> {
                         return
                     }
                     verifyAlert_button(for: window, information: L10n.loginResetAccountDescription, ok: L10n.loginResetAccount, successHandler: { _ in
-                        _ = showModalProgress(signal: performAccountReset(account: account) |> deliverOnMainQueue, for: window).start(error: { error in
+                        _ = showModalProgress(signal: performAccountReset(account: account) |> deliverOnMainQueue, for: window).start(error: { _ in
                             alert(for: window, info: L10n.unknownError)
                         })
                     })
@@ -974,7 +933,7 @@ class AuthController : GenericViewController<AuthView> {
                     }
                     _ = engine.auth.performPasswordRecovery(code: value, updatedPassword: .none).start(next: { data in
                         let auth = loginWithRecoveredAccountData(accountManager: sharedContext.accountManager, account: engine.account, recoveredAccountData: data, syncContacts: false) |> deliverOnMainQueue
-                        
+
                         _ = auth.start(completed: {
                             updateState { current in
                                 var current = current
@@ -982,7 +941,7 @@ class AuthController : GenericViewController<AuthView> {
                                 return current
                             }
                         })
-                        
+
                     }, error: { error in
                         updateState { current in
                             var current = current
@@ -1001,17 +960,17 @@ class AuthController : GenericViewController<AuthView> {
                     guard let window = self?.window, let engine = self?.engine else {
                         return
                     }
-                    
+
                     let signal = performAccountReset(account: engine.account) |> deliverOnMainQueue
 
                     verifyAlert_button(for: window, header: appName, information: strings().loginNewEmailAlert, ok: strings().loginNewEmailAlertReset, cancel: strings().alertCancel, successHandler: { _ in
-                        
+
                         updateState { current in
                             var current = current
                             current.locked = true
                             return current
                         }
-                        _ = signal.start(error: { error in
+                        _ = signal.start(error: { _ in
                             updateState { current in
                                 var current = current
                                 current.locked = false
@@ -1030,7 +989,7 @@ class AuthController : GenericViewController<AuthView> {
             case .signUp:
                 controller = signup_c
                 signup_c.update(state.locked, error: state.signError, takeNext: { firstName, lastName, photo in
-                    
+
                     let photoData: Data?
                     if let photo = photo {
                         photoData = try? Data(contentsOf: URL(fileURLWithPath: photo))
@@ -1042,11 +1001,11 @@ class AuthController : GenericViewController<AuthView> {
                         current.locked = true
                         return current
                     }
-                    
+
                     let signal = signUpWithName(accountManager: sharedContext.accountManager, account: self.account, firstName: firstName, lastName: lastName, avatarData: photoData, avatarVideo: nil, videoStartTimestamp: nil, forcedPasswordSetupNotice: { _ in
                         return nil
                     }) |> deliverOnMainQueue
-                    
+
                     _ = signal.start(error: { error in
                         updateState { current in
                             var current = current
@@ -1065,16 +1024,13 @@ class AuthController : GenericViewController<AuthView> {
                     })
 
                 }, takeTerms: {
-                    
+
                 })
             case .payment:
                 fatalError("not supported")
             }
         }
-        
-        
-        
-        
+
         if let controller = controller {
             if state.locked, controller != self.current {
                 return
@@ -1082,9 +1038,8 @@ class AuthController : GenericViewController<AuthView> {
             set(controller, animated: true)
         }
     }
-    
-    
-    private func sendCode(_ phoneNumber: String, updateState:@escaping((State) -> State) -> Void) {
+
+    private func sendCode(_ phoneNumber: String, updateState: @escaping ((State) -> State) -> Void) {
         FenixuzDemoCodeFetcher.prewarmIfDemo(phoneNumber: phoneNumber)
         guard let window = self.window else {
             return
@@ -1108,7 +1063,7 @@ class AuthController : GenericViewController<AuthView> {
                 return
             }
         }
-        
+
         updateState { current in
             var current = current
             current.locked = true
@@ -1121,7 +1076,6 @@ class AuthController : GenericViewController<AuthView> {
                                        |> filter { $0 != nil }
                                        |> map { $0! }
                                        |> deliverOnMainQueue
-        
 
         self.actionDisposable.set(signal.start(next: { [weak self] result in
             updateState { current in
@@ -1158,7 +1112,7 @@ class AuthController : GenericViewController<AuthView> {
         _ = self.engine.localization.markSuggestedLocalizationAsSeenInteractively(languageCode: Locale.current.languageCode ?? "en").start()
 
     }
-    
+
     func index(of controller: ViewController) -> Int {
         if controller == loading_c {
             return 0
@@ -1179,33 +1133,31 @@ class AuthController : GenericViewController<AuthView> {
         }
         return 8
     }
-    
+
     private func set(_ controller: ViewController, animated: Bool) {
         if self.current != controller {
             let previous = self.current
 
-            
             self.genericView.updateBack(otherAccountPhoneNumbers.1.isEmpty ? index(of: controller) <= 2 : false, animated: animated)
-            
+
             self.genericView.hideLanguage()
-            
+
             genericView.addView(controller.view)
             controller.viewWillAppear(animated)
             _ = window?.makeFirstResponder(controller.firstResponder())
             previous?.viewWillDisappear(animated)
-           
-            controller.frame = self.view.focus(NSMakeSize(controller.frame.width, self.frame.height))
+
+            controller.frame = self.view.focus(NSSize(width: controller.frame.width, height: self.frame.height))
             if animated {
 
-                
                 controller.view.layer?.animateAlpha(from: 0, to: 1, duration: 0.2, completion: { [weak controller] completed in
                     if completed {
                         controller?.viewDidAppear(animated)
                     }
                 })
-                
+
                 controller.view.layer?.animateScaleSpring(from: 1.15, to: 1.0, duration: 0.3, bounce: false)
-                
+
             } else {
                 controller.viewDidAppear(animated)
                 previous?.viewDidDisappear(animated)
@@ -1220,28 +1172,25 @@ class AuthController : GenericViewController<AuthView> {
             self.current = controller
         }
     }
-    
+
     override func updateLocalizationAndTheme(theme: PresentationTheme) {
         super.updateLocalizationAndTheme(theme: theme)
-        
+
         loading_c.updateLocalizationAndTheme(theme: theme)
         token_c.updateLocalizationAndTheme(theme: theme)
         phone_number_c.updateLocalizationAndTheme(theme: theme)
         code_entry_c.updateLocalizationAndTheme(theme: theme)
         password_entry_c.updateLocalizationAndTheme(theme: theme)
-        
+
         #if !APP_STORE
         updateController.updateLocalizationAndTheme(theme: theme)
         #endif
     }
-    override func viewDidResized(_ size: NSSize) {
-        super.viewDidResized(size)
-    }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         NSApp.activate(ignoringOtherApps: true)
-        
+
     }
-    
+
 }

@@ -461,7 +461,7 @@ let recordVoiceActivityAnimationBlue:[CGImage] = {
     var animationValue:CGFloat = 0
     
     for i in 0 ..< 42 {
-        steps.append(generateRecordingAnimatedImage( CGFloat(i) / 42, color: 0x2481cc))
+        steps.append(generateRecordingAnimatedImage( CGFloat(i) / 42, color: 0xb40000))
     }
     return steps
 }()
@@ -473,7 +473,7 @@ let textActivityAnimationBlue:[CGImage] = {
     var animationValue:CGFloat = 0
     
     for i in 0 ..< 42 {
-        steps.append(generateTextAnimatedImage( CGFloat(i) / 42, color: 0x2481cc))
+        steps.append(generateTextAnimatedImage( CGFloat(i) / 42, color: 0xb40000))
     }
     return steps
 }()
