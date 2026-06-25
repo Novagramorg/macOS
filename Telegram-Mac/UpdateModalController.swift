@@ -19,10 +19,10 @@ private class UpdateTableItem : GeneralRowItem {
     
     init(_ initialSize: NSSize) {
         
-        titleLayout = TextViewLayout(.initialize(string: "Fenixuz", color: theme.colors.text, font: .medium(.title)), maximumNumberOfLines: 1)
+        titleLayout = TextViewLayout(.initialize(string: "Novagram", color: theme.colors.text, font: .medium(.title)), maximumNumberOfLines: 1)
         titleLayout.measure(width: initialSize.width - 150)
         
-        descLayout = TextViewLayout(.initialize(string: "You'll need to update Fenixuz to the latest version before you can use the app.", color: theme.colors.text, font: .normal(.text)))
+        descLayout = TextViewLayout(.initialize(string: "You'll need to update Novagram to the latest version before you can use the app.", color: theme.colors.text, font: .normal(.text)))
         descLayout.measure(width: initialSize.width - 50)
         super.init(initialSize, height: 100 + descLayout.layoutSize.height, stableId: 0)
     }
@@ -78,7 +78,7 @@ private final class UpdateView : View {
         addSubview(tableView)
         headerView.addSubview(titleView)
         headerView.border = [.Bottom]
-        let title: TextViewLayout = TextViewLayout(.initialize(string: "Fenixuz Update", color: theme.colors.text, font: .medium(.title)))
+        let title: TextViewLayout = TextViewLayout(.initialize(string: "Novagram Update", color: theme.colors.text, font: .medium(.title)))
         title.measure(width: frameRect.width - 20)
         titleView.update(title)
     }
@@ -112,7 +112,7 @@ class UpdateModalController: ModalViewController {
     }
     
     override var modalInteractions: ModalInteractions? {
-        return ModalInteractions(acceptTitle: "Update Fenixuz", accept: {
+        return ModalInteractions(acceptTitle: "Update Novagram", accept: {
             #if APP_STORE
             openFenixuzAppStore()
             #else

@@ -19,7 +19,7 @@ public let resourcesQueue = Queue(name: "ResourcesQueue", qos: .utility)
 public let prepareQueue = Queue(name: "PrepareQueue", qos: .utility)
 public let messagesViewQueue = Queue(name: "messagesViewQueue", qos: .utility)
 
-public let appName = "Fenixuz"
+public let appName = "Novagram"
 public let kMediaImageExt = "jpg";
 public let kMediaGifExt = "mov";
 public let kMediaVideoExt = "mp4";

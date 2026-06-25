@@ -21,7 +21,7 @@ struct FocusFilter: SetFocusFilterIntent {
     @Parameter(title: "Use Dark Mode", description: "Automatically enable dark mode.", default: false)
     var alwaysUseDarkMode: Bool
     
-    @Parameter(title: "Set Unable Status", description: "Set your account status to Unable. This feature requires Telegram Premium.", default: false)
+    @Parameter(title: "Set Unable Status", description: "Set your account status to Unable. This feature requires Novagram Premium.", default: false)
     var unableStatus: Bool
 
     

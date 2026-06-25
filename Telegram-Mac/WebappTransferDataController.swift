@@ -11,7 +11,7 @@ private final class HeaderItem : GeneralRowItem {
     init(_ initialSize: NSSize, stableId: AnyHashable, peer: EnginePeer, context: AccountContext) {
         self.peer = peer
         self.context = context
-        self.textLayout = .init(.initialize(string: "**\(peer._asPeer().displayTitle)** is requesting permission to import data from a previous Telegram account used on this device.", color: theme.colors.text, font: .normal(.text)).detectBold(with: .medium(.text)), alignment: .center)
+        self.textLayout = .init(.initialize(string: "**\(peer._asPeer().displayTitle)** is requesting permission to import data from a previous \(appName) account used on this device.", color: theme.colors.text, font: .normal(.text)).detectBold(with: .medium(.text)), alignment: .center)
         super.init(initialSize, stableId: stableId, viewType: .legacy)
     }
     

@@ -70,7 +70,7 @@ private let initialState = AppUpdateState(items: [], loadingState: .initializing
 private let statePromise: ValuePromise<AppUpdateState> = ValuePromise(initialState, ignoreRepeated: true)
 private let stateValue = Atomic(value: initialState)
 
-// Fenixuz (FORK_NOTES §7): `appUpdateStateSignal` removed — Sparkle disabled, no live consumers.
+// Novagram (FORK_NOTES §7): `appUpdateStateSignal` removed — Sparkle disabled, no live consumers.
 
 private let updateState: ((AppUpdateState) -> AppUpdateState) -> Void = { f in
     statePromise.set(stateValue.modify(f))
@@ -84,7 +84,7 @@ func updateApplication(sharedContext: SharedAccountContext) {
     let state = stateValue.with {$0.loadingState}
     switch state {
     case let .readyToInstall(item):
-        var text: String = "Fenixuz was updated to \(item.versionTitle.lowercased())"
+        var text: String = "Novagram was updated to \(item.versionTitle.lowercased())"
         text += "\n\n"
 
         text += item.updateText
@@ -491,7 +491,7 @@ func setAppUpdaterBaseDomain(_ domain: String?) {
 }
 
 func updateAppIfNeeded() {
-    // Fenixuz (FORK_NOTES §7 — Sparkle disabled): no-op. `stateValue.with { ... }` lazily inits the
+    // Novagram (FORK_NOTES §7 — Sparkle disabled): no-op. `stateValue.with { ... }` lazily inits the
     // global `initialState` (`AppUpdateState(items: [SUAppcastItem])`) → null Sparkle ObjC metadata →
     // EXC_BAD_ACCESS (reached on app quit via AppDelegate). Updates are disabled, nothing to install.
     return
@@ -538,7 +538,7 @@ private func resetUpdater() {
 private var updaterSource: UpdaterSource?
 
 func updater_resetWithUpdaterSource(_ source: UpdaterSource, force: Bool = true) {
-    // Fenixuz (FORK_NOTES §7 — Sparkle disabled): no-op. The original first line
+    // Novagram (FORK_NOTES §7 — Sparkle disabled): no-op. The original first line
     // (`stateValue.with { $0 }`) lazily initialises the global `initialState`
     // (`AppUpdateState(items: [SUAppcastItem])`); allocating `[SUAppcastItem]` dereferences null
     // `SUAppcastItem` ObjC metadata (Sparkle is not loaded) → EXC_BAD_ACCESS on launch via

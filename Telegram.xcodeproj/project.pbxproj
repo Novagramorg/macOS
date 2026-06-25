@@ -9032,7 +9032,7 @@
 				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = NO;
 				HEADERMAP_USES_VFS = YES;
 				INFOPLIST_FILE = "Telegram-Mac/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = Fenixuz;
+				INFOPLIST_KEY_CFBundleDisplayName = Novagram;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -9262,7 +9262,7 @@
 				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = NO;
 				HEADERMAP_USES_VFS = YES;
 				INFOPLIST_FILE = "Telegram-Mac/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = Fenixuz;
+				INFOPLIST_KEY_CFBundleDisplayName = Novagram;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

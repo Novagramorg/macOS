@@ -62,11 +62,17 @@ private func dictFromLocalization(_ value: Localization) -> [String: String] {
             dict["\(key)_other"] = other
         }
     }
-    // Fenixuz: rebrand the active language pack at load time — show "Fenixuz" instead of the
+    // Fenixuz: rebrand the active language pack at load time — show "Novagram" instead of the
     // "Telegram" brand name in every displayed value, regardless of whether the pack came from
-    // the server, the bundle, or en.lproj. Lowercase URLs (telegram.org) and keys are unaffected.
+    // the server, the bundle, or en.lproj. The all-caps section-header form ("TELEGRAM TONES",
+    // "TELEGRAM PREMIUM") is replaced too — the swap is case-sensitive, so it needs its own pass.
+    // Lowercase URLs (telegram.org) and keys are unaffected.
     return dict.mapValues { value in
-        value.contains("Telegram") ? value.replacingOccurrences(of: "Telegram", with: "Fenixuz") : value
+        value
+            .replacingOccurrences(of: "Telegram", with: "Novagram")
+            .replacingOccurrences(of: "TELEGRAM", with: "NOVAGRAM")
+            .replacingOccurrences(of: "Fenixuz", with: "Novagram")
+            .replacingOccurrences(of: "FENIXUZ", with: "NOVAGRAM")
     }
 }
 
