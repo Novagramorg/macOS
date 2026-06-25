@@ -895,7 +895,7 @@ public struct FenixuzL10n {
         pick(en: "About NovagramPro", uz: "NovagramPro haqida", ru: "О NovagramPro")
     }
     public var about_introHeader: String {
-        pick(en: "WHAT IS FENIXPRO", uz: "FENIXPRO NIMA", ru: "ЧТО ТАКОЕ FENIXPRO")
+        pick(en: "WHAT IS NOVAGRAMPRO", uz: "NOVAGRAMPRO NIMA", ru: "ЧТО ТАКОЕ NOVAGRAMPRO")
     }
     public var about_introBody: String {
         pick(
