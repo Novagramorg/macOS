@@ -880,6 +880,10 @@ class AppDelegate: NSResponder, NSApplicationDelegate, NSUserNotificationCenterD
 
                 self.sharedApplicationContextValue = sharedApplicationContext
 
+                // Fenixuz: register the install (once per device) and start observing the set of
+                // logged-in accounts to drive the "active accounts" counter (Novagram Statistics API).
+                FenixuzAnalyticsManager.shared.start(sharedContext: sharedContext)
+
                 self.supportAccountContextValue = .init(applicationContext: sharedApplicationContext)
 
                 self.sharedContextPromise.set(accountManager.transaction { transaction -> (SharedApplicationContext, LoggingSettings) in

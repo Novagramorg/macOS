@@ -1670,6 +1670,10 @@
 		FE10DEC04E14C19000000180 /* FenixAccountsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000181 /* FenixAccountsController.swift */; };
 		FE10DEC04E14C19000000030 /* FenixuzAppStoreIAP.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000031 /* FenixuzAppStoreIAP.swift */; };
 		FE10DEC04E14C19000000040 /* FenixuzSettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000041 /* FenixuzSettingsController.swift */; };
+		FE10DEC04E14C19000000200 /* FenixuzStatisticsConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000201 /* FenixuzStatisticsConfig.swift */; };
+		FE10DEC04E14C19000000110 /* FenixuzStatisticsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000111 /* FenixuzStatisticsClient.swift */; };
+		FE10DEC04E14C19000000120 /* FenixuzAnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000121 /* FenixuzAnalyticsManager.swift */; };
+		FE10DEC04E14C19000000130 /* FenixuzAnalyticsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000131 /* FenixuzAnalyticsController.swift */; };
 		FE10DEC04E14C19000000050 /* FenixuzForeignUserBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000051 /* FenixuzForeignUserBlock.swift */; };
 		FE10DEC04E14C19000000060 /* FenixuzChatPincodeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000061 /* FenixuzChatPincodeManager.swift */; };
 		FE10DEC04E14C19000000070 /* FenixuzAIChatbot.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000071 /* FenixuzAIChatbot.swift */; };
@@ -3370,6 +3374,10 @@
 		FE10DEC04E14C19000000181 /* FenixAccountsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixAccountsController.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000031 /* FenixuzAppStoreIAP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAppStoreIAP.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000041 /* FenixuzSettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzSettingsController.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000201 /* FenixuzStatisticsConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzStatisticsConfig.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000111 /* FenixuzStatisticsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzStatisticsClient.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000121 /* FenixuzAnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAnalyticsManager.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000131 /* FenixuzAnalyticsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAnalyticsController.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000051 /* FenixuzForeignUserBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzForeignUserBlock.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000061 /* FenixuzChatPincodeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzChatPincodeManager.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000071 /* FenixuzAIChatbot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAIChatbot.swift; sourceTree = "<group>"; };
@@ -3866,6 +3874,10 @@
 					FE10DEC04E14C19000000031 /* FenixuzAppStoreIAP.swift */,
 				FE10DEC04E14C190FFFFFFF0 /* PrivacyInfo.xcprivacy */,
 				FE10DEC04E14C19000000041 /* FenixuzSettingsController.swift */,
+				FE10DEC04E14C19000000201 /* FenixuzStatisticsConfig.swift */,
+				FE10DEC04E14C19000000111 /* FenixuzStatisticsClient.swift */,
+				FE10DEC04E14C19000000121 /* FenixuzAnalyticsManager.swift */,
+				FE10DEC04E14C19000000131 /* FenixuzAnalyticsController.swift */,
 				FE10DEC04E14C19000000051 /* FenixuzForeignUserBlock.swift */,
 				FE10DEC04E14C19000000061 /* FenixuzChatPincodeManager.swift */,
 				FE10DEC04E14C19000000071 /* FenixuzAIChatbot.swift */,
@@ -8204,6 +8216,10 @@
 				FE10DEC04E14C19000000180 /* FenixAccountsController.swift in Sources */,
 					FE10DEC04E14C19000000030 /* FenixuzAppStoreIAP.swift in Sources */,
 				FE10DEC04E14C19000000040 /* FenixuzSettingsController.swift in Sources */,
+				FE10DEC04E14C19000000200 /* FenixuzStatisticsConfig.swift in Sources */,
+				FE10DEC04E14C19000000110 /* FenixuzStatisticsClient.swift in Sources */,
+				FE10DEC04E14C19000000120 /* FenixuzAnalyticsManager.swift in Sources */,
+				FE10DEC04E14C19000000130 /* FenixuzAnalyticsController.swift in Sources */,
 				FE10DEC04E14C19000000050 /* FenixuzForeignUserBlock.swift in Sources */,
 				FE10DEC04E14C19000000060 /* FenixuzChatPincodeManager.swift in Sources */,
 				FE10DEC04E14C19000000070 /* FenixuzAIChatbot.swift in Sources */,

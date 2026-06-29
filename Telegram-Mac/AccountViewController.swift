@@ -131,6 +131,7 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
     case general(index: Int, viewType: GeneralViewType)
     case fenixuz(index: Int, viewType: GeneralViewType)
     case fenixAccounts(index: Int, viewType: GeneralViewType)
+    case analytics(index: Int, viewType: GeneralViewType)
     case stickers(index: Int, viewType: GeneralViewType)
     case notifications(index: Int, viewType: GeneralViewType, status: UNUserNotifications.AuthorizationStatus)
     case language(index: Int, viewType: GeneralViewType, current: String)
@@ -212,6 +213,8 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
             return .index(27)
         case .fenixAccounts:
             return .index(26)
+        case .analytics:
+            return .index(900)
         case let .attach(index, _, _):
             return .index(28 + index)
         case let .whiteSpace(index, _):
@@ -242,6 +245,8 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
         case let .fenixuz(index, _):
             return index
         case let .fenixAccounts(index, _):
+            return index
+        case let .analytics(index, _):
             return index
         case let  .proxy(index, _, _):
             return index
@@ -351,6 +356,12 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
             let icon = fenixuzSettingsIcon(systemName: "person.2.fill", color: .blue) ?? theme.icons.settingsStories
             return GeneralInteractedRowItem(initialSize, stableId: stableId, name: "Accounts", icon: icon, activeIcon: icon, type: .next, viewType: viewType, action: {
                 arguments.presentController(FenixAccountsController(context: arguments.context), true)
+            }, border: [BorderType.Right], inset: NSEdgeInsets(left: 12, right: 12))
+        case let .analytics(_, viewType):
+            // Fenixuz: Analytics page — live Novagram users + active accounts from the Statistics API.
+            let icon = fenixuzSettingsIcon(systemName: "chart.bar.fill", color: .green) ?? theme.icons.settingsGeneral
+            return GeneralInteractedRowItem(initialSize, stableId: stableId, name: "Analytics", icon: icon, activeIcon: icon, type: .next, viewType: viewType, action: {
+                arguments.presentController(FenixuzAnalyticsController(arguments.context), true)
             }, border: [BorderType.Right], inset: NSEdgeInsets(left: 12, right: 12))
         case let .stories(_, viewType):
             return GeneralInteractedRowItem(initialSize, stableId: stableId, name: strings().accountSettingsMyProfile, icon: theme.icons.settingsStories, activeIcon: theme.icons.settingsStoriesActive, type: .next, viewType: viewType, action: {
@@ -575,6 +586,10 @@ private func accountInfoEntries(peerView: PeerView, context: AccountContext, acc
 
     // Fenixuz: FenixuzPro pinned to the top of the settings list (above My Profile).
     entries.append(.fenixuz(index: index, viewType: .singleItem))
+    index += 1
+
+    // Fenixuz: Analytics page — live Novagram users + active accounts.
+    entries.append(.analytics(index: index, viewType: .singleItem))
     index += 1
 
     entries.append(.stories(index: index, viewType: .singleItem))
@@ -1166,7 +1181,7 @@ class AccountViewController: TelegramGenericViewController<AccountControllerView
                     }
                 case controller.identifier.hasPrefix("business"):
                     if let item = tableView.item(stableId: AnyHashable(AccountInfoEntryId.index(19))) {
-                        _ = tableView.select(item: item)
+                        _ = tableView .select(item: item)
                     }
                 default:
                     tableView.cancelSelection()
