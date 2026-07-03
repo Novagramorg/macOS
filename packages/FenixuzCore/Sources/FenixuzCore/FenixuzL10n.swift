@@ -628,6 +628,26 @@ public struct FenixuzL10n {
         pick(en: "Wrong pincode", uz: "Noto'g'ri kod", ru: "Неправильный пинкод")
     }
 
+    // MARK: - Chat Lock master + recovery (#46)
+
+    public var chatLock_settingsTitle: String { pick(en: "Chat Lock", uz: "Chat Lock", ru: "Блокировка чатов") }
+    public var chatLock_settingsSubtitle: String { pick(en: "Master pincode to lock individual chats", uz: "Chatlarni qulflash uchun asosiy pinkod", ru: "Главный пин-код для блокировки чатов") }
+    public var chatLock_menuSet: String { pick(en: "🔒 Set Pincode", uz: "🔒 Pincode qo'yish", ru: "🔒 Установить пин-код") }
+    public var chatLock_menuRemove: String { pick(en: "🔓 Remove Pincode", uz: "🔓 Pincode o'chirish", ru: "🔓 Удалить пин-код") }
+    public var chatLock_forgot: String { pick(en: "Forgot pincode?", uz: "Pinkodni unutdingizmi?", ru: "Забыли пин-код?") }
+    public var chatLock_verifyMaster_title: String { pick(en: "Enter master pincode", uz: "Asosiy pinkodni kiriting", ru: "Введите главный пин-код") }
+    public var chatLock_verifyMaster_subtitle: String { pick(en: "Unlocks this chat and removes its pincode", uz: "Chatni ochadi va pinkodini o'chiradi", ru: "Откроет чат и удалит его пин-код") }
+    public var chatLock_recoveryHint: String { pick(en: "Forgot it? Use the option below.", uz: "Unutdingizmi? Pastdagi variantdan foydalaning.", ru: "Забыли? Используйте вариант ниже.") }
+    public var chatLock_resetButton: String { pick(en: "Reset Chat Lock", uz: "Chat Lock'ni reset qilish", ru: "Сбросить Chat Lock") }
+    public var chatLock_resetConfirmTitle: String { pick(en: "Reset Chat Lock?", uz: "Chat Lock reset qilinsinmi?", ru: "Сбросить Chat Lock?") }
+    public var chatLock_resetConfirmMessage: String { pick(en: "This removes the master pincode and unlocks every chat. Your messages are not deleted.", uz: "Bu asosiy pinkodni o'chiradi va barcha chatlarni ochadi. Xabarlaringiz o'chmaydi.", ru: "Это удалит главный пин-код и разблокирует все чаты. Сообщения не удаляются.") }
+    public var chatLock_resetConfirmAction: String { pick(en: "Reset", uz: "Reset", ru: "Сбросить") }
+    public var chatLock_cancel: String { pick(en: "Cancel", uz: "Bekor qilish", ru: "Отмена") }
+    public var chatLock_resetReason: String { pick(en: "Confirm your identity to reset Chat Lock", uz: "Chat Lock'ni reset qilish uchun shaxsingizni tasdiqlang", ru: "Подтвердите личность для сброса Chat Lock") }
+    public var chatLock_masterSetTitle: String { pick(en: "Set master pincode", uz: "Asosiy pinkod o'rnating", ru: "Установите главный пин-код") }
+    public var chatLock_disableConfirmTitle: String { pick(en: "Turn off Chat Lock?", uz: "Chat Lock o'chirilsinmi?", ru: "Отключить блокировку?") }
+    public var chatLock_disableConfirmMessage: String { pick(en: "This removes the master pincode and unlocks every chat.", uz: "Bu asosiy pinkodni o'chiradi va barcha chatlarni ochadi.", ru: "Это удалит главный пин-код и разблокирует все чаты.") }
+
     // MARK: - Edited message history
 
     public var editedHistory_screenTitle: String {
@@ -887,6 +907,16 @@ public struct FenixuzL10n {
     }
 
     // MARK: - About FenixPro — iOS 1:1 (Mac-accurate descriptions)
+
+    // MARK: - Novagram Bots page
+
+    public var bots_rowTitle: String {
+        pick(en: "Novagram Bots", uz: "Novagram botlari", ru: "Боты Novagram")
+    }
+
+    public var bots_screenTitle: String {
+        pick(en: "Novagram Bots", uz: "Novagram botlari", ru: "Боты Novagram")
+    }
 
     public var about_rowTitle: String {
         pick(en: "About NovagramPro", uz: "NovagramPro haqida", ru: "О NovagramPro")

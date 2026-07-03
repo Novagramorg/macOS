@@ -3159,7 +3159,35 @@ class PeersListController: TelegramGenericViewController<PeerListContainerView>,
         }
     }
 
+    // Fenixuz #46: peers unlocked via the Chat Lock verify sheet this session; lets a
+    // successful unlock re-enter open(with:) without re-prompting.
+    private var chatLockUnlocked: Set<PeerId> = []
+
     func open(with entryId: UIChatListEntryId, messageId: MessageId? = nil, initialAction: ChatInitialAction? = nil, close: Bool = true, addition: Bool = false, forceAnimated: Bool = false, threadId: Int64? = nil, openAsTopics: Bool = false) {
+
+        // Fenixuz #46: gate opening a pincode-locked chat behind the verify sheet. A correct
+        // entry re-enters open(with:) with the peer bypassed; "Forgot pincode?" routes to
+        // master-pincode recovery when a master is set. (Covers chat-list clicks only.)
+        if case let .chatId(_, lockedPeerId, _) = entryId,
+           FenixuzChatPincodeManager.shared.isLocked(lockedPeerId),
+           !self.chatLockUnlocked.contains(lockedPeerId) {
+            let manager = FenixuzChatPincodeManager.shared
+            let lockWindow = self.context.window
+            let proceed: () -> Void = { [weak self] in
+                guard let self = self else { return }
+                self.chatLockUnlocked.insert(lockedPeerId)
+                self.open(with: entryId, messageId: messageId, initialAction: initialAction, close: close, addition: addition, forceAnimated: forceAnimated, threadId: threadId, openAsTopics: openAsTopics)
+            }
+            let onForgot: (() -> Void)? = manager.isMasterEnabled() ? { [weak self] in
+                guard let self = self else { return }
+                FenixuzChatPincode.presentMasterRecovery(for: self.context.window, onSuccess: {
+                    manager.removePincode(for: lockedPeerId)
+                    proceed()
+                })
+            } : nil
+            FenixuzChatPincode.presentVerify(for: lockWindow, verify: { manager.verify($0, for: lockedPeerId) }, onSuccess: proceed, onForgot: onForgot)
+            return
+        }
 
         let navigation = context.bindings.rootNavigation()
 

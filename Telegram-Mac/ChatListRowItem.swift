@@ -2056,6 +2056,24 @@ class ChatListRowItem: TableRowItem {
                 secondGroup.append(item)
             }
 
+            // Fenixuz #46: per-chat lock context item — shown ONLY once a master pincode is set,
+            // never on Saved Messages. Set/Remove use the same verify sheet as the open-gate.
+            if let peerId = peerId, peerId != context.peerId, !mode.savedMessages, FenixuzChatPincodeManager.shared.isMasterEnabled() {
+                let manager = FenixuzChatPincodeManager.shared
+                let l = FenixuzL10n.current
+                if manager.isLocked(peerId) {
+                    thirdGroup.append(ContextMenuItem(l.chatLock_menuRemove, handler: {
+                        FenixuzChatPincode.presentRemove(for: context.window, verify: { manager.verify($0, for: peerId) }, onSuccess: { manager.removePincode(for: peerId) })
+                    }, itemImage: MenuAnimation.menu_unlock.value))
+                } else {
+                    thirdGroup.append(ContextMenuItem(l.chatLock_menuSet, handler: {
+                        FenixuzChatPincode.presentSet(for: context.window) { code in
+                            manager.setPincode(code, for: peerId)
+                        }
+                    }, itemImage: MenuAnimation.menu_lock.value))
+                }
+            }
+
             let blocks: [[ContextMenuItem]] = [zeroGroup, firstGroup,
                                               secondGroup,
                                               thirdGroup].filter { !$0.isEmpty }

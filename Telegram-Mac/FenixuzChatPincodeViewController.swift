@@ -13,25 +13,29 @@
 //    - Uses a ModalViewController (centered sheet) instead of full-screen modal.
 //    - Number pad uses TextButton instances laid out manually (no UIButton).
 //    - Shake animation is a CAKeyframeAnimation on the dots row layer.
-//    - No biometric prompt (Touch ID / Face ID) — Mac side is keyboard+mouse
-//      first; the iOS biometric block is intentionally omitted. The data
-//      manager (`FenixuzChatPincodeManager`) does not encrypt with biometrics
-//      either, so no asymmetry is introduced.
+//    - No per-chat biometric prompt — Mac side is keyboard+mouse first; the iOS
+//      per-chat biometric block is intentionally omitted. The ONLY biometric use
+//      is the master "Reset Chat Lock" escape hatch, which uses
+//      LAContext.deviceOwnerAuthentication (Touch ID OR the Mac login password).
 //
 //  Callers wire pin gate via the helpers at the bottom of this file:
 //    FenixuzChatPincode.presentSet(for: window, onSuccess: { code in ... })
-//    FenixuzChatPincode.presentVerify(for: window, expecting: { ... }, onSuccess: { ... })
-//    FenixuzChatPincode.presentRemove(for: window, expecting: { ... }, onSuccess: { ... })
+//    FenixuzChatPincode.presentVerify(for: window, verify: { ... }, onSuccess: { ... })
+//    FenixuzChatPincode.presentRemove(for: window, verify: { ... }, onSuccess: { ... })
+//    FenixuzChatPincode.presentMasterRecovery(for: window, onSuccess: { ... })
 
 import Cocoa
 import TGUIKit
 import Postbox
 import TelegramCore
 import FenixuzCore
+import LocalAuthentication
 
 public enum FenixuzChatPincodeMode {
     case set(onSuccess: (String) -> Void)
-    case verify(onVerify: (String) -> Bool, onSuccess: () -> Void)
+    // onForgot: when non-nil a "Forgot pincode?" link appears that invokes it
+    // (master-pincode recovery). Default nil keeps existing call sites unchanged.
+    case verify(onVerify: (String) -> Bool, onSuccess: () -> Void, onForgot: (() -> Void)? = nil)
     case remove(onVerify: (String) -> Bool, onSuccess: () -> Void)
 }
 
@@ -44,6 +48,7 @@ private final class PincodeView: NSView {
     private(set) var dotViews: [NSView] = []
     let padContainer: NSView = NSView()
     let closeButton: ImageButton = ImageButton()
+    let forgotButton: TextButton = TextButton()
 
     private let isDark: Bool
 
@@ -60,7 +65,7 @@ private final class PincodeView: NSView {
         }
         closeButton.autohighlight = false
         closeButton.scaleOnClick = true
-        closeButton.frame = NSMakeRect(0, 0, 28, 28)
+        closeButton.frame = NSRect(x: 0, y: 0, width: 28, height: 28)
         addSubview(closeButton)
 
         // Title.
@@ -74,7 +79,7 @@ private final class PincodeView: NSView {
         // Dots.
         addSubview(dotsContainer)
         for _ in 0..<4 {
-            let dot = NSView(frame: NSMakeRect(0, 0, 16, 16))
+            let dot = NSView(frame: NSRect(x: 0, y: 0, width: 16, height: 16))
             dot.wantsLayer = true
             dot.layer?.cornerRadius = 8
             dot.layer?.borderWidth = 2
@@ -83,6 +88,10 @@ private final class PincodeView: NSView {
         }
 
         addSubview(padContainer)
+
+        // "Forgot pincode?" / "Reset Chat Lock" link — hidden until wired by the controller.
+        forgotButton.isHidden = true
+        addSubview(forgotButton)
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -111,29 +120,33 @@ private final class PincodeView: NSView {
         let h = bounds.height
 
         // Close button — top-right.
-        closeButton.frame = NSMakeRect(w - 12 - 28, h - 12 - 28, 28, 28)
+        closeButton.frame = NSRect(x: w - 12 - 28, y: h - 12 - 28, width: 28, height: 28)
 
         // Title — center, top quarter.
         let titleSize = titleLabel.frame.size
-        titleLabel.setFrameOrigin(NSMakePoint((w - titleSize.width) / 2, h - 64 - titleSize.height))
+        titleLabel.setFrameOrigin(NSPoint(x: (w - titleSize.width) / 2, y: h - 64 - titleSize.height))
 
         // Subtitle — below title.
         let subSize = subtitleLabel.frame.size
-        subtitleLabel.setFrameOrigin(NSMakePoint((w - subSize.width) / 2, titleLabel.frame.minY - 8 - subSize.height))
+        subtitleLabel.setFrameOrigin(NSPoint(x: (w - subSize.width) / 2, y: titleLabel.frame.minY - 8 - subSize.height))
 
         // Dots — below subtitle.
         let dotSize: CGFloat = 16
         let dotSpacing: CGFloat = 18
         let dotsWidth = CGFloat(dotViews.count) * dotSize + CGFloat(dotViews.count - 1) * dotSpacing
-        dotsContainer.frame = NSMakeRect((w - dotsWidth) / 2, subtitleLabel.frame.minY - 36 - dotSize, dotsWidth, dotSize)
+        dotsContainer.frame = NSRect(x: (w - dotsWidth) / 2, y: subtitleLabel.frame.minY - 36 - dotSize, width: dotsWidth, height: dotSize)
         for (i, dot) in dotViews.enumerated() {
-            dot.frame = NSMakeRect(CGFloat(i) * (dotSize + dotSpacing), 0, dotSize, dotSize)
+            dot.frame = NSRect(x: CGFloat(i) * (dotSize + dotSpacing), y: 0, width: dotSize, height: dotSize)
         }
 
-        // Pad — bottom centered.
+        // Pad — centered, raised to leave a bottom band for the forgot/reset link.
         let padWidth: CGFloat = 240
         let padHeight: CGFloat = 4 * 56 + 3 * 10
-        padContainer.frame = NSMakeRect((w - padWidth) / 2, 28, padWidth, padHeight)
+        padContainer.frame = NSRect(x: (w - padWidth) / 2, y: 52, width: padWidth, height: padHeight)
+
+        // Forgot / Reset link — bottom band, centered under the pad.
+        let forgotSize = forgotButton.frame.size
+        forgotButton.setFrameOrigin(NSPoint(x: (w - forgotSize.width) / 2, y: 16))
     }
 }
 
@@ -142,16 +155,22 @@ private final class PincodeView: NSView {
 final class FenixuzChatPincodeViewController: ModalViewController {
 
     private let mode: FenixuzChatPincodeMode
+    // When true this is the master-pincode recovery screen ("Forgot pincode?"),
+    // which shows a distinct title/subtitle and a device-owner "Reset" escape hatch.
+    private let isMasterRecovery: Bool
 
     private var enteredCode: String = ""
     private var firstCode: String = ""
     private var isConfirming: Bool = false
+    // Wrong-entry counter (verify/master). After 4 we surface recovery — never a lockout.
+    private var failedAttempts = 0
 
     private var pincodeView: PincodeView!
 
-    init(mode: FenixuzChatPincodeMode) {
+    init(mode: FenixuzChatPincodeMode, isMasterRecovery: Bool = false) {
         self.mode = mode
-        super.init(frame: NSMakeRect(0, 0, 360, 520))
+        self.isMasterRecovery = isMasterRecovery
+        super.init(frame: NSRect(x: 0, y: 0, width: 360, height: 520))
         self.bar = .init(height: 0)
     }
 
@@ -180,6 +199,19 @@ final class FenixuzChatPincodeViewController: ModalViewController {
         genericView.closeButton.set(handler: { [weak self] _ in
             self?.close()
         }, for: .Click)
+
+        // Forgot / Reset link — chat-verify recovery + master-recovery reset.
+        let forgot = genericView.forgotButton
+        forgot.set(font: .medium(.text), for: .Normal)
+        forgot.set(color: presentation.colors.accent, for: .Normal)
+        forgot.set(text: isMasterRecovery ? FenixuzL10n.current.chatLock_resetButton : FenixuzL10n.current.chatLock_forgot, for: .Normal)
+        forgot.autohighlight = false
+        forgot.scaleOnClick = true
+        _ = forgot.sizeToFit()
+        forgot.set(handler: { [weak self] _ in
+            self?.forgotTapped()
+        }, for: .Click)
+        syncForgotVisibility()
 
         // Initial labels + dot colors.
         updateLabels()
@@ -218,11 +250,9 @@ final class FenixuzChatPincodeViewController: ModalViewController {
             }
             btn.autohighlight = label != "⌫"
             btn.scaleOnClick = true
-            btn.frame = NSMakeRect(
-                CGFloat(col) * (buttonSize + spacing),
-                pad.bounds.height - buttonSize - CGFloat(row) * (buttonSize + spacing),
-                buttonSize, buttonSize
-            )
+            btn.frame = NSRect(x: CGFloat(col) * (buttonSize + spacing),
+                               y: pad.bounds.height - buttonSize - CGFloat(row) * (buttonSize + spacing),
+                               width: buttonSize, height: buttonSize)
             // Use a tag to recover the action without capturing a strong ref.
             btn.set(handler: { [weak self] _ in
                 guard let self = self else { return }
@@ -251,8 +281,13 @@ final class FenixuzChatPincodeViewController: ModalViewController {
                 subtitleText = l10n.pincode_set_subtitle
             }
         case .verify:
-            titleText = l10n.pincode_verify_title
-            subtitleText = l10n.pincode_verify_subtitle
+            if isMasterRecovery {
+                titleText = l10n.chatLock_verifyMaster_title
+                subtitleText = l10n.chatLock_verifyMaster_subtitle
+            } else {
+                titleText = l10n.pincode_verify_title
+                subtitleText = l10n.pincode_verify_subtitle
+            }
         case .remove:
             titleText = l10n.pincode_remove_title
             subtitleText = l10n.pincode_remove_subtitle
@@ -327,14 +362,18 @@ final class FenixuzChatPincodeViewController: ModalViewController {
                 shakeAndReset(message: FenixuzL10n.current.pincode_error_mismatch)
             }
 
-        case let .verify(onVerify, onSuccess):
+        case let .verify(onVerify, onSuccess, _):
             if onVerify(enteredCode) {
                 close()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                     onSuccess()
                 }
             } else {
+                failedAttempts += 1
                 shakeAndReset(message: FenixuzL10n.current.pincode_error_wrong)
+                if failedAttempts >= 4 {
+                    revealRecovery()
+                }
             }
 
         case let .remove(onVerify, onSuccess):
@@ -376,6 +415,95 @@ final class FenixuzChatPincodeViewController: ModalViewController {
             self.updateDots(animated: true)
         }
     }
+
+    // MARK: - Forgot / master recovery
+
+    /// The optional master-recovery handler — present only in `.verify` mode.
+    private var verifyOnForgot: (() -> Void)? {
+        if case let .verify(_, _, onForgot) = mode {
+            return onForgot
+        }
+        return nil
+    }
+
+    /// Chat verify: show "Forgot pincode?" immediately when a recovery handler exists.
+    /// Master recovery: hide "Reset Chat Lock" until the user has struggled (4 wrong tries).
+    private func syncForgotVisibility() {
+        genericView.forgotButton.isHidden = isMasterRecovery ? (failedAttempts < 4) : (verifyOnForgot == nil)
+        genericView.needsLayout = true
+    }
+
+    private func forgotTapped() {
+        if isMasterRecovery {
+            resetChatLockTapped()
+        } else if let onForgot = verifyOnForgot {
+            // Close this chat-verify sheet first so the master-recovery sheet
+            // doesn't stack on top of an orphaned modal.
+            close()
+            onForgot()
+        }
+    }
+
+    /// Escape hatch when the user has ALSO forgotten the master pincode. Chat Lock is a
+    /// local privacy gate (messages live on Telegram's servers), so a device-owner-proven
+    /// reset loses no data. Requires Touch ID / the Mac login password so a snooper can't
+    /// just tap it.
+    private func resetChatLockTapped() {
+        guard let window = self.window else { return }
+        let l = FenixuzL10n.current
+        verifyAlert(for: window,
+                    header: l.chatLock_resetConfirmTitle,
+                    information: l.chatLock_resetConfirmMessage,
+                    ok: l.chatLock_resetConfirmAction,
+                    cancel: l.chatLock_cancel,
+                    successHandler: { [weak self] _ in
+            self?.authenticateThenReset()
+        })
+    }
+
+    private func authenticateThenReset() {
+        let proceed: () -> Void = { [weak self] in
+            guard let self = self else { return }
+            FenixuzChatPincodeManager.shared.disableChatLock()
+            self.close()
+            if case let .verify(_, onSuccess, _) = self.mode {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { onSuccess() }
+            }
+        }
+        let ctx = LAContext()
+        var authError: NSError?
+        // deviceOwnerAuthentication = Touch ID with a Mac-password fallback.
+        if ctx.canEvaluatePolicy(.deviceOwnerAuthentication, error: &authError) {
+            ctx.evaluatePolicy(.deviceOwnerAuthentication,
+                               localizedReason: FenixuzL10n.current.chatLock_resetReason) { ok, _ in
+                DispatchQueue.main.async { if ok { proceed() } }
+            }
+        } else {
+            // No passcode/Touch ID on this Mac — no security boundary to honor.
+            proceed()
+        }
+    }
+
+    /// After 4 wrong entries we never lock the owner out — we make recovery obvious instead.
+    private func revealRecovery() {
+        guard isMasterRecovery || verifyOnForgot != nil else { return }
+        let isDark = presentation.colors.isDark
+        let subColor: NSColor = isDark ? NSColor(white: 1, alpha: 0.55) : NSColor(white: 0, alpha: 0.5)
+        let hintAttr = NSAttributedString.initialize(string: FenixuzL10n.current.chatLock_recoveryHint, color: subColor, font: .normal(14))
+        let hintLayout = TextViewLayout(hintAttr, alignment: .center)
+        hintLayout.measure(width: 320)
+        genericView.subtitleLabel.update(hintLayout)
+        genericView.needsLayout = true
+        if isMasterRecovery {
+            genericView.forgotButton.isHidden = false
+        }
+        guard !genericView.forgotButton.isHidden else { return }
+        let pulse = CAKeyframeAnimation(keyPath: "transform.scale")
+        pulse.values = [1.0, 1.12, 1.0]
+        pulse.keyTimes = [0, 0.5, 1]
+        pulse.duration = 0.3
+        genericView.forgotButton.layer?.add(pulse, forKey: "pulse")
+    }
 }
 
 // MARK: - Public helper namespace
@@ -388,8 +516,9 @@ public enum FenixuzChatPincode {
 
     public static func presentVerify(for window: Window,
                                      verify: @escaping (String) -> Bool,
-                                     onSuccess: @escaping () -> Void) {
-        let controller = FenixuzChatPincodeViewController(mode: .verify(onVerify: verify, onSuccess: onSuccess))
+                                     onSuccess: @escaping () -> Void,
+                                     onForgot: (() -> Void)? = nil) {
+        let controller = FenixuzChatPincodeViewController(mode: .verify(onVerify: verify, onSuccess: onSuccess, onForgot: onForgot))
         showModal(with: controller, for: window)
     }
 
@@ -397,6 +526,17 @@ public enum FenixuzChatPincode {
                                      verify: @escaping (String) -> Bool,
                                      onSuccess: @escaping () -> Void) {
         let controller = FenixuzChatPincodeViewController(mode: .remove(onVerify: verify, onSuccess: onSuccess))
+        showModal(with: controller, for: window)
+    }
+
+    /// Master-pincode recovery sheet ("Enter master pincode" + device-owner Reset).
+    public static func presentMasterRecovery(for window: Window,
+                                             onSuccess: @escaping () -> Void) {
+        let controller = FenixuzChatPincodeViewController(
+            mode: .verify(onVerify: { FenixuzChatPincodeManager.shared.verifyMaster($0) },
+                          onSuccess: onSuccess,
+                          onForgot: nil),
+            isMasterRecovery: true)
         showModal(with: controller, for: window)
     }
 

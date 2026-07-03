@@ -237,6 +237,44 @@ Apple Submission `a0ff9208-00df-4016-9721-4cd5fd7619ce` (review 2026-06-01, buil
 
 **Eslatma — ASC metadata:** binary tuzatildi, lekin App Store Connect listing'da (subtitle, keywords, promotional text, description, screenshots) "Telegram" bo'lmasligini foydalanuvchi tekshirishi kerak (Apple metadata'ni ham tekshiradi).
 
+### 3.12 Ads Remove Easter-egg — Settings'da version'ga 10x click (2026-07-03)
+
+iOS Feature #6 portasi (NovagramPro sahifasidagi yashirin "Ads" bo'limi). Mac'da trigger: **Settings pastidagi version yozuviga 0.7s oraliqda 10 marta bosish** → yashirin "Show ads" switch qatori ochiladi/yashirinadi (alert bilan tasdiqlanadi). Holat iOS bilan **bir xil kalitlarda** saqlanadi:
+
+```
+UserDefaults(suiteName: "pro_messager")
+  "fenix_show_ads"             Bool, default true  — sponsored xabarlar ko'rsatiladi
+  "fenix_ads_section_revealed" Bool, default false — yashirin qator ko'rinadi
+```
+
+**Yangi fayl:** `Telegram-Mac/FenixuzAdsEasterEgg.swift` — `FenixuzAdsGate` (storage + 10-click counter + `uiState: ValuePromise`), `FenixuzAdsStrings` (en/uz/ru), `FenixuzVersionRowItem/View` (GeneralBlockTextRowItem ko'rinishidagi version qatori, `mouseDown`da click sanaydi). pbxproj'ga 4 joyda qo'shilgan (UUID `FE10DEC04E14C19000000230/231`).
+
+**Hook'lar:**
+- `Telegram-Mac/AccountViewController.swift` — 7 nuqta: `fenixShowAds` enum case (stableId `.index(901)`), `.about` case endi `FenixuzVersionRowItem` qaytaradi (click → `FenixuzAdsGate.handleVersionClick`), `accountInfoEntries(...)`ga `fenixAds: FenixuzAdsGate.UIState` param + reveal bo'lsa switch qatori, `combineLatest`ga 15-signal `FenixuzAdsGate.uiState.get()`.
+- `Telegram-Mac/ChatController.swift` (~line 9349) — `adMessages: ChatAdData?` yaratilishida uchinchi shart: `FenixuzAdsGate.showAds`. `false` bo'lsa `ChatAdData` umuman yaratilmaydi → sponsored xabarlar so'ralmaydi ham. iOS'dagi `ChatHistoryListNode` hook'i bilan bir xil semantika: qiymat chat ochilganda o'qiladi (ochiq chatlar qayta ochilganda yangi holatni oladi).
+
+**Eslatma:** Bu Telegram Premium'ning rasmiy "no ads" funksiyasi EMAS — server baribir sponsored xabarlarni yuboradi, klient shunchaki so'ramaydi/ko'rsatmaydi. Apple Review uchun ko'rinmas (yashirin Easter-egg, default holat upstream bilan bir xil).
+
+### 3.13 Chat Lock master pincode + recovery (#46) (2026-07-03)
+
+iOS Feature #46 portasi. "Chat Lock" — bitta **master pincode** butun funksiyani yoqadi/o'chiradi va per-chat qulf uchun **recovery** ("Forgot pincode?") kaliti bo'lib xizmat qiladi. Mac faqat **PIN** (type picker yo'q, per-chat biometrik yo'q, metadata service yo'q). Master **Reset** device-owner auth (`LAContext.deviceOwnerAuthentication` = Touch ID yoki Mac login paroli) orqali — hech qanday xabar o'chmaydi (Chat Lock — lokal privacy gate).
+
+**Storage:** `FenixuzChatPincodeManager` — Keychain service `uz.fenixuz.app.ChatLock`, reserved account `__fenix_master__`. Fake-codesign/unsigned Debug build'da Keychain `-34018` (errSecMissingEntitlement) berganda **salted-SHA256 UserDefaults fallback** (`fenixuz_chatlock_fb_*`, CryptoKit) ishga tushadi — aks holda master dev build'da jim no-op bo'lar edi.
+
+**Fenixuz-owned fayllar (upstream EMAS — merge hook talab qilmaydi):**
+- `Telegram-Mac/FenixuzChatPincodeManager.swift` — master API (`isMasterEnabled/setMasterPincode/verifyMaster/removeMaster/disableChatLock`) + salted-SHA256 fallback.
+- `Telegram-Mac/FenixuzChatPincodeViewController.swift` — `.verify`ga `onForgot`, `isMasterRecovery` init flag, `failedAttempts` + 4-marta xatodan keyin recovery link, master reset (`verifyAlert` → `LAContext`), `presentMasterRecovery` helper.
+- `packages/FenixuzCore/Sources/FenixuzCore/FenixuzL10n.swift` — `chatLock_*` string'lar (en/uz/ru). SPM package → pbxproj entry yo'q.
+- `Telegram-Mac/FenixuzSettingsController.swift` — PROTECTION section'da "Chat Lock" master toggle (`.chatLockToggle` case + `updateChatLockMaster`: ON → presentSet+setMasterPincode, OFF → verifyAlert+disableChatLock).
+
+**UPSTREAM hook'lar (2 ta — `git pull upstream`da qayta qo'llash kerak, minimal guarded block):**
+- `Telegram-Mac/ChatListRowItem.swift` — `menuItems(in:)` ichida `let blocks: [[ContextMenuItem]] = ...` dan oldin per-chat "🔒 Set / 🔓 Remove Pincode" konteks menu item. Guard: `peerId != context.peerId && !mode.savedMessages && FenixuzChatPincodeManager.shared.isMasterEnabled()`. `thirdGroup`ga qo'shiladi.
+- `Telegram-Mac/PeersListController.swift` — `open(with entryId:...)` boshida verify-gate: `.chatId` locked bo'lsa `presentVerify` chiqadi; to'g'ri PIN → `chatLockUnlocked: Set<PeerId>` bypass set'ga qo'shib `open`ni qayta chaqiradi (re-entrancy, minimal diff). "Forgot pincode?" → master enabled bo'lsa `presentMasterRecovery`, muvaffaqiyatda shu chatning qulfini o'chiradi.
+
+**Coverage caveat:** open-gate faqat chat-list click yo'lini qamraydi. Global search, notification, deep-link, forward orqali ochilgan locked chat v1'da gate'lanmaydi (dormant base'ning original chat-list-only niyatiga mos). To'liq qamrov `ChatController`/`navigateToChat` deeper funnel'ni talab qiladi — v1 scope'idan tashqari.
+
+**pbxproj:** yangi `.swift` fayl YO'Q → 0 ta pbxproj entry.
+
 ---
 
 ## 4. Demo account auto-fill (asosiy maqsad)
