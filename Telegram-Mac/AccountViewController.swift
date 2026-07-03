@@ -148,6 +148,7 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
     case stars(index: Int, count: StarsAmount, viewType: GeneralViewType)
     case ton(index: Int, count: StarsAmount, viewType: GeneralViewType)
     case about(index: Int, viewType: GeneralViewType)
+    case fenixShowAds(index: Int, viewType: GeneralViewType, value: Bool)
     case faq(index: Int, viewType: GeneralViewType)
     case ask(index: Int, viewType: GeneralViewType)
 
@@ -209,6 +210,8 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
             return .index(24)
         case .about:
             return .index(25)
+        case .fenixShowAds:
+            return .index(901)
         case .fenixuz:
             return .index(27)
         case .fenixAccounts:
@@ -265,6 +268,8 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
         case let .activeSessions(index, _, _):
             return index
         case let .about(index, _):
+            return index
+        case let .fenixShowAds(index, _, _):
             return index
         case let .passport(index, _, _):
             return index
@@ -437,8 +442,18 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
             return GeneralInteractedRowItem(initialSize, stableId: stableId, name: strings().privacySettingsActiveSessions, icon: theme.icons.settingsSessions, activeIcon: theme.icons.settingsSessionsActive, type: count > 0 ? .nextContext("\(count)") : .none, viewType: viewType, action: {
                 arguments.presentController(RecentSessionsController(arguments.context), true)
             }, border: [BorderType.Right], inset: NSEdgeInsets(left: 12, right: 12))
-        case .about:
-            return GeneralBlockTextRowItem(initialSize, stableId: stableId, viewType: .modern(position: .single, insets: .init()), text: APP_VERSION_STRING, font: .normal(.text), color: theme.colors.grayText)
+        case let .about(_, viewType):
+            // Fenixuz: version row — 10 quick clicks here toggle the hidden Ads row (FenixuzAdsEasterEgg.swift).
+            // Uses the standard interacted row so the table's own click machinery fires
+            // the action on every tap (a custom non-selectable row never receives clicks).
+            return GeneralInteractedRowItem(initialSize, stableId: stableId, name: APP_VERSION_STRING, nameStyle: ControlStyle(font: .normal(.text), foregroundColor: theme.colors.grayText), type: .none, viewType: viewType, action: {
+                FenixuzAdsGate.handleVersionClick(window: arguments.context.window)
+            }, border: [BorderType.Right], inset: NSEdgeInsets(left: 12, right: 12))
+        case let .fenixShowAds(_, viewType, value):
+            // Fenixuz: hidden ads toggle — revealed by 10 quick clicks on the version row below.
+            return GeneralInteractedRowItem(initialSize, stableId: stableId, name: FenixuzAdsStrings.toggleTitle(langCode: appCurrentLanguage.languageCode), description: FenixuzAdsStrings.toggleTip(langCode: appCurrentLanguage.languageCode), type: .switchable(value), viewType: viewType, action: {
+                FenixuzAdsGate.setShowAds(!value)
+            }, border: [BorderType.Right], inset: NSEdgeInsets(left: 12, right: 12))
         case let .passport(_, viewType, peer):
             return GeneralInteractedRowItem(initialSize, stableId: stableId, name: strings().accountSettingsPassport, icon: theme.icons.settingsPassport, activeIcon: theme.icons.settingsPassportActive, type: .next, viewType: viewType, action: {
                 arguments.presentController(PassportController(arguments.context, peer.peer, request: nil, nil), true)
@@ -509,7 +524,7 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
 
 }
 
-private func accountInfoEntries(peerView: PeerView, context: AccountContext, accounts: [AccountWithInfo], language: TelegramLocalization, privacySettings: AccountPrivacySettings?, webSessions: WebSessionsContextState, proxySettings: (ProxySettings, ConnectionStatus), passportVisible: Bool, appUpdateState: Any?, hasFilters: Bool, sessionsCount: Int, unAuthStatus: UNUserNotifications.AuthorizationStatus, has2fa: Bool, twoStepConfiguration: TwoStepVeriticationAccessConfiguration?, storyStats: EngineStorySubscriptions?, attachMenuBots: [AttachMenuBot], stars: StarsContext.State?, ton: StarsContext.State?) -> [AccountInfoEntry] {
+private func accountInfoEntries(peerView: PeerView, context: AccountContext, accounts: [AccountWithInfo], language: TelegramLocalization, privacySettings: AccountPrivacySettings?, webSessions: WebSessionsContextState, proxySettings: (ProxySettings, ConnectionStatus), passportVisible: Bool, appUpdateState: Any?, hasFilters: Bool, sessionsCount: Int, unAuthStatus: UNUserNotifications.AuthorizationStatus, has2fa: Bool, twoStepConfiguration: TwoStepVeriticationAccessConfiguration?, storyStats: EngineStorySubscriptions?, attachMenuBots: [AttachMenuBot], stars: StarsContext.State?, ton: StarsContext.State?, fenixAds: FenixuzAdsGate.UIState) -> [AccountInfoEntry] {
     var entries: [AccountInfoEntry] = []
 
     var index: Int = 0
@@ -703,6 +718,14 @@ private func accountInfoEntries(peerView: PeerView, context: AccountContext, acc
 
     entries.append(.whiteSpace(index: index, height: 20))
     index += 1
+
+    // Fenixuz: hidden Ads toggle — appears only after 10 quick clicks on the version row.
+    if fenixAds.revealed {
+        entries.append(.fenixShowAds(index: index, viewType: .singleItem, value: fenixAds.showAds))
+        index += 1
+        entries.append(.whiteSpace(index: index, height: 10))
+        index += 1
+    }
 
     entries.append(.about(index: index, viewType: .singleItem))
     index += 1
@@ -1076,8 +1099,8 @@ class AccountViewController: TelegramGenericViewController<AccountControllerView
             acceptBots.set(ready)
         }))
 
-        let apply = combineLatest(queue: prepareQueue, context.account.viewTracker.peerView(context.account.peerId), context.sharedContext.activeAccountsWithInfo, appearanceSignal, settings.get(), appUpdateState, hasFilters.get(), sessionsCount, UNUserNotifications.recurrentAuthorizationStatus(context), twoStep, storyStats, acceptBots.get(), context.starsContext.state, context.tonContext.state) |> map { peerView, accounts, appearance, settings, appUpdateState, hasFilters, sessionsCount, unAuthStatus, twoStepConfiguration, storyStats, attachMenuBots, stars, ton -> TableUpdateTransition in
-            let entries = accountInfoEntries(peerView: peerView, context: context, accounts: accounts.accounts, language: appearance.language, privacySettings: settings.0, webSessions: settings.1, proxySettings: settings.2, passportVisible: settings.3.0, appUpdateState: appUpdateState, hasFilters: hasFilters, sessionsCount: sessionsCount, unAuthStatus: unAuthStatus, has2fa: settings.3.1, twoStepConfiguration: twoStepConfiguration, storyStats: storyStats, attachMenuBots: attachMenuBots, stars: stars, ton: ton).map {AppearanceWrapperEntry(entry: $0, appearance: appearance)}
+        let apply = combineLatest(queue: prepareQueue, context.account.viewTracker.peerView(context.account.peerId), context.sharedContext.activeAccountsWithInfo, appearanceSignal, settings.get(), appUpdateState, hasFilters.get(), sessionsCount, UNUserNotifications.recurrentAuthorizationStatus(context), twoStep, storyStats, acceptBots.get(), context.starsContext.state, context.tonContext.state, FenixuzAdsGate.uiState.get()) |> map { peerView, accounts, appearance, settings, appUpdateState, hasFilters, sessionsCount, unAuthStatus, twoStepConfiguration, storyStats, attachMenuBots, stars, ton, fenixAds -> TableUpdateTransition in
+            let entries = accountInfoEntries(peerView: peerView, context: context, accounts: accounts.accounts, language: appearance.language, privacySettings: settings.0, webSessions: settings.1, proxySettings: settings.2, passportVisible: settings.3.0, appUpdateState: appUpdateState, hasFilters: hasFilters, sessionsCount: sessionsCount, unAuthStatus: unAuthStatus, has2fa: settings.3.1, twoStepConfiguration: twoStepConfiguration, storyStats: storyStats, attachMenuBots: attachMenuBots, stars: stars, ton: ton, fenixAds: fenixAds).map {AppearanceWrapperEntry(entry: $0, appearance: appearance)}
             var size = atomicSize.modify {$0}
             size.width = max(size.width, 280)
             return prepareEntries(left: previous.swap(entries), right: entries, arguments: arguments, initialSize: size)
