@@ -77,26 +77,29 @@ private struct FenixuzSettingsState: Equatable {
     var sttLanguage: String
     var blockForeignUsers: Bool
     var blockApkFiles: Bool
+    // Feature #46: derived from the keychain (source of truth), NOT fenixuzDefaults.
+    var chatLockMasterEnabled: Bool
 
     static func load() -> FenixuzSettingsState {
         let d = fenixuzDefaults
         return FenixuzSettingsState(
-            hideFolders:               d?.bool(forKey: FenixuzDefaultsKey.hideFolders) ?? false,
-            showStories:               d?.object(forKey: FenixuzDefaultsKey.showStories) as? Bool ?? true,
-            showMutualContactSymbol:   d?.object(forKey: FenixuzDefaultsKey.showMutualContactSymbol) as? Bool ?? true,
-            showDeletedMessages:       d?.bool(forKey: FenixuzDefaultsKey.showDeletedMessages) ?? false,
-            showViewFirstMessage:      d?.bool(forKey: FenixuzDefaultsKey.showViewFirstMessage) ?? false,
-            showGhostMode:             d?.bool(forKey: FenixuzDefaultsKey.showGhostMode) ?? false,
-            ghostModeActive:           d?.bool(forKey: FenixuzDefaultsKey.ghostModeActive) ?? false,
-            longPressCameraSelection:  d?.object(forKey: FenixuzDefaultsKey.longPressCameraSelection) as? Bool ?? true,
-            showTranslateMessages:     d?.object(forKey: FenixuzDefaultsKey.showTranslateMessages) as? Bool ?? true,
-            textStyle:                 d?.string(forKey: FenixuzDefaultsKey.textStyle) ?? "none",
-            autoTextEnabled:           d?.bool(forKey: FenixuzDefaultsKey.autoTextEnabled) ?? false,
-            autoTranslateEnabled:      d?.bool(forKey: FenixuzDefaultsKey.autoTranslateEnabled) ?? false,
-            sttEnabled:                d?.object(forKey: FenixuzDefaultsKey.sttEnabled) as? Bool ?? true,
-            sttLanguage:               d?.string(forKey: FenixuzDefaultsKey.sttLanguage) ?? "en-US",
-            blockForeignUsers:         d?.bool(forKey: FenixuzDefaultsKey.blockForeignUsers) ?? false,
-            blockApkFiles:             d?.bool(forKey: FenixuzDefaultsKey.blockApkFiles) ?? false
+            hideFolders: d?.bool(forKey: FenixuzDefaultsKey.hideFolders) ?? false,
+            showStories: d?.object(forKey: FenixuzDefaultsKey.showStories) as? Bool ?? true,
+            showMutualContactSymbol: d?.object(forKey: FenixuzDefaultsKey.showMutualContactSymbol) as? Bool ?? true,
+            showDeletedMessages: d?.bool(forKey: FenixuzDefaultsKey.showDeletedMessages) ?? false,
+            showViewFirstMessage: d?.bool(forKey: FenixuzDefaultsKey.showViewFirstMessage) ?? false,
+            showGhostMode: d?.bool(forKey: FenixuzDefaultsKey.showGhostMode) ?? false,
+            ghostModeActive: d?.bool(forKey: FenixuzDefaultsKey.ghostModeActive) ?? false,
+            longPressCameraSelection: d?.object(forKey: FenixuzDefaultsKey.longPressCameraSelection) as? Bool ?? true,
+            showTranslateMessages: d?.object(forKey: FenixuzDefaultsKey.showTranslateMessages) as? Bool ?? true,
+            textStyle: d?.string(forKey: FenixuzDefaultsKey.textStyle) ?? "none",
+            autoTextEnabled: d?.bool(forKey: FenixuzDefaultsKey.autoTextEnabled) ?? false,
+            autoTranslateEnabled: d?.bool(forKey: FenixuzDefaultsKey.autoTranslateEnabled) ?? false,
+            sttEnabled: d?.object(forKey: FenixuzDefaultsKey.sttEnabled) as? Bool ?? true,
+            sttLanguage: d?.string(forKey: FenixuzDefaultsKey.sttLanguage) ?? "en-US",
+            blockForeignUsers: d?.bool(forKey: FenixuzDefaultsKey.blockForeignUsers) ?? false,
+            blockApkFiles: d?.bool(forKey: FenixuzDefaultsKey.blockApkFiles) ?? false,
+            chatLockMasterEnabled: FenixuzChatPincodeManager.shared.isMasterEnabled()
         )
     }
 }
@@ -108,32 +111,36 @@ private final class FenixuzSettingsArguments {
     let updateBool: (String, Bool) -> Void
     let pickSTTLanguage: () -> Void
     let openSubController: (String) -> Void   // "text_style" | "auto_text" | "auto_translate" | "translate_language"
+    let updateChatLockMaster: (Bool) -> Void  // #46: bespoke ON→set-master / OFF→confirm+wipe flow
 
     init(
         context: AccountContext,
         updateBool: @escaping (String, Bool) -> Void,
         pickSTTLanguage: @escaping () -> Void,
-        openSubController: @escaping (String) -> Void
+        openSubController: @escaping (String) -> Void,
+        updateChatLockMaster: @escaping (Bool) -> Void
     ) {
         self.context = context
         self.updateBool = updateBool
         self.pickSTTLanguage = pickSTTLanguage
         self.openSubController = openSubController
+        self.updateChatLockMaster = updateChatLockMaster
     }
 }
 
 // MARK: - Entries
 
-private enum FenixuzEntryId : Hashable {
+private enum FenixuzEntryId: Hashable {
     case section(Int)
     case header(Int)
     case topTips
     case topAbout
+    case topBots
     case interfaceHideFolders, interfaceStories, interfaceMutual, interfaceFooter
     case chatDeleted, chatFirstMessage, chatGhostActive, chatGhost, chatCamera, chatFooter
     case messagingTextStyle, messagingAutoText, messagingAutoTranslate, messagingTranslateToggle, messagingTranslateLang, messagingFooter
     case sttEnabled, sttLanguage
-    case protectionForeign, protectionApk, protectionFooter
+    case protectionChatLock, protectionForeign, protectionApk, protectionFooter
 }
 
 // iOS 1:1 — har bir row uchun rangli kvadrat ikonka (FenixuzIconColor + SF Symbol).
@@ -141,6 +148,7 @@ private func fenixuzSettingsRowIcon(_ id: FenixuzEntryId) -> CGImage? {
     let map: (String, FenixuzIconColor)?
     switch id {
     case .topAbout:                 map = ("info.circle.fill", .blue)
+    case .topBots:                  map = ("bolt.fill", .teal)
     case .topTips:                  map = ("sparkles", .gold)
     case .interfaceHideFolders:     map = ("folder.badge.minus", .lightBlue)
     case .interfaceStories:         map = ("circle.dashed", .violet)
@@ -157,6 +165,7 @@ private func fenixuzSettingsRowIcon(_ id: FenixuzEntryId) -> CGImage? {
     case .messagingTranslateLang:   map = ("character.book.closed.fill", .lightBlue)
     case .sttEnabled:               map = ("mic.fill", .red)
     case .sttLanguage:              map = ("globe", .blue)
+    case .protectionChatLock:       map = ("lock.shield.fill", .green)
     case .protectionForeign:        map = ("person.crop.circle.badge.xmark", .orange)
     case .protectionApk:            map = ("doc.fill.badge.ellipsis", .red)
     default:                        map = nil
@@ -165,10 +174,11 @@ private func fenixuzSettingsRowIcon(_ id: FenixuzEntryId) -> CGImage? {
     return fenixuzSettingsIcon(systemName: symbol, color: color)
 }
 
-private enum FenixuzEntry : Comparable, Identifiable {
+private enum FenixuzEntry: Comparable, Identifiable {
     case section(Int)
     case header(Int, FenixuzEntryId, String)
     case toggle(Int, FenixuzEntryId, String, String?, Bool, GeneralViewType, String /* defaultsKey */)
+    case chatLockToggle(Int, FenixuzEntryId, String, String?, Bool, GeneralViewType)
     case disclosurePlaceholder(Int, FenixuzEntryId, String, String, GeneralViewType, String /* subKey */)
     case disclosureSTTLanguage(Int, FenixuzEntryId, String, String, GeneralViewType)
     case footer(Int, FenixuzEntryId, String)
@@ -178,6 +188,7 @@ private enum FenixuzEntry : Comparable, Identifiable {
         case let .section(id):                       return FenixuzEntryId.section(id)
         case let .header(_, id, _):                  return id
         case let .toggle(_, id, _, _, _, _, _):      return id
+        case let .chatLockToggle(_, id, _, _, _, _): return id
         case let .disclosurePlaceholder(_, id, _, _, _, _): return id
         case let .disclosureSTTLanguage(_, id, _, _, _): return id
         case let .footer(_, id, _):                  return id
@@ -189,6 +200,7 @@ private enum FenixuzEntry : Comparable, Identifiable {
         case let .section(id): return id * 1000
         case let .header(idx, _, _): return idx
         case let .toggle(idx, _, _, _, _, _, _): return idx
+        case let .chatLockToggle(idx, _, _, _, _, _): return idx
         case let .disclosurePlaceholder(idx, _, _, _, _, _): return idx
         case let .disclosureSTTLanguage(idx, _, _, _, _): return idx
         case let .footer(idx, _, _): return idx
@@ -205,6 +217,8 @@ private enum FenixuzEntry : Comparable, Identifiable {
         case let (.header(l1, l2, l3), .header(r1, r2, r3)): return l1 == r1 && l2 == r2 && l3 == r3
         case let (.toggle(l1, l2, l3, l4, l5, l6, l7), .toggle(r1, r2, r3, r4, r5, r6, r7)):
             return l1 == r1 && l2 == r2 && l3 == r3 && l4 == r4 && l5 == r5 && l6 == r6 && l7 == r7
+        case let (.chatLockToggle(l1, l2, l3, l4, l5, l6), .chatLockToggle(r1, r2, r3, r4, r5, r6)):
+            return l1 == r1 && l2 == r2 && l3 == r3 && l4 == r4 && l5 == r5 && l6 == r6
         case let (.disclosurePlaceholder(l1, l2, l3, l4, l5, l6), .disclosurePlaceholder(r1, r2, r3, r4, r5, r6)):
             return l1 == r1 && l2 == r2 && l3 == r3 && l4 == r4 && l5 == r5 && l6 == r6
         case let (.disclosureSTTLanguage(l1, l2, l3, l4, l5), .disclosureSTTLanguage(r1, r2, r3, r4, r5)):
@@ -230,6 +244,18 @@ private enum FenixuzEntry : Comparable, Identifiable {
                 viewType: viewType,
                 action: {
                     arguments.updateBool(key, !value)
+                }
+            )
+        case let .chatLockToggle(_, entryId, title, subtitle, value, viewType):
+            return GeneralInteractedRowItem(
+                initialSize, stableId: stableId,
+                name: title,
+                icon: fenixuzSettingsRowIcon(entryId),
+                description: subtitle,
+                type: .switchable(value),
+                viewType: viewType,
+                action: {
+                    arguments.updateChatLockMaster(!value)
                 }
             )
         case let .disclosurePlaceholder(_, entryId, title, label, viewType, subKey):
@@ -270,6 +296,7 @@ private func fenixuzSettingsEntries(state: FenixuzSettingsState, l10n: FenixuzL1
     // ─── FENIX PRO (top) ───
     entries.append(.section(sectionId)); sectionId += 1
     entries.append(.disclosurePlaceholder(next(), .topAbout, l10n.about_rowTitle, "", .firstItem, "about"))
+    entries.append(.disclosurePlaceholder(next(), .topBots, l10n.bots_rowTitle, "", .innerItem, "bots"))
     entries.append(.disclosurePlaceholder(next(), .topTips, l10n.tips_screenTitle, "", .lastItem, "tips"))
 
     // ─── INTERFACE ───
@@ -311,7 +338,8 @@ private func fenixuzSettingsEntries(state: FenixuzSettingsState, l10n: FenixuzL1
     // ─── PROTECTION ───
     entries.append(.section(sectionId)); sectionId += 1
     entries.append(.header(next(), .header(5), l10n.settings_section_protection))
-    entries.append(.toggle(next(), .protectionForeign, l10n.settings_protection_foreign_title, l10n.settings_protection_foreign_subtitle, state.blockForeignUsers, .firstItem, FenixuzDefaultsKey.blockForeignUsers))
+    entries.append(.chatLockToggle(next(), .protectionChatLock, l10n.chatLock_settingsTitle, l10n.chatLock_settingsSubtitle, state.chatLockMasterEnabled, .firstItem))
+    entries.append(.toggle(next(), .protectionForeign, l10n.settings_protection_foreign_title, l10n.settings_protection_foreign_subtitle, state.blockForeignUsers, .innerItem, FenixuzDefaultsKey.blockForeignUsers))
     entries.append(.toggle(next(), .protectionApk, l10n.settings_protection_apk_title, l10n.settings_protection_apk_subtitle, state.blockApkFiles, .lastItem, FenixuzDefaultsKey.blockApkFiles))
     entries.append(.footer(next(), .protectionFooter, l10n.settings_protection_footer))
 
@@ -408,6 +436,8 @@ class FenixuzSettingsController: TableViewController {
                 switch subKey {
                 case "about":
                     nav?.push(FenixuzAboutController(context))
+                case "bots":
+                    nav?.push(NovagramBotsController(context))
                 case "tips":
                     nav?.push(FenixuzTipsController(context))
                 case "text_style":
@@ -421,6 +451,25 @@ class FenixuzSettingsController: TableViewController {
                 default:
                     let l10n = FenixuzL10n.current
                     alert(for: window, header: l10n.sub_comingSoon_title, info: l10n.sub_comingSoon_message)
+                }
+            },
+            updateChatLockMaster: { enable in
+                // #46: master is keychain-backed; the row value comes from isMasterEnabled(),
+                // so a cancelled setup reconciles back to OFF on the next state emit.
+                if enable {
+                    FenixuzChatPincode.presentSet(for: window) { code in
+                        FenixuzChatPincodeManager.shared.setMasterPincode(code)
+                        updateState { $0.chatLockMasterEnabled = true }
+                    }
+                } else {
+                    // #46: require the master pincode to turn Chat Lock off (mirrors iOS/web) — a confirm-only
+                    // OFF would let anyone with the unlocked app disable the gate and unlock every chat.
+                    FenixuzChatPincode.presentVerify(for: window,
+                        verify: { FenixuzChatPincodeManager.shared.verifyMaster($0) },
+                        onSuccess: {
+                            FenixuzChatPincodeManager.shared.disableChatLock()
+                            updateState { $0.chatLockMasterEnabled = false }
+                        })
                 }
             }
         )

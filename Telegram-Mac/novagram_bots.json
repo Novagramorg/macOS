@@ -1,0 +1,473 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-07-02",
+  "note": "Canonical source of truth for the Novagram Bots page (iOS + macOS + web). Each platform bundles a copy in its own resources. 'icon' = SF Symbol name (iOS/macOS). 'emoji' = fallback for web / emoji contexts. Tapping a bot opens its @username via the platform's resolve-username flow.",
+  "categories": [
+    {
+      "id": "downloaders",
+      "title": { "en": "Downloaders", "uz": "Yuklovchilar", "ru": "Загрузчики" },
+      "bots": [
+        {
+          "id": "youtube",
+          "username": "novogram_youtube_bot",
+          "name": "YouTube",
+          "icon": "play.rectangle.fill",
+          "emoji": "▶️",
+          "color": "#FF0000",
+          "help": {
+            "en": "Download videos and music from YouTube",
+            "uz": "YouTube'dan video va musiqa yuklab oling",
+            "ru": "Скачивайте видео и музыку с YouTube"
+          }
+        },
+        {
+          "id": "shazam",
+          "username": "novagram_shazam_bot",
+          "name": "Shazam",
+          "icon": "music.mic",
+          "emoji": "🎵",
+          "color": "#08A0E9",
+          "help": {
+            "en": "Recognize any song playing around you",
+            "uz": "Atrofda yangrayotgan istalgan qo'shiqni aniqlang",
+            "ru": "Распознавайте любую играющую песню"
+          }
+        },
+        {
+          "id": "spotify",
+          "username": "novagram_spotify_bot",
+          "name": "Spotify",
+          "icon": "music.note.list",
+          "emoji": "🎧",
+          "color": "#1DB954",
+          "help": {
+            "en": "Download tracks and playlists from Spotify",
+            "uz": "Spotify'dan trek va playlistlarni yuklang",
+            "ru": "Скачивайте треки и плейлисты из Spotify"
+          }
+        },
+        {
+          "id": "vk",
+          "username": "novagram_vk_bot",
+          "name": "VK",
+          "icon": "play.square.stack.fill",
+          "emoji": "🎬",
+          "color": "#0077FF",
+          "help": {
+            "en": "Download videos and music from VK",
+            "uz": "VK'dan video va musiqa yuklang",
+            "ru": "Скачивайте видео и музыку из VK"
+          }
+        },
+        {
+          "id": "rutube",
+          "username": "novagram_rutube_bot",
+          "name": "RuTube",
+          "icon": "play.tv.fill",
+          "emoji": "📺",
+          "color": "#E5162D",
+          "help": {
+            "en": "Download videos from RuTube",
+            "uz": "RuTube'dan videolarni yuklang",
+            "ru": "Скачивайте видео с RuTube"
+          }
+        },
+        {
+          "id": "twitch",
+          "username": "novagram_twitch_bot",
+          "name": "Twitch",
+          "icon": "gamecontroller.fill",
+          "emoji": "🎮",
+          "color": "#9146FF",
+          "help": {
+            "en": "Download clips and streams from Twitch",
+            "uz": "Twitch'dan klip va streamlarni yuklang",
+            "ru": "Скачивайте клипы и стримы с Twitch"
+          }
+        },
+        {
+          "id": "pinterest",
+          "username": "novagram_pinterest_bot",
+          "name": "Pinterest",
+          "icon": "pin.fill",
+          "emoji": "📌",
+          "color": "#E60023",
+          "help": {
+            "en": "Download images and videos from Pinterest",
+            "uz": "Pinterest'dan rasm va videolarni yuklang",
+            "ru": "Скачивайте изображения и видео из Pinterest"
+          }
+        },
+        {
+          "id": "reddit",
+          "username": "novagram_reddit_bot",
+          "name": "Reddit",
+          "icon": "bubble.left.and.bubble.right.fill",
+          "emoji": "👽",
+          "color": "#FF4500",
+          "help": {
+            "en": "Download videos and media from Reddit",
+            "uz": "Reddit'dan video va mediani yuklang",
+            "ru": "Скачивайте видео и медиа с Reddit"
+          }
+        },
+        {
+          "id": "facebook",
+          "username": "novagram_facebook_bot",
+          "name": "Facebook",
+          "icon": "video.square.fill",
+          "emoji": "📘",
+          "color": "#1877F2",
+          "help": {
+            "en": "Download videos from Facebook",
+            "uz": "Facebook'dan videolarni yuklang",
+            "ru": "Скачивайте видео из Facebook"
+          }
+        },
+        {
+          "id": "twitter",
+          "username": "novagram_twitter_bot",
+          "name": "Twitter / X",
+          "icon": "bird.fill",
+          "emoji": "🐦",
+          "color": "#1DA1F2",
+          "help": {
+            "en": "Download videos and GIFs from Twitter / X",
+            "uz": "Twitter / X'dan video va GIF yuklang",
+            "ru": "Скачивайте видео и GIF из Twitter / X"
+          }
+        },
+        {
+          "id": "tiktok",
+          "username": "novagram_tiktok_bot",
+          "name": "TikTok",
+          "icon": "music.note",
+          "emoji": "🎶",
+          "color": "#111111",
+          "help": {
+            "en": "Download TikTok videos without watermark",
+            "uz": "TikTok videolarini watermark'siz yuklang",
+            "ru": "Скачивайте видео TikTok без водяного знака"
+          }
+        },
+        {
+          "id": "instagram",
+          "username": "novagram_instagram_bot",
+          "name": "Instagram",
+          "icon": "camera.fill",
+          "emoji": "📷",
+          "color": "#E4405F",
+          "help": {
+            "en": "Download photos, Reels and Stories from Instagram",
+            "uz": "Instagram'dan rasm, Reels va Storylarni yuklang",
+            "ru": "Скачивайте фото, Reels и Stories из Instagram"
+          }
+        }
+      ]
+    },
+    {
+      "id": "media_tools",
+      "title": { "en": "Media Tools", "uz": "Media vositalari", "ru": "Медиаинструменты" },
+      "bots": [
+        {
+          "id": "compress",
+          "username": "novagram_compress_bot",
+          "name": "Compress",
+          "icon": "arrow.down.forward.and.arrow.up.backward",
+          "emoji": "🗜️",
+          "color": "#34C759",
+          "help": {
+            "en": "Compress photos and videos to save space",
+            "uz": "Rasm va videolarni siqib joyni tejang",
+            "ru": "Сжимайте фото и видео для экономии места"
+          }
+        },
+        {
+          "id": "crop",
+          "username": "novagram_crop_bot",
+          "name": "Crop",
+          "icon": "crop",
+          "emoji": "✂️",
+          "color": "#FF9500",
+          "help": {
+            "en": "Crop and resize photos and videos",
+            "uz": "Rasm va videolarni kesing va o'lchamini o'zgartiring",
+            "ru": "Обрезайте и меняйте размер фото и видео"
+          }
+        },
+        {
+          "id": "trimmer",
+          "username": "novagram_trimmer_bot",
+          "name": "Trimmer",
+          "icon": "scissors",
+          "emoji": "🎞️",
+          "color": "#FF375F",
+          "help": {
+            "en": "Trim and cut video length",
+            "uz": "Video uzunligini qirqing va kesing",
+            "ru": "Обрезайте длину видео"
+          }
+        },
+        {
+          "id": "blur",
+          "username": "novagram_blur_bot",
+          "name": "Blur",
+          "icon": "camera.filters",
+          "emoji": "🌫️",
+          "color": "#5856D6",
+          "help": {
+            "en": "Blur parts of a photo or video",
+            "uz": "Rasm yoki videoning bir qismini xiralashtiring",
+            "ru": "Размывайте части фото или видео"
+          }
+        },
+        {
+          "id": "remover",
+          "username": "novagram_remover_bot",
+          "name": "BG Remover",
+          "icon": "person.and.background.dotted",
+          "emoji": "🧹",
+          "color": "#AF52DE",
+          "help": {
+            "en": "Remove the background from any image",
+            "uz": "Istalgan rasmning fonini olib tashlang",
+            "ru": "Удаляйте фон с любого изображения"
+          }
+        },
+        {
+          "id": "upscaler",
+          "username": "novagram_upscaler_bot",
+          "name": "Upscaler",
+          "icon": "sparkles",
+          "emoji": "✨",
+          "color": "#00C7BE",
+          "help": {
+            "en": "Enhance and upscale image quality with AI",
+            "uz": "AI bilan rasm sifatini yaxshilang va kattalashtiring",
+            "ru": "Улучшайте и увеличивайте качество изображений с ИИ"
+          }
+        },
+        {
+          "id": "sticker",
+          "username": "novagram_sticker_bot",
+          "name": "Sticker Maker",
+          "icon": "square.on.circle.fill",
+          "emoji": "🎨",
+          "color": "#FF2D55",
+          "help": {
+            "en": "Turn photos into Telegram stickers",
+            "uz": "Rasmlarni Telegram stikerlariga aylantiring",
+            "ru": "Превращайте фото в стикеры Telegram"
+          }
+        },
+        {
+          "id": "voice",
+          "username": "novagram_voice_bot",
+          "name": "Voice",
+          "icon": "waveform",
+          "emoji": "🎙️",
+          "color": "#FF9500",
+          "help": {
+            "en": "Extract and convert audio from media",
+            "uz": "Mediadan audioni ajratib oling va aylantiring",
+            "ru": "Извлекайте и конвертируйте аудио из медиа"
+          }
+        }
+      ]
+    },
+    {
+      "id": "utilities",
+      "title": { "en": "Utilities", "uz": "Foydali vositalar", "ru": "Утилиты" },
+      "bots": [
+        {
+          "id": "qr",
+          "username": "novagram_qr_bot",
+          "name": "QR Code",
+          "icon": "qrcode",
+          "emoji": "🔳",
+          "color": "#1C1C1E",
+          "help": {
+            "en": "Create and scan QR codes",
+            "uz": "QR kodlarni yarating va skanerlang",
+            "ru": "Создавайте и сканируйте QR-коды"
+          }
+        },
+        {
+          "id": "password",
+          "username": "novagram_password_bot",
+          "name": "Password",
+          "icon": "key.fill",
+          "emoji": "🔑",
+          "color": "#8E8E93",
+          "help": {
+            "en": "Generate strong, secure passwords",
+            "uz": "Kuchli va xavfsiz parollar yarating",
+            "ru": "Генерируйте надёжные пароли"
+          }
+        },
+        {
+          "id": "tempmail",
+          "username": "novagram_tempmail_bot",
+          "name": "Temp Mail",
+          "icon": "envelope.fill",
+          "emoji": "📧",
+          "color": "#007AFF",
+          "help": {
+            "en": "Get a temporary disposable email address",
+            "uz": "Vaqtinchalik bir martalik email oling",
+            "ru": "Получите временную одноразовую почту"
+          }
+        },
+        {
+          "id": "pdf",
+          "username": "novagram_pdf_bot",
+          "name": "PDF Tools",
+          "icon": "doc.richtext.fill",
+          "emoji": "📄",
+          "color": "#FF3B30",
+          "help": {
+            "en": "Convert, merge and edit PDF files",
+            "uz": "PDF fayllarni aylantiring, birlashtiring va tahrirlang",
+            "ru": "Конвертируйте, объединяйте и редактируйте PDF"
+          }
+        },
+        {
+          "id": "tts",
+          "username": "novagram_tts_bot",
+          "name": "Text to Speech",
+          "icon": "speaker.wave.2.fill",
+          "emoji": "🔊",
+          "color": "#5AC8FA",
+          "help": {
+            "en": "Convert text into natural voice",
+            "uz": "Matnni tabiiy ovozga aylantiring",
+            "ru": "Преобразуйте текст в естественную речь"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fun_info",
+      "title": { "en": "Fun & Info", "uz": "Qiziqarli", "ru": "Разное" },
+      "bots": [
+        {
+          "id": "meme",
+          "username": "novagram_meme_bot",
+          "name": "Memes",
+          "icon": "face.smiling",
+          "emoji": "😂",
+          "color": "#FFCC00",
+          "help": {
+            "en": "Fresh memes on demand",
+            "uz": "Talab bo'yicha yangi memlar",
+            "ru": "Свежие мемы по запросу"
+          }
+        },
+        {
+          "id": "translit",
+          "username": "novagram_translit_bot",
+          "name": "Transliterator",
+          "icon": "textformat.abc",
+          "emoji": "🔤",
+          "color": "#34C759",
+          "help": {
+            "en": "Convert text between Latin and Cyrillic",
+            "uz": "Matnni lotin va kirill o'rtasida o'giring",
+            "ru": "Конвертируйте текст между латиницей и кириллицей"
+          }
+        },
+        {
+          "id": "wallpaper",
+          "username": "novagram_wallpaper_bot",
+          "name": "Wallpapers",
+          "icon": "photo.on.rectangle.angled",
+          "emoji": "🖼️",
+          "color": "#AF52DE",
+          "help": {
+            "en": "Browse and download HD wallpapers",
+            "uz": "HD fon rasmlarini ko'ring va yuklang",
+            "ru": "Просматривайте и скачивайте HD-обои"
+          }
+        },
+        {
+          "id": "movies",
+          "username": "novagram_movies_bot",
+          "name": "Movies",
+          "icon": "film.fill",
+          "emoji": "🎬",
+          "color": "#FF375F",
+          "help": {
+            "en": "Search movies and series",
+            "uz": "Kino va seriallarni qidiring",
+            "ru": "Ищите фильмы и сериалы"
+          }
+        },
+        {
+          "id": "weather",
+          "username": "novagram_weather_bot",
+          "name": "Weather",
+          "icon": "cloud.sun.fill",
+          "emoji": "⛅",
+          "color": "#32ADE6",
+          "help": {
+            "en": "Check the weather forecast anywhere",
+            "uz": "Istalgan joyda ob-havo ma'lumotini oling",
+            "ru": "Узнавайте прогноз погоды где угодно"
+          }
+        },
+        {
+          "id": "rates",
+          "username": "novagram_rates_bot",
+          "name": "Currency Rates",
+          "icon": "dollarsign.circle.fill",
+          "emoji": "💱",
+          "color": "#30D158",
+          "help": {
+            "en": "Live currency exchange rates",
+            "uz": "Jonli valyuta kurslari",
+            "ru": "Актуальные курсы валют"
+          }
+        },
+        {
+          "id": "facts",
+          "username": "novagram_facts_bot",
+          "name": "Facts",
+          "icon": "lightbulb.fill",
+          "emoji": "💡",
+          "color": "#FFD60A",
+          "help": {
+            "en": "Discover interesting facts",
+            "uz": "Qiziqarli faktlarni kashf eting",
+            "ru": "Открывайте интересные факты"
+          }
+        },
+        {
+          "id": "quotes",
+          "username": "novagram_quotes_bot",
+          "name": "Quotes",
+          "icon": "quote.bubble.fill",
+          "emoji": "💬",
+          "color": "#5856D6",
+          "help": {
+            "en": "Daily inspirational quotes",
+            "uz": "Kunlik ilhomlantiruvchi iqtiboslar",
+            "ru": "Ежедневные вдохновляющие цитаты"
+          }
+        },
+        {
+          "id": "proverbs",
+          "username": "novagram_proverbs_bot",
+          "name": "Proverbs",
+          "icon": "book.fill",
+          "emoji": "📖",
+          "color": "#A2845E",
+          "help": {
+            "en": "Wise proverbs and sayings",
+            "uz": "Dono maqol va matallar",
+            "ru": "Мудрые пословицы и поговорки"
+          }
+        }
+      ]
+    }
+  ]
+}
