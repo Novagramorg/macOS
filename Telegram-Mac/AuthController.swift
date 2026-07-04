@@ -100,6 +100,7 @@ final class AuthView: Control {
     fileprivate let back = TextButton()
 
     fileprivate let proxyButton: ImageButton = ImageButton()
+    fileprivate let novagramProxyButton: TextButton = TextButton()
     private let proxyConnecting: ProgressIndicator = ProgressIndicator(frame: NSRect(x: 0, y: 0, width: 12, height: 12))
 
     fileprivate var updateView: NSView? {
@@ -119,6 +120,10 @@ final class AuthView: Control {
 
         proxyButton.scaleOnClick = true
 
+        addSubview(novagramProxyButton)
+        novagramProxyButton.scaleOnClick = true
+        novagramProxyButton.autohighlight = false
+
         back.autohighlight = false
         back.scaleOnClick = true
         updateLocalizationAndTheme(theme: theme)
@@ -132,6 +137,10 @@ final class AuthView: Control {
         back.set(color: theme.colors.accent, for: .Normal)
         back.set(text: strings().navigationBack, for: .Normal)
         back.sizeToFit(NSSize(width: 10, height: 10), NSSize(width: 0, height: 24), thatFit: true)
+        novagramProxyButton.set(font: .normal(.text), for: .Normal)
+        novagramProxyButton.set(color: theme.colors.accent, for: .Normal)
+        novagramProxyButton.set(text: FenixuzAutoProxyStrings.loginButtonTitle(langCode: appCurrentLanguage.languageCode), for: .Normal)
+        _ = novagramProxyButton.sizeToFit()
         needsLayout = true
     }
 
@@ -221,6 +230,7 @@ final class AuthView: Control {
         }
         back.setFrameOrigin(NSPoint(x: 10, y: 10))
         proxyButton.setFrameOrigin(NSPoint(x: frame.width - proxyButton.frame.width - 10, y: 10))
+        novagramProxyButton.centerX(y: 12)
     }
 }
 
@@ -515,6 +525,10 @@ class AuthController: GenericViewController<AuthView> {
             }
         }, for: .Click)
 
+        genericView.novagramProxyButton.set(handler: { [weak self] _ in
+            self?.toggleNovagramProxy()
+        }, for: .Click)
+
         readyOnce()
 
     }
@@ -540,6 +554,19 @@ class AuthController: GenericViewController<AuthView> {
 
            showModal(with: navigation, for: mainWindow)
 
+    }
+
+    private func toggleNovagramProxy() {
+        guard let window = self.window else {
+            return
+        }
+        // Blocked users can't reach in-app Settings before login, so the toggle is offered here too.
+        let isOn = FenixuzAutoProxyManager.shared.isEnabled
+        let lang = appCurrentLanguage.languageCode
+        FenixuzAutoProxyManager.shared.setEnabled(!isOn, accountManager: self.sharedContext.accountManager)
+        alert(for: window,
+              header: FenixuzAutoProxyStrings.loginButtonTitle(langCode: lang),
+              info: isOn ? FenixuzAutoProxyStrings.disabledAlert(langCode: lang) : FenixuzAutoProxyStrings.enabledAlert(langCode: lang))
     }
 
     private func updateState(_ state: State, refreshToken: @escaping () -> Void, updateState: @escaping ((State) -> State) -> Void) {

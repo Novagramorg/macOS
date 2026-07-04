@@ -1689,7 +1689,9 @@
 		FE10DEC04E14C19000000100 /* FenixuzSpeechToTextManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000101 /* FenixuzSpeechToTextManager.swift */; };
 		FE10DEC04E14C190FFFFFFF1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C190FFFFFFF0 /* PrivacyInfo.xcprivacy */; };
 		FE10DEC04E14C19000000210 /* NovagramBotsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000211 /* NovagramBotsController.swift */; };
+		FE10DEC04E14C19000000240 /* FenixuzAutoProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000241 /* FenixuzAutoProxy.swift */; };
 		FE10DEC04E14C19000000220 /* novagram_bots.json in Resources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000221 /* novagram_bots.json */; };
+		FE10DEC04E14C19000000250 /* russia_proxies.txt in Resources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000251 /* russia_proxies.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -3380,7 +3382,9 @@
 		FE10DEC04E14C19000000231 /* FenixuzAdsEasterEgg.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAdsEasterEgg.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000201 /* FenixuzStatisticsConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzStatisticsConfig.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000211 /* NovagramBotsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NovagramBotsController.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000241 /* FenixuzAutoProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAutoProxy.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000221 /* novagram_bots.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = novagram_bots.json; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000251 /* russia_proxies.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = russia_proxies.txt; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000111 /* FenixuzStatisticsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzStatisticsClient.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000121 /* FenixuzAnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAnalyticsManager.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000131 /* FenixuzAnalyticsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAnalyticsController.swift; sourceTree = "<group>"; };
@@ -3883,7 +3887,9 @@
 				FE10DEC04E14C19000000231 /* FenixuzAdsEasterEgg.swift */,
 				FE10DEC04E14C19000000201 /* FenixuzStatisticsConfig.swift */,
 				FE10DEC04E14C19000000211 /* NovagramBotsController.swift */,
+				FE10DEC04E14C19000000241 /* FenixuzAutoProxy.swift */,
 				FE10DEC04E14C19000000221 /* novagram_bots.json */,
+				FE10DEC04E14C19000000251 /* russia_proxies.txt */,
 				FE10DEC04E14C19000000111 /* FenixuzStatisticsClient.swift */,
 				FE10DEC04E14C19000000121 /* FenixuzAnalyticsManager.swift */,
 				FE10DEC04E14C19000000131 /* FenixuzAnalyticsController.swift */,
@@ -7257,6 +7263,7 @@
 			files = (
 				FE10DEC04E14C190FFFFFFF1 /* PrivacyInfo.xcprivacy in Resources */,
 				FE10DEC04E14C19000000220 /* novagram_bots.json in Resources */,
+				FE10DEC04E14C19000000250 /* russia_proxies.txt in Resources */,
 				272934102778DFFA00F10D3C /* menu_file.tgs in Resources */,
 				27803C0127A3E944007B0FA9 /* menu_folder_student.tgs in Resources */,
 				27C6B65D29DC123500F7E7AC /* share_folder.tgs in Resources */,
@@ -8229,6 +8236,7 @@
 				FE10DEC04E14C19000000230 /* FenixuzAdsEasterEgg.swift in Sources */,
 				FE10DEC04E14C19000000200 /* FenixuzStatisticsConfig.swift in Sources */,
 				FE10DEC04E14C19000000210 /* NovagramBotsController.swift in Sources */,
+				FE10DEC04E14C19000000240 /* FenixuzAutoProxy.swift in Sources */,
 				FE10DEC04E14C19000000110 /* FenixuzStatisticsClient.swift in Sources */,
 				FE10DEC04E14C19000000120 /* FenixuzAnalyticsManager.swift in Sources */,
 				FE10DEC04E14C19000000130 /* FenixuzAnalyticsController.swift in Sources */,
@@ -9079,7 +9087,7 @@
 					"$(PROJECT_DIR)/core-xprojects/tde2e/build/tde2e/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_LDFLAGS = (
@@ -9136,7 +9144,7 @@
 					"$(PROJECT_DIR)/core-xprojects/dav1d/build/dav1d/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
@@ -9189,7 +9197,7 @@
 					"$(PROJECT_DIR)/core-xprojects/dav1d/build/dav1d/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
@@ -9309,7 +9317,7 @@
 					"$(PROJECT_DIR)/core-xprojects/tde2e/build/tde2e/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_LDFLAGS = (

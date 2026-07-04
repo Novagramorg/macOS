@@ -884,6 +884,10 @@ class AppDelegate: NSResponder, NSApplicationDelegate, NSUserNotificationCenterD
                 // logged-in accounts to drive the "active accounts" counter (Novagram Statistics API).
                 FenixuzAnalyticsManager.shared.start(sharedContext: sharedContext)
 
+                // Fenixuz: if the "Enable NovagramProxy" toggle is on, ensure a healthy SOCKS5 proxy from
+                // the bundled pool is active so Telegram is reachable where it's blocked (before login too).
+                FenixuzAutoProxyManager.shared.start(accountManager: accountManager)
+
                 self.supportAccountContextValue = .init(applicationContext: sharedApplicationContext)
 
                 self.sharedContextPromise.set(accountManager.transaction { transaction -> (SharedApplicationContext, LoggingSettings) in
