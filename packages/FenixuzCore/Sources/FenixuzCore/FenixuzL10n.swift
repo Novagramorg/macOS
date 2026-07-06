@@ -632,8 +632,8 @@ public struct FenixuzL10n {
 
     public var chatLock_settingsTitle: String { pick(en: "Chat Lock", uz: "Chat Lock", ru: "Блокировка чатов") }
     public var chatLock_settingsSubtitle: String { pick(en: "Master pincode to lock individual chats", uz: "Chatlarni qulflash uchun asosiy pinkod", ru: "Главный пин-код для блокировки чатов") }
-    public var chatLock_menuSet: String { pick(en: "🔒 Set Pincode", uz: "🔒 Pincode qo'yish", ru: "🔒 Установить пин-код") }
-    public var chatLock_menuRemove: String { pick(en: "🔓 Remove Pincode", uz: "🔓 Pincode o'chirish", ru: "🔓 Удалить пин-код") }
+    public var chatLock_menuSet: String { pick(en: "Set Pincode", uz: "Pincode qo'yish", ru: "Установить пин-код") }
+    public var chatLock_menuRemove: String { pick(en: "Remove Pincode", uz: "Pincode o'chirish", ru: "Удалить пин-код") }
     public var chatLock_forgot: String { pick(en: "Forgot pincode?", uz: "Pinkodni unutdingizmi?", ru: "Забыли пин-код?") }
     public var chatLock_verifyMaster_title: String { pick(en: "Enter master pincode", uz: "Asosiy pinkodni kiriting", ru: "Введите главный пин-код") }
     public var chatLock_verifyMaster_subtitle: String { pick(en: "Unlocks this chat and removes its pincode", uz: "Chatni ochadi va pinkodini o'chiradi", ru: "Откроет чат и удалит его пин-код") }
@@ -919,19 +919,19 @@ public struct FenixuzL10n {
     }
 
     public var about_rowTitle: String {
-        pick(en: "About NovagramPro", uz: "NovagramPro haqida", ru: "О NovagramPro")
+        pick(en: "About Novagram", uz: "Novagram haqida", ru: "О Novagram")
     }
     public var about_screenTitle: String {
-        pick(en: "About NovagramPro", uz: "NovagramPro haqida", ru: "О NovagramPro")
+        pick(en: "About Novagram", uz: "Novagram haqida", ru: "О Novagram")
     }
     public var about_introHeader: String {
         pick(en: "WHAT IS NOVAGRAMPRO", uz: "NOVAGRAMPRO NIMA", ru: "ЧТО ТАКОЕ NOVAGRAMPRO")
     }
     public var about_introBody: String {
         pick(
-            en: "NovagramPro is Novagram with a set of extra tools built on top. Everything below is included — no subscription, no paywall. Each feature can be turned on or off in NovagramPro settings.",
-            uz: "NovagramPro — bu ustiga qo'shimcha vositalar qo'shilgan Novagram. Quyidagilarning barchasi bepul — obuna ham, to'lov ham yo'q. Har bir imkoniyatni NovagramPro sozlamalarida yoqish yoki o'chirish mumkin.",
-            ru: "NovagramPro — это Novagram с набором дополнительных инструментов. Всё ниже включено — без подписки и платного доступа. Каждую функцию можно включить или выключить в настройках NovagramPro."
+            en: "Novagram comes with a set of extra tools built in. Everything below is included — no subscription, no paywall. Each feature can be turned on or off in Novagram Settings.",
+            uz: "Novagram qo'shimcha vositalar bilan birga keladi. Quyidagilarning barchasi bepul — obuna ham, to'lov ham yo'q. Har bir imkoniyatni Novagram sozlamalarida yoqish yoki o'chirish mumkin.",
+            ru: "Novagram включает набор дополнительных инструментов. Всё ниже включено — без подписки и платного доступа. Каждую функцию можно включить или выключить в настройках Novagram."
         )
     }
     public var about_featuresHeader: String {
@@ -1009,9 +1009,9 @@ public struct FenixuzL10n {
     }
     public var about_footer: String {
         pick(
-            en: "NovagramPro is built on top of Novagram. All your chats, contacts and data stay in your regular Novagram account.",
-            uz: "NovagramPro Novagram asosida qurilgan. Barcha chatlaringiz, kontaktlaringiz va ma'lumotlaringiz oddiy Novagram accountingizda qoladi.",
-            ru: "NovagramPro построен на основе Novagram. Все ваши чаты, контакты и данные остаются в вашем обычном аккаунте Novagram."
+            en: "These extra tools are built into Novagram. All your chats, contacts and data stay in your regular Novagram account.",
+            uz: "Bu qo'shimcha vositalar Novagram ichiga qurilgan. Barcha chatlaringiz, kontaktlaringiz va ma'lumotlaringiz oddiy Novagram accountingizda qoladi.",
+            ru: "Эти дополнительные инструменты встроены в Novagram. Все ваши чаты, контакты и данные остаются в вашем обычном аккаунте Novagram."
         )
     }
 

@@ -353,7 +353,7 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
         case let .fenixuz(_, viewType):
             // Fenixuz fork: Settings → FenixuzPro panel (iOS bilan 1:1 — oltin sarlavha + flame ikonka).
             let proIcon = fenixuzSettingsIcon(systemName: "flame.fill", color: .gold) ?? theme.icons.settingsGeneral
-            return GeneralInteractedRowItem(initialSize, stableId: stableId, name: "NovagramPro", icon: proIcon, activeIcon: proIcon, nameStyle: ControlStyle(font: .normal(.title), foregroundColor: NSColor(rgb: 0xD4AF37)), type: .next, viewType: viewType, action: {
+            return GeneralInteractedRowItem(initialSize, stableId: stableId, name: "Novagram Settings", icon: proIcon, activeIcon: proIcon, nameStyle: ControlStyle(font: .normal(.title), foregroundColor: NSColor(rgb: 0xD4AF37)), type: .next, viewType: viewType, action: {
                 arguments.presentController(FenixuzSettingsController(arguments.context), true)
             }, border: [BorderType.Right], inset: NSEdgeInsets(left: 12, right: 12))
         case let .fenixAccounts(_, viewType):
