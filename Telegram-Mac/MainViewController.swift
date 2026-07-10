@@ -187,13 +187,11 @@ final class UpdateTabController: GenericViewController<UpdateTabView> {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        let context = self.context
 
         genericView.set(background: theme.colors.grayForeground, for: .Normal)
         // Fenixuz: "Update Novagram" sidebar pill removed on every build (per user request).
         // The App Store update nudge is no longer shown; the updater itself stays disabled (§7).
         genericView.isHidden = true
-
     }
 
     override func updateLocalizationAndTheme(theme: PresentationTheme) {
