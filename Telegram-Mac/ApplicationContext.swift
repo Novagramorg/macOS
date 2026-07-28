@@ -682,16 +682,33 @@ final class AuthorizedApplicationContext: NSObject, SplitViewDelegate {
             self?.updateLeftSidebar(with: value, layout: layout, animated: true)
         }))
 
+        // Fenixuz: re-evaluate the folder rail when the "hide folders" toggle flips live.
+        NotificationCenter.default.addObserver(self, selector: #selector(fenixHideFoldersRailChanged), name: NSNotification.Name("FenixSettingsChanged"), object: nil)
+
        // _ready.set(.single(true))
     }
 
     private var folders: ChatListFolders?
     private var previousLayout: SplitViewState?
+    // Fenixuz: last EFFECTIVE folder-rail state (already accounts for the "hide folders"
+    // toggle) so a live toggle can compare against it and flip the rail in/out.
+    private var fenixEffectiveSidebarShown: Bool?
     private let foldersReadyDisposable = MetaDisposable()
+
+    @objc private func fenixHideFoldersRailChanged() {
+        guard let folders = self.folders else { return }
+        self.updateLeftSidebar(with: folders, layout: context.layout, animated: true)
+    }
+
     private func updateLeftSidebar(with folders: ChatListFolders, layout: SplitViewState, animated: Bool) {
 
+        // Fenixuz: "Hide folders" (pro_messager/hide_folders) — when ON we hide the LEFT
+        // folder rail too, not just the top tabs, so "hide" is a full hide (clean chat list).
+        let hideFolders = UserDefaults(suiteName: "pro_messager")?.bool(forKey: "hide_folders") ?? false
+        let currentSidebar = !hideFolders && !folders.isEmpty && folders.sidebar
+
         if let window = self.window as? AppWindow {
-            if (folders.sidebar && !folders.isEmpty) || layout == .minimisize {
+            if currentSidebar || layout == .minimisize {
                 self.context.bindings.rootNavigation().navigationBarLeftPosition = 0
                 window.initialButtonPoint = .system
             } else {
@@ -700,8 +717,7 @@ final class AuthorizedApplicationContext: NSObject, SplitViewDelegate {
             }
         }
 
-        let currentSidebar = !folders.isEmpty && (folders.sidebar)
-        let previousSidebar = self.folders == nil ? nil : !self.folders!.isEmpty && (self.folders!.sidebar)
+        let previousSidebar = self.fenixEffectiveSidebarShown
 
         let readySignal: Signal<Bool, NoError>
 
@@ -742,15 +758,21 @@ final class AuthorizedApplicationContext: NSObject, SplitViewDelegate {
             }))
 
         }
+        self.fenixEffectiveSidebarShown = currentSidebar
         self.folders = folders
         self.previousLayout = layout
     }
 
-    // Fenixuz: single source of truth for the chat-folder rail. It is shown only when
-    // folders-as-sidebar is enabled AND the Chats tab is currently selected — so it never
-    // leaks into Settings/Contacts/Calls. Called from both the folders signal and onTabChanged.
+    // Novagram: single source of truth for the chat-folder rail. It is shown whenever
+    // folders-as-sidebar is enabled, on EVERY tab — Chats, Contacts, Calls and Settings —
+    // which is how official Telegram 12.9 behaves: the rail is fixed chrome, and tapping a
+    // folder from any tab switches to Chats with that folder applied (see
+    // navigateToChatListFilter in LeftSidebarController.swift).
+    //
+    // It used to be gated on `leftController.isChatListSelected`, which hid the rail on the
+    // other three tabs and made it flicker in and out on every tab switch.
     private func applyLeftSidebarVisibility(animated: Bool) {
-        let shouldShow = leftSidebarController != nil && leftController.isChatListSelected
+        let shouldShow = leftSidebarController != nil
         self.view.updateLeftSideView(shouldShow ? leftSidebarController?.genericView : nil, animated: animated)
     }
 

@@ -513,23 +513,6 @@ private func appAppearanceEntries(appearance: Appearance, state: State, settings
     entries.append(.sectionId(sectionId, type: .normal))
     sectionId += 1
 
-    // Fenixuz: bizning brend iconlar (Default + variantlar). Hammasi Free.
-    do {
-        struct DockTuple: Equatable {
-            let selected: String?
-        }
-        let dockTuple = DockTuple(selected: dockSettings.iconSelected)
-        entries.append(.desc(sectionId: sectionId, index: index, text: .plain(strings().appearanceSettingsDockIcon), data: .init(viewType: .textTopItem)))
-        index += 1
-        entries.append(InputDataEntry.custom(sectionId: sectionId, index: index, value: .none, identifier: _id_dock_icon, equatable: InputDataEquatable(dockTuple), comparable: nil, item: { initialSize, stableId in
-            return DockIconRowItem(initialSize, stableId: stableId, viewType: .singleItem, context: arguments.context, dockIcons: FenixuzAppIcons.all, selected: dockTuple.selected, action: arguments.selectAppIcon)
-        }))
-        index += 1
-
-        entries.append(.sectionId(sectionId, type: .normal))
-        sectionId += 1
-    }
-
     return entries
 }
 

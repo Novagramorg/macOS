@@ -57,6 +57,7 @@ private struct BotDef: Equatable {
     let username: String
     let name: String
     let icon: String      // SF Symbol name
+    let emoji: String     // fallback glyph when the SF Symbol is unavailable on this macOS
     let hexColor: String  // "#RRGGBB"
     let help: String      // localized for current language
 }
@@ -69,7 +70,7 @@ private struct CategoryDef: Equatable {
 
 // MARK: - Icon rendering
 
-private func novagramBotIcon(systemName: String, hexColor: String) -> CGImage? {
+private func novagramBotIcon(systemName: String, emoji: String, hexColor: String) -> CGImage? {
     let size = NSSize(width: 30, height: 30)
     let bgColor = nsColorFromHex(hexColor)
 
@@ -103,6 +104,12 @@ private func novagramBotIcon(systemName: String, hexColor: String) -> CGImage? {
             height: ws.size.height
         )
         ws.draw(in: rect)
+    } else if !emoji.isEmpty {
+        // SF Symbol bu macOS versiyasida yo'q — JSON'dagi emoji glyph'ga tushamiz.
+        let attrs: [NSAttributedString.Key: Any] = [.font: NSFont.systemFont(ofSize: 17)]
+        let str = emoji as NSString
+        let b = str.size(withAttributes: attrs)
+        str.draw(at: NSPoint(x: (size.width - b.width) / 2, y: (size.height - b.height) / 2), withAttributes: attrs)
     }
     image.unlockFocus()
     return image.cgImage(forProposedRect: nil, context: nil, hints: nil)
@@ -186,7 +193,7 @@ private enum NovagramBotsEntry: Comparable, Identifiable {
             return GeneralTextRowItem(initialSize, stableId: stableId, text: text, viewType: .textTopItem)
 
         case let .botRow(_, bot, viewType):
-            let icon = novagramBotIcon(systemName: bot.icon, hexColor: bot.hexColor)
+            let icon = novagramBotIcon(systemName: bot.icon, emoji: bot.emoji, hexColor: bot.hexColor)
             return GeneralInteractedRowItem(
                 initialSize, stableId: stableId,
                 name: bot.name,
@@ -335,6 +342,7 @@ class NovagramBotsController: TableViewController {
                         username: bot.username,
                         name: bot.name,
                         icon: bot.icon,
+                        emoji: bot.emoji,
                         hexColor: bot.color,
                         help: pick(bot.help, lang: languageCode)
                     )

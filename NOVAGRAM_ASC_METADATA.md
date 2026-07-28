@@ -10,7 +10,11 @@ Primary category: **Social Networking**  ·  Secondary: **Productivity**
 ---
 
 ## A) APP-LEVEL fields (shared with iOS — already set, just confirm they read "Novagram")
-- **Name:** Novagram
+> ⚠️ **4.1(c) copycat rule (rejection ae71506c, 2026-07-15):** the App Store **Name** must NEVER contain the
+> word **"Telegram"** (it is another developer's trademark). A build was submitted as
+> "Novagram Messenger Telegram" and got copycat-rejected. Keep the Name to `Novagram` or `Novagram Messenger`
+> only. Do not put "telegram" in Subtitle or Keywords either.
+- **Name:** Novagram   *(or `Novagram Messenger` — never append "Telegram")*
 - **Age Rating:** inherited from the iOS record (messaging apps → typically 17+ for unrestricted user content). Confirm it's already answered.
 - **Content Rights:** "This app contains, shows, or accesses third-party content." → Yes (user messages).
 - **Privacy Policy URL:** reuse the iOS Novagram privacy policy URL.

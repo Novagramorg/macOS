@@ -52,9 +52,13 @@ private final class PincodeView: NSView {
 
     private let isDark: Bool
 
-    init(isDark: Bool) {
+    // TGUIKit builds a modal's view via viewClass().init(frame:), so this MUST be the
+    // designated initializer — a custom init(isDark:) alone makes Swift synthesize a
+    // trapping init(frame:) and every pincode sheet aborts (SIGTRAP) the moment it loads.
+    override init(frame frameRect: NSRect) {
+        let isDark = presentation.colors.isDark
         self.isDark = isDark
-        super.init(frame: .zero)
+        super.init(frame: frameRect)
 
         self.wantsLayer = true
         self.layer?.backgroundColor = (isDark ? NSColor(srgbRed: 0.11, green: 0.11, blue: 0.12, alpha: 1.0) : NSColor(srgbRed: 0.95, green: 0.95, blue: 0.97, alpha: 1.0)).cgColor
@@ -223,6 +227,10 @@ final class FenixuzChatPincodeViewController: ModalViewController {
         let pad = genericView.padContainer
         let buttonSize: CGFloat = 56
         let spacing: CGFloat = 10
+        // PincodeView.layout() sizes padContainer to exactly this height. buildKeypad runs
+        // in viewDidLoad — before the first layout() — so pad.bounds.height is still 0 here;
+        // position buttons off this constant instead, or every row lands off-screen.
+        let padHeight: CGFloat = 4 * buttonSize + 3 * spacing
         let digits: [(String, Int?)] = [
             ("1", 1), ("2", 2), ("3", 3),
             ("4", 4), ("5", 5), ("6", 6),
@@ -251,7 +259,7 @@ final class FenixuzChatPincodeViewController: ModalViewController {
             btn.autohighlight = label != "⌫"
             btn.scaleOnClick = true
             btn.frame = NSRect(x: CGFloat(col) * (buttonSize + spacing),
-                               y: pad.bounds.height - buttonSize - CGFloat(row) * (buttonSize + spacing),
+                               y: padHeight - buttonSize - CGFloat(row) * (buttonSize + spacing),
                                width: buttonSize, height: buttonSize)
             // Use a tag to recover the action without capturing a strong ref.
             btn.set(handler: { [weak self] _ in

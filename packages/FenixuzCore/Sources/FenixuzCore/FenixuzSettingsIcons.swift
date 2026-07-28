@@ -71,5 +71,22 @@ public func fenixuzSettingsIcon(systemName: String, color: FenixuzIconColor) -> 
     }
     image.unlockFocus()
 
-    return image.cgImage(forProposedRect: nil, context: nil, hints: nil)
+    guard let upright = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+        return nil
+    }
+    // Settings rows draw their icon into a FLIPPED CGContext (see GeneralInteractedRowView),
+    // which is why every built-in icon is generated with `.precomposed(flipVertical: true)`.
+    // Our CGImage isn't pre-flipped, so without this it renders upside-down (obvious on the
+    // vertically-asymmetric glyphs like trash/mic). Flip it vertically to match the convention.
+    let w = upright.width
+    let h = upright.height
+    guard let ctx = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: 0,
+                              space: CGColorSpaceCreateDeviceRGB(),
+                              bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
+        return upright
+    }
+    ctx.translateBy(x: 0, y: CGFloat(h))
+    ctx.scaleBy(x: 1, y: -1)
+    ctx.draw(upright, in: CGRect(x: 0, y: 0, width: w, height: h))
+    return ctx.makeImage() ?? upright
 }

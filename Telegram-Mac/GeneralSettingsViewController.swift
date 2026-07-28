@@ -12,37 +12,38 @@ import TelegramCore
 import InAppSettings
 import SwiftSignalKit
 import Postbox
+import FenixuzCore
 
-
-private enum GeneralSettingsEntry : Comparable, Identifiable {
-    case section(sectionId:Int)
-    case header(sectionId: Int, uniqueId:Int, text:String)
-    case liteMode(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case checkSpellingWhileTyping(sectionId:Int, enabled: Bool, key: String, viewType: GeneralViewType)
-    case checkGrammarWithSpelling(sectionId:Int, enabled: Bool, key: String, viewType: GeneralViewType)
-    case correctSpellingAutomatically(sectionId:Int, enabled: Bool, key: String, viewType: GeneralViewType)
-    case sidebar(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case inAppSounds(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
+private enum GeneralSettingsEntry: Comparable, Identifiable {
+    case section(sectionId: Int)
+    case header(sectionId: Int, uniqueId: Int, text: String)
+    case liteMode(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case checkSpellingWhileTyping(sectionId: Int, enabled: Bool, key: String, viewType: GeneralViewType)
+    case checkGrammarWithSpelling(sectionId: Int, enabled: Bool, key: String, viewType: GeneralViewType)
+    case correctSpellingAutomatically(sectionId: Int, enabled: Bool, key: String, viewType: GeneralViewType)
+    case sidebar(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case inAppSounds(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
     case shortcuts(sectionId: Int, viewType: GeneralViewType)
-    case enterBehavior(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case cmdEnterBehavior(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case emojiReplacements(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case predictEmoji(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case bigEmoji(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case statusBar(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case showCallsTab(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case enableRFTCopy(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case sendLargePhotos(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case acceptSecretChats(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case forceTouchReply(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case forceTouchEdit(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case forceTouchForward(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case forceTouchReact(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case forceTouchPreviewMedia(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case callSettings(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case previewChats(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
-    case previewChatsInfo(sectionId:Int)
-    case showProfileId(sectionId:Int, enabled: Bool, viewType: GeneralViewType)
+    case enterBehavior(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case cmdEnterBehavior(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case emojiReplacements(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case predictEmoji(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case bigEmoji(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case statusBar(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case liquidGlass(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case showCallsTab(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case enableRFTCopy(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case sendLargePhotos(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case acceptSecretChats(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case forceTouchReply(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case forceTouchEdit(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case forceTouchForward(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case forceTouchReact(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case forceTouchPreviewMedia(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case callSettings(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case previewChats(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
+    case previewChatsInfo(sectionId: Int)
+    case showProfileId(sectionId: Int, enabled: Bool, viewType: GeneralViewType)
     var stableId: Int {
         switch self {
         case let .header(_, uniqueId, _):
@@ -67,6 +68,8 @@ private enum GeneralSettingsEntry : Comparable, Identifiable {
             return 9
         case .statusBar:
             return 10
+        case .liquidGlass:
+            return 27
         case .inAppSounds:
             return 11
         case .shortcuts:
@@ -103,8 +106,8 @@ private enum GeneralSettingsEntry : Comparable, Identifiable {
             return (id + 1) * 1000 - id
         }
     }
-    
-    var sortIndex:Int {
+
+    var sortIndex: Int {
         switch self {
         case let .header(sectionId, _, _):
             return (sectionId * 1000) + stableId
@@ -138,6 +141,8 @@ private enum GeneralSettingsEntry : Comparable, Identifiable {
             return (sectionId * 1000) + stableId
         case let .statusBar(sectionId, _, _):
             return (sectionId * 1000) + stableId
+        case let .liquidGlass(sectionId, _, _):
+            return (sectionId * 1000) + stableId
         case let .enterBehavior(sectionId, _, _):
             return (sectionId * 1000) + stableId
         case let .cmdEnterBehavior(sectionId, _, _):
@@ -164,8 +169,8 @@ private enum GeneralSettingsEntry : Comparable, Identifiable {
             return (id + 1) * 1000 - id
         }
     }
-    
-    func item(_ arguments:GeneralSettingsArguments, initialSize:NSSize) -> TableRowItem {
+
+    func item(_ arguments: GeneralSettingsArguments, initialSize: NSSize) -> TableRowItem {
         switch self {
         case .section:
             return GeneralRowItem(initialSize, height: 20, stableId: stableId, viewType: .separator)
@@ -231,6 +236,10 @@ private enum GeneralSettingsEntry : Comparable, Identifiable {
             return  GeneralInteractedRowItem(initialSize, stableId: stableId, name: strings().generalSettingsStatusBarItem, type: .switchable(enabled), viewType: viewType, action: {
                 arguments.toggleStatusBar(!enabled)
             })
+        case let .liquidGlass(sectionId: _, enabled, viewType):
+            return  GeneralInteractedRowItem(initialSize, stableId: stableId, name: FenixuzL10n.current.glass_settingsTitle, type: .switchable(enabled), viewType: viewType, action: {
+                arguments.toggleLiquidGlass(!enabled)
+            })
         case let .enterBehavior(sectionId: _, enabled, viewType):
             return GeneralInteractedRowItem(initialSize, name: strings().generalSettingsSendByEnter, type: .selectable(enabled), viewType: viewType, action: {
                 arguments.toggleInput(.enter)
@@ -272,35 +281,36 @@ private enum GeneralSettingsEntry : Comparable, Identifiable {
         }
     }
 }
-private func <(lhs: GeneralSettingsEntry, rhs: GeneralSettingsEntry) -> Bool {
+private func < (lhs: GeneralSettingsEntry, rhs: GeneralSettingsEntry) -> Bool {
     return lhs.sortIndex < rhs.sortIndex
 }
 
 private final class GeneralSettingsArguments {
-    let context:AccountContext
-    let toggleCallsTab:(Bool) -> Void
-    let toggleInAppKeys:(Bool) -> Void
-    let toggleInput:(SendingType)-> Void
-    let toggleSidebar:(Bool) -> Void
-    let toggleInAppSounds:(Bool) -> Void
-    let toggleEmojiReplacements:(Bool) -> Void
-    let toggleForceTouchAction:(ForceTouchAction) -> Void
-	let toggleInstantViewScrollBySpace:(Bool) -> Void
-    let toggleAutoplayGifs:(Bool) -> Void
-    let toggleEmojiPrediction: (Bool)->Void
+    let context: AccountContext
+    let toggleCallsTab: (Bool) -> Void
+    let toggleInAppKeys: (Bool) -> Void
+    let toggleInput: (SendingType) -> Void
+    let toggleSidebar: (Bool) -> Void
+    let toggleInAppSounds: (Bool) -> Void
+    let toggleEmojiReplacements: (Bool) -> Void
+    let toggleForceTouchAction: (ForceTouchAction) -> Void
+	let toggleInstantViewScrollBySpace: (Bool) -> Void
+    let toggleAutoplayGifs: (Bool) -> Void
+    let toggleEmojiPrediction: (Bool) -> Void
     let toggleBigEmoji: (Bool) -> Void
     let toggleStatusBar: (Bool) -> Void
+    let toggleLiquidGlass: (Bool) -> Void
     let toggleRTFEnabled: (Bool) -> Void
     let toggleLargePhotos: (Bool) -> Void
-    let acceptSecretChats:(Bool)->Void
-    let toggleWorkMode:(Bool)->Void
-    let openShortcuts: ()->Void
-    let callSettings: ()->Void
-    let openLiteMode: ()->Void
-    let toggleSpellingKey:(String)->Void
-    let showProfileId:()->Void
-    let togglePreviewChat:()->Void
-    init(context:AccountContext, toggleCallsTab:@escaping(Bool)-> Void, toggleInAppKeys: @escaping(Bool) -> Void, toggleInput: @escaping(SendingType)-> Void, toggleSidebar: @escaping (Bool) -> Void, toggleInAppSounds: @escaping (Bool) -> Void, toggleEmojiReplacements:@escaping(Bool) -> Void, toggleForceTouchAction: @escaping(ForceTouchAction)->Void, toggleInstantViewScrollBySpace: @escaping(Bool)->Void, toggleAutoplayGifs:@escaping(Bool) -> Void, toggleEmojiPrediction: @escaping(Bool) -> Void, toggleBigEmoji: @escaping(Bool) -> Void, toggleStatusBar: @escaping(Bool) -> Void, toggleRTFEnabled: @escaping(Bool)->Void, toggleLargePhotos: @escaping(Bool) -> Void, acceptSecretChats: @escaping(Bool)->Void, toggleWorkMode:@escaping(Bool)->Void, openShortcuts: @escaping()->Void, callSettings: @escaping() ->Void, openLiteMode: @escaping()->Void, toggleSpellingKey:@escaping(String)->Void, showProfileId:@escaping()->Void, togglePreviewChat:@escaping()->Void) {
+    let acceptSecretChats: (Bool) -> Void
+    let toggleWorkMode: (Bool) -> Void
+    let openShortcuts: () -> Void
+    let callSettings: () -> Void
+    let openLiteMode: () -> Void
+    let toggleSpellingKey: (String) -> Void
+    let showProfileId: () -> Void
+    let togglePreviewChat: () -> Void
+    init(context: AccountContext, toggleCallsTab: @escaping (Bool) -> Void, toggleInAppKeys: @escaping (Bool) -> Void, toggleInput: @escaping (SendingType) -> Void, toggleSidebar: @escaping (Bool) -> Void, toggleInAppSounds: @escaping (Bool) -> Void, toggleEmojiReplacements: @escaping (Bool) -> Void, toggleForceTouchAction: @escaping (ForceTouchAction) -> Void, toggleInstantViewScrollBySpace: @escaping (Bool) -> Void, toggleAutoplayGifs: @escaping (Bool) -> Void, toggleEmojiPrediction: @escaping (Bool) -> Void, toggleBigEmoji: @escaping (Bool) -> Void, toggleStatusBar: @escaping (Bool) -> Void, toggleLiquidGlass: @escaping (Bool) -> Void, toggleRTFEnabled: @escaping (Bool) -> Void, toggleLargePhotos: @escaping (Bool) -> Void, acceptSecretChats: @escaping (Bool) -> Void, toggleWorkMode: @escaping (Bool) -> Void, openShortcuts: @escaping () -> Void, callSettings: @escaping () -> Void, openLiteMode: @escaping () -> Void, toggleSpellingKey: @escaping (String) -> Void, showProfileId: @escaping () -> Void, togglePreviewChat: @escaping () -> Void) {
         self.context = context
         self.toggleCallsTab = toggleCallsTab
         self.toggleInAppKeys = toggleInAppKeys
@@ -314,6 +324,7 @@ private final class GeneralSettingsArguments {
         self.toggleEmojiPrediction = toggleEmojiPrediction
         self.toggleBigEmoji = toggleBigEmoji
         self.toggleStatusBar = toggleStatusBar
+        self.toggleLiquidGlass = toggleLiquidGlass
         self.toggleRTFEnabled = toggleRTFEnabled
         self.acceptSecretChats = acceptSecretChats
         self.toggleWorkMode = toggleWorkMode
@@ -325,41 +336,39 @@ private final class GeneralSettingsArguments {
         self.togglePreviewChat = togglePreviewChat
         self.toggleLargePhotos = toggleLargePhotos
     }
-   
+
 }
 
-private func generalSettingsEntries(arguments:GeneralSettingsArguments, baseSettings: BaseApplicationSettings, appearance: Appearance, launchSettings: LaunchSettings, secretChatSettings: SecretChatSettings, additionalSettings: AdditionalSettings) -> [GeneralSettingsEntry] {
-    var sectionId:Int = 1
-    var entries:[GeneralSettingsEntry] = []
-    
-    var headerUnique:Int = -1
-    
+private func generalSettingsEntries(arguments: GeneralSettingsArguments, baseSettings: BaseApplicationSettings, appearance: Appearance, launchSettings: LaunchSettings, secretChatSettings: SecretChatSettings, additionalSettings: AdditionalSettings) -> [GeneralSettingsEntry] {
+    var sectionId: Int = 1
+    var entries: [GeneralSettingsEntry] = []
+
+    var headerUnique: Int = -1
+
     entries.append(.section(sectionId: sectionId))
     sectionId += 1
-    
+
     entries.append(.header(sectionId: sectionId, uniqueId: headerUnique, text: strings().generalSettingsEnergySaving))
     headerUnique -= 1
-    
+
     entries.append(.liteMode(sectionId: sectionId, enabled: baseSettings.liteMode.enabled, viewType: .singleItem))
-    
+
     entries.append(.section(sectionId: sectionId))
     sectionId += 1
-    
-    
+
     entries.append(.header(sectionId: sectionId, uniqueId: headerUnique, text: strings().generalSettingsSpellingTitle))
     headerUnique -= 1
-    
+
     let key1 = "ContinuousSpellCheckingEnabled" + "TGGrowingTextView"
     let key2 = "GrammarCheckingEnabled" + "TGGrowingTextView"
     let key3 = "AutomaticSpellingCorrectionEnabled" + "TGGrowingTextView"
-    
+
     entries.append(.checkSpellingWhileTyping(sectionId: sectionId, enabled: UserDefaults.standard.bool(forKey: key1), key: key1, viewType: .firstItem))
     entries.append(.checkGrammarWithSpelling(sectionId: sectionId, enabled: UserDefaults.standard.bool(forKey: key2), key: key2, viewType: .innerItem))
     entries.append(.correctSpellingAutomatically(sectionId: sectionId, enabled: UserDefaults.standard.bool(forKey: key3), key: key3, viewType: .lastItem))
-    
+
     entries.append(.section(sectionId: sectionId))
     sectionId += 1
-
 
     entries.append(.header(sectionId: sectionId, uniqueId: headerUnique, text: strings().generalSettingsEmoji))
     headerUnique -= 1
@@ -370,44 +379,39 @@ private func generalSettingsEntries(arguments:GeneralSettingsArguments, baseSett
     }
     entries.append(.bigEmoji(sectionId: sectionId, enabled: baseSettings.bigEmoji, viewType: .lastItem))
 
-    
-
-    
     entries.append(.section(sectionId: sectionId))
     sectionId += 1
-    
+
     entries.append(.header(sectionId: sectionId, uniqueId: headerUnique, text: strings().generalSettingsInterfaceHeader))
     headerUnique -= 1
     entries.append(.showCallsTab(sectionId: sectionId, enabled: baseSettings.showCallsTab, viewType: .firstItem))
     entries.append(.statusBar(sectionId: sectionId, enabled: baseSettings.statusBar, viewType: .innerItem))
+    if #available(macOS 26, *) { entries.append(.liquidGlass(sectionId: sectionId, enabled: baseSettings.liquidGlassEnabled, viewType: .innerItem)) }
     entries.append(.previewChats(sectionId: sectionId, enabled: additionalSettings.previewChats, viewType: .lastItem))
     entries.append(.previewChatsInfo(sectionId: sectionId))
 
-    
     entries.append(.section(sectionId: sectionId))
     sectionId += 1
-    
+
     entries.append(.header(sectionId: sectionId, uniqueId: headerUnique, text: strings().generalSettingsShortcutsHeader))
     headerUnique -= 1
     entries.append(.shortcuts(sectionId: sectionId, viewType: .singleItem))
 
-
-	
     entries.append(.section(sectionId: sectionId))
     sectionId += 1
-    
+
     entries.append(.header(sectionId: sectionId, uniqueId: headerUnique, text: strings().generalSettingsAdvancedHeader))
     headerUnique -= 1
     entries.append(.enableRFTCopy(sectionId: sectionId, enabled: FastSettings.enableRTF, viewType: .firstItem))
     entries.append(.sendLargePhotos(sectionId: sectionId, enabled: FastSettings.sendLargePhotos, viewType: .lastItem))
 //    entries.append(.acceptSecretChats(sectionId: sectionId, enabled: secretChatSettings.acceptOnThisDevice, viewType: .lastItem))
-    
+
     entries.append(.section(sectionId: sectionId))
     sectionId += 1
-    
+
     entries.append(.header(sectionId: sectionId, uniqueId: headerUnique, text: strings().generalSettingsForceTouchHeader))
     headerUnique -= 1
-    
+
     entries.append(.forceTouchReply(sectionId: sectionId, enabled: FastSettings.forceTouchAction == .reply, viewType: .firstItem))
     entries.append(.forceTouchEdit(sectionId: sectionId, enabled: FastSettings.forceTouchAction == .edit, viewType: .innerItem))
     entries.append(.forceTouchForward(sectionId: sectionId, enabled: FastSettings.forceTouchAction == .forward, viewType: .innerItem))
@@ -415,30 +419,28 @@ private func generalSettingsEntries(arguments:GeneralSettingsArguments, baseSett
 
     entries.append(.section(sectionId: sectionId))
     sectionId += 1
-    
+
     entries.append(.header(sectionId: sectionId, uniqueId: headerUnique, text: strings().generalSettingsInputSettings))
     headerUnique -= 1
     entries.append(.enterBehavior(sectionId: sectionId, enabled: FastSettings.sendingType == .enter, viewType: .firstItem))
     entries.append(.cmdEnterBehavior(sectionId: sectionId, enabled: FastSettings.sendingType == .cmdEnter, viewType: .lastItem))
-    
+
     entries.append(.section(sectionId: sectionId))
     sectionId += 1
 
-    
     entries.append(.header(sectionId: sectionId, uniqueId: headerUnique, text: strings().generalSettingsCallSettingsHeader))
     headerUnique -= 1
-    
+
     entries.append(.callSettings(sectionId: sectionId, enabled: true, viewType: .singleItem))
 
     entries.append(.section(sectionId: sectionId))
     sectionId += 1
-    
+
     entries.append(.showProfileId(sectionId: sectionId, enabled: FastSettings.canViewPeerId, viewType: .singleItem))
 
     entries.append(.section(sectionId: sectionId))
     sectionId += 1
 
-    
     return entries
 }
 
@@ -446,26 +448,25 @@ private func prepareEntries(left: [AppearanceWrapperEntry<GeneralSettingsEntry>]
     let (removed, inserted, updated)  = proccessEntriesWithoutReverse(left, right: right) { entry -> TableRowItem in
         return entry.entry.item(arguments, initialSize: initialSize)
     }
-    
+
     return TableUpdateTransition(deleted: removed, inserted: inserted, updated: updated, animated: true)
 }
 
 class GeneralSettingsViewController: TableViewController {
-    
+
     private let disposable = MetaDisposable()
-    override var removeAfterDisapper:Bool {
+    override var removeAfterDisapper: Bool {
         return false
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-       
+
         let context = self.context
-        let inputPromise:ValuePromise<SendingType> = ValuePromise(FastSettings.sendingType, ignoreRepeated: true)
-        
-        let forceTouchPromise:ValuePromise<ForceTouchAction> = ValuePromise(FastSettings.forceTouchAction, ignoreRepeated: true)
-        
+        let inputPromise: ValuePromise<SendingType> = ValuePromise(FastSettings.sendingType, ignoreRepeated: true)
+
+        let forceTouchPromise: ValuePromise<ForceTouchAction> = ValuePromise(FastSettings.forceTouchAction, ignoreRepeated: true)
+
         let arguments = GeneralSettingsArguments(context: context, toggleCallsTab: { enable in
             _ = updateBaseAppSettingsInteractively(accountManager: context.sharedContext.accountManager, { settings -> BaseApplicationSettings in
                 return settings.withUpdatedShowCallsTab(enable)
@@ -502,18 +503,21 @@ class GeneralSettingsViewController: TableViewController {
             _ = updateBaseAppSettingsInteractively(accountManager: context.sharedContext.accountManager, { settings -> BaseApplicationSettings in
                 return settings.withUpdatedStatusBar(enable)
             }).start()
+        }, toggleLiquidGlass: { enable in
+            _ = updateBaseAppSettingsInteractively(accountManager: context.sharedContext.accountManager, { $0.withUpdatedLiquidGlass(enable) }).start()
+            telegramUpdateTheme(theme.new(), animated: false)
         }, toggleRTFEnabled: { enable in
             FastSettings.enableRTF = enable
         }, toggleLargePhotos: { enable in
             FastSettings.sendLargePhotos(enable)
         }, acceptSecretChats: { enable in
-            _ = context.account.postbox.transaction({ transaction -> Void in
+            _ = context.account.postbox.transaction({ transaction in
                 transaction.updatePreferencesEntry(key: PreferencesKeys.secretChatSettings, { _ in
                    return PreferencesEntry(SecretChatSettings(acceptOnThisDevice: enable))
                 })
             }).start()
-        }, toggleWorkMode: { value in
-            
+        }, toggleWorkMode: { _ in
+
         }, openShortcuts: {
             context.bindings.rootNavigation().push(ShortcutListController(context: context))
         }, callSettings: {
@@ -529,55 +533,45 @@ class GeneralSettingsViewController: TableViewController {
                 $0.withUpdatedPreviewChats(!$0.previewChats)
             }).startStandalone()
         })
-        
+
         let initialSize = atomicSize
-        
-        let previos:Atomic<[AppearanceWrapperEntry<GeneralSettingsEntry>]> = Atomic(value: [])
-        
+
+        let previos: Atomic<[AppearanceWrapperEntry<GeneralSettingsEntry>]> = Atomic(value: [])
+
         let baseSettingsSignal: Signal<BaseApplicationSettings, NoError> = .single(context.sharedContext.baseSettings) |> then(baseAppSettings(accountManager: context.sharedContext.accountManager))
-        
+
         let signal = combineLatest(queue: prepareQueue, baseSettingsSignal, inputPromise.get(), forceTouchPromise.get(), appearanceSignal, appLaunchSettings(postbox: context.account.postbox), context.account.postbox.preferencesView(keys: [PreferencesKeys.secretChatSettings]), additionalSettings(accountManager: context.sharedContext.accountManager)) |> map { settings, _, _, appearance, launchSettings, preferencesView, additionalSettings -> TableUpdateTransition in
-            
+
             let baseSettings: BaseApplicationSettings = settings
-            
+
             let secretChatSettings = preferencesView.values[PreferencesKeys.secretChatSettings]?.get(SecretChatSettings.self) ?? SecretChatSettings.defaultSettings
-            
+
             let entries = generalSettingsEntries(arguments: arguments, baseSettings: baseSettings, appearance: appearance, launchSettings: launchSettings, secretChatSettings: secretChatSettings, additionalSettings: additionalSettings).map({AppearanceWrapperEntry(entry: $0, appearance: appearance)})
             let previous = previos.swap(entries)
             return prepareEntries(left: previous, right: entries, arguments: arguments, initialSize: initialSize.modify({$0}))
-            
+
         } |> deliverOnMainQueue
-        
+
         disposable.set(signal.start(next: { [weak self] transition in
-            self?.genericView.merge(with:  transition)
+            self?.genericView.merge(with: transition)
             self?.readyOnce()
         }))
-                
+
     }
-    
+
     private var loggerClickCount = 0
 
-    
     func sendLogs() {
-        
+
     }
-    
+
     deinit {
         disposable.dispose()
     }
 
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)        
-    }
-    
-
-    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         window?.removeAllHandlers(for: self)
     }
-   
+
 }
-
-

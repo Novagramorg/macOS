@@ -57,7 +57,6 @@ private enum FenixuzDefaultsKey {
     static let sttEnabled                 = "stt_enabled"
     static let sttLanguage                = "stt_language"
     static let blockForeignUsers          = "block_foreign_users"
-    static let blockApkFiles              = "block_apk_files"
 }
 
 private struct FenixuzSettingsState: Equatable {
@@ -76,7 +75,6 @@ private struct FenixuzSettingsState: Equatable {
     var sttEnabled: Bool
     var sttLanguage: String
     var blockForeignUsers: Bool
-    var blockApkFiles: Bool
     // Feature #46: derived from the keychain (source of truth), NOT fenixuzDefaults.
     var chatLockMasterEnabled: Bool
     // NovagramProxy opt-in — derived from FenixuzAutoProxyManager (owns the "pro_messager" key).
@@ -100,7 +98,6 @@ private struct FenixuzSettingsState: Equatable {
             sttEnabled: d?.object(forKey: FenixuzDefaultsKey.sttEnabled) as? Bool ?? true,
             sttLanguage: d?.string(forKey: FenixuzDefaultsKey.sttLanguage) ?? "en-US",
             blockForeignUsers: d?.bool(forKey: FenixuzDefaultsKey.blockForeignUsers) ?? false,
-            blockApkFiles: d?.bool(forKey: FenixuzDefaultsKey.blockApkFiles) ?? false,
             chatLockMasterEnabled: FenixuzChatPincodeManager.shared.isMasterEnabled(),
             novagramProxyEnabled: FenixuzAutoProxyManager.shared.isEnabled
         )
@@ -146,7 +143,7 @@ private enum FenixuzEntryId: Hashable {
     case chatDeleted, chatFirstMessage, chatGhostActive, chatGhost, chatCamera, chatFooter
     case messagingTextStyle, messagingAutoText, messagingAutoTranslate, messagingTranslateToggle, messagingTranslateLang, messagingFooter
     case sttEnabled, sttLanguage
-    case protectionChatLock, protectionProxy, protectionForeign, protectionApk, protectionFooter
+    case protectionChatLock, protectionProxy, protectionForeign, protectionFooter
 }
 
 // iOS 1:1 — har bir row uchun rangli kvadrat ikonka (FenixuzIconColor + SF Symbol).
@@ -159,7 +156,7 @@ private func fenixuzSettingsRowIcon(_ id: FenixuzEntryId) -> CGImage? {
     case .interfaceHideFolders:     map = ("folder.badge.minus", .lightBlue)
     case .interfaceStories:         map = ("circle.dashed", .violet)
     case .interfaceMutual:          map = ("person.2.fill", .blue)
-    case .chatDeleted:              map = ("trash.slash.fill", .red)
+    case .chatDeleted:              map = ("trash.fill", .red)
     case .chatFirstMessage:         map = ("arrow.up.to.line", .blue)
     case .chatGhostActive:          map = ("eye.slash.fill", .gray)
     case .chatGhost:                map = ("eye.slash", .gray)
@@ -174,7 +171,6 @@ private func fenixuzSettingsRowIcon(_ id: FenixuzEntryId) -> CGImage? {
     case .protectionChatLock:       map = ("lock.shield.fill", .green)
     case .protectionProxy:          map = ("network.badge.shield.half.filled", .green)
     case .protectionForeign:        map = ("person.crop.circle.badge.xmark", .orange)
-    case .protectionApk:            map = ("doc.fill.badge.ellipsis", .red)
     default:                        map = nil
     }
     guard let (symbol, color) = map else { return nil }
@@ -268,7 +264,11 @@ private enum FenixuzEntry: Comparable, Identifiable {
                 viewType: viewType,
                 action: {
                     arguments.updateChatLockMaster(!value)
-                }
+                },
+                // The row's true value comes from the keychain and only flips on sheet success.
+                // Without autoswitch:false the switch optimistically snaps ON on tap and, if the
+                // user dismisses the Set-Pincode sheet with X, never reconciles back to OFF.
+                autoswitch: false
             )
         case let .novagramProxyToggle(_, entryId, title, subtitle, value, viewType):
             return GeneralInteractedRowItem(
@@ -320,8 +320,7 @@ private func fenixuzSettingsEntries(state: FenixuzSettingsState, l10n: FenixuzL1
     // ─── FENIX PRO (top) ───
     entries.append(.section(sectionId)); sectionId += 1
     entries.append(.disclosurePlaceholder(next(), .topAbout, l10n.about_rowTitle, "", .firstItem, "about"))
-    entries.append(.disclosurePlaceholder(next(), .topBots, l10n.bots_rowTitle, "", .innerItem, "bots"))
-    entries.append(.disclosurePlaceholder(next(), .topTips, l10n.tips_screenTitle, "", .lastItem, "tips"))
+    entries.append(.disclosurePlaceholder(next(), .topBots, l10n.bots_rowTitle, "", .lastItem, "bots"))
 
     // ─── INTERFACE ───
     entries.append(.section(sectionId)); sectionId += 1
@@ -364,8 +363,7 @@ private func fenixuzSettingsEntries(state: FenixuzSettingsState, l10n: FenixuzL1
     entries.append(.header(next(), .header(5), l10n.settings_section_protection))
     entries.append(.chatLockToggle(next(), .protectionChatLock, l10n.chatLock_settingsTitle, l10n.chatLock_settingsSubtitle, state.chatLockMasterEnabled, .firstItem))
     entries.append(.novagramProxyToggle(next(), .protectionProxy, FenixuzAutoProxyStrings.toggleTitle(langCode: appCurrentLanguage.languageCode), FenixuzAutoProxyStrings.toggleTip(langCode: appCurrentLanguage.languageCode), state.novagramProxyEnabled, .innerItem))
-    entries.append(.toggle(next(), .protectionForeign, l10n.settings_protection_foreign_title, l10n.settings_protection_foreign_subtitle, state.blockForeignUsers, .innerItem, FenixuzDefaultsKey.blockForeignUsers))
-    entries.append(.toggle(next(), .protectionApk, l10n.settings_protection_apk_title, l10n.settings_protection_apk_subtitle, state.blockApkFiles, .lastItem, FenixuzDefaultsKey.blockApkFiles))
+    entries.append(.toggle(next(), .protectionForeign, l10n.settings_protection_foreign_title, l10n.settings_protection_foreign_subtitle, state.blockForeignUsers, .lastItem, FenixuzDefaultsKey.blockForeignUsers))
     entries.append(.footer(next(), .protectionFooter, l10n.settings_protection_footer))
 
     // trailing spacer
@@ -436,7 +434,6 @@ class FenixuzSettingsController: TableViewController {
                     case FenixuzDefaultsKey.showTranslateMessages: state.showTranslateMessages = value
                     case FenixuzDefaultsKey.sttEnabled: state.sttEnabled = value
                     case FenixuzDefaultsKey.blockForeignUsers: state.blockForeignUsers = value
-                    case FenixuzDefaultsKey.blockApkFiles: state.blockApkFiles = value
                     default: break
                     }
                 }

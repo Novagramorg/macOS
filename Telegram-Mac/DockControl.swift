@@ -86,16 +86,11 @@ final class DockControl {
         reapplyOnLaunch()
     }
 
-    // Tanlangan Fenixuz iconni har ishga tushganda qayta qo'llaymiz — app yangilanganda
-    // bundle resource fork yo'qolishi mumkin. Default tanlangan bo'lsa hech narsa qilmaymiz.
+    // Custom app-icon picker olib tashlandi — har doim bundle Novagram AppIcon ishlatiladi.
     private func reapplyOnLaunch() {
-        let signal = dockSettings(accountManager: accountManager) |> take(1) |> deliverOnMainQueue
-        update.set(signal.start(next: { settings in
-            let icon = FenixuzAppIcons.icon(forSelected: settings.iconSelected)
-            if !icon.isDefault {
-                FenixuzAppIcons.apply(icon, silence: true)
-            }
-        }))
+        // Oldingi build qo'llagan custom iconni tozalaymiz (Icon\r resource fork'ni olib tashlaydi),
+        // shunda eski icon tanlagan foydalanuvchilar ham launch'da bundle Novagram icon'ga qaytadi.
+        Dock.setCustomAppIcon(path: nil, silence: true)
     }
 
     func clear() {

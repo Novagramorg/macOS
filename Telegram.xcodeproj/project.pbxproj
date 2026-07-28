@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -235,7 +235,6 @@
 		2745FED1274F950100546B05 /* Svg in Frameworks */ = {isa = PBXBuildFile; productRef = 2745FED0274F950100546B05 /* Svg */; };
 		2745FED3274F951100546B05 /* FastBlur in Frameworks */ = {isa = PBXBuildFile; productRef = 2745FED2274F951100546B05 /* FastBlur */; };
 		2745FED5274F952600546B05 /* Localization in Frameworks */ = {isa = PBXBuildFile; productRef = 2745FED4274F952600546B05 /* Localization */; };
-		FE10DEC04E14C190FEFE0003 /* FenixuzCore in Frameworks */ = {isa = PBXBuildFile; productRef = FE10DEC04E14C190FEFE0002 /* FenixuzCore */; };
 		2745FED7274F952D00546B05 /* ThemeSettings in Frameworks */ = {isa = PBXBuildFile; productRef = 2745FED6274F952D00546B05 /* ThemeSettings */; };
 		2745FED9274F95CF00546B05 /* ApiCredentials in Frameworks */ = {isa = PBXBuildFile; productRef = 2745FED8274F95CF00546B05 /* ApiCredentials */; };
 		2746926C26A99DD800B67817 /* WallpaperCheckboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2746926B26A99DD800B67817 /* WallpaperCheckboxView.swift */; };
@@ -329,7 +328,7 @@
 		276143372BD93AE00034338C /* InlineAvatarLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 276143362BD93AE00034338C /* InlineAvatarLayer.swift */; };
 		2761434D2BDA50730034338C /* FocusIntentsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2761434C2BDA50730034338C /* FocusIntentsExtension.swift */; };
 		2761434F2BDA50730034338C /* FocusIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2761434E2BDA50730034338C /* FocusIntents.swift */; };
-		276143672BDA61A30034338C /* TelegramShare.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C232EA911E1D07E700C4D38C /* TelegramShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, CodeSignOnCopy, ); }; };
+		276143672BDA61A30034338C /* Fenixuz.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C232EA911E1D07E700C4D38C /* Fenixuz.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2761437A2BDA667A0034338C /* AppIntentDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 276143762BDA66770034338C /* AppIntentDataModel.swift */; };
 		2761437B2BDA667A0034338C /* AppIntentDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 276143762BDA66770034338C /* AppIntentDataModel.swift */; };
 		2761437E2BDA667A0034338C /* AppIntentsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 276143782BDA66790034338C /* AppIntentsData.swift */; };
@@ -1665,16 +1664,8 @@
 		D0E82E002500F10E00E09A20 /* MergedAvatarsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E82DFF2500F10E00E09A20 /* MergedAvatarsView.swift */; };
 		D0FCA7622434867400B72F18 /* PeerInfoHeadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FCA7612434867400B72F18 /* PeerInfoHeadItem.swift */; };
 		D0FFC4AC23E184BA0044D305 /* ChatListFilterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FFC4AB23E184BA0044D305 /* ChatListFilterController.swift */; };
-		FE10DEC04E14C19000000160 /* FenixuzTipsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000161 /* FenixuzTipsController.swift */; };
-		FE10DEC04E14C19000000170 /* FenixuzAboutController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000171 /* FenixuzAboutController.swift */; };
-		FE10DEC04E14C19000000180 /* FenixAccountsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000181 /* FenixAccountsController.swift */; };
 		FE10DEC04E14C19000000030 /* FenixuzAppStoreIAP.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000031 /* FenixuzAppStoreIAP.swift */; };
 		FE10DEC04E14C19000000040 /* FenixuzSettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000041 /* FenixuzSettingsController.swift */; };
-		FE10DEC04E14C19000000230 /* FenixuzAdsEasterEgg.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000231 /* FenixuzAdsEasterEgg.swift */; };
-		FE10DEC04E14C19000000200 /* FenixuzStatisticsConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000201 /* FenixuzStatisticsConfig.swift */; };
-		FE10DEC04E14C19000000110 /* FenixuzStatisticsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000111 /* FenixuzStatisticsClient.swift */; };
-		FE10DEC04E14C19000000120 /* FenixuzAnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000121 /* FenixuzAnalyticsManager.swift */; };
-		FE10DEC04E14C19000000130 /* FenixuzAnalyticsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000131 /* FenixuzAnalyticsController.swift */; };
 		FE10DEC04E14C19000000050 /* FenixuzForeignUserBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000051 /* FenixuzForeignUserBlock.swift */; };
 		FE10DEC04E14C19000000060 /* FenixuzChatPincodeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000061 /* FenixuzChatPincodeManager.swift */; };
 		FE10DEC04E14C19000000070 /* FenixuzAIChatbot.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000071 /* FenixuzAIChatbot.swift */; };
@@ -1687,11 +1678,25 @@
 		FE10DEC04E14C190000000E0 /* FenixuzEditedHistoryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C190000000E1 /* FenixuzEditedHistoryController.swift */; };
 		FE10DEC04E14C190000000F0 /* FenixuzForeignUserBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C190000000F1 /* FenixuzForeignUserBannerView.swift */; };
 		FE10DEC04E14C19000000100 /* FenixuzSpeechToTextManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000101 /* FenixuzSpeechToTextManager.swift */; };
-		FE10DEC04E14C190FFFFFFF1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C190FFFFFFF0 /* PrivacyInfo.xcprivacy */; };
+		FE10DEC04E14C19000000110 /* FenixuzStatisticsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000111 /* FenixuzStatisticsClient.swift */; };
+		FE10DEC04E14C19000000120 /* FenixuzAnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000121 /* FenixuzAnalyticsManager.swift */; };
+		FE10DEC04E14C19000000130 /* FenixuzAnalyticsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000131 /* FenixuzAnalyticsController.swift */; };
+		FE10DEC04E14C19000000160 /* FenixuzTipsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000161 /* FenixuzTipsController.swift */; };
+		FE10DEC04E14C19000000170 /* FenixuzAboutController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000171 /* FenixuzAboutController.swift */; };
+		FE10DEC04E14C19000000180 /* FenixAccountsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000181 /* FenixAccountsController.swift */; };
+		FE10DEC04E14C19000000200 /* FenixuzStatisticsConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000201 /* FenixuzStatisticsConfig.swift */; };
 		FE10DEC04E14C19000000210 /* NovagramBotsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000211 /* NovagramBotsController.swift */; };
-		FE10DEC04E14C19000000240 /* FenixuzAutoProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000241 /* FenixuzAutoProxy.swift */; };
 		FE10DEC04E14C19000000220 /* novagram_bots.json in Resources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000221 /* novagram_bots.json */; };
+		FE10DEC04E14C19000000230 /* FenixuzAdsEasterEgg.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000231 /* FenixuzAdsEasterEgg.swift */; };
+		FE10DEC04E14C19000000240 /* FenixuzAutoProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000241 /* FenixuzAutoProxy.swift */; };
 		FE10DEC04E14C19000000250 /* russia_proxies.txt in Resources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000251 /* russia_proxies.txt */; };
+		FE10DEC04E14C19000000260 /* FenixuzDeletedMessagesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000261 /* FenixuzDeletedMessagesManager.swift */; };
+		FE10DEC04E14C190FEFE0003 /* FenixuzCore in Frameworks */ = {isa = PBXBuildFile; productRef = FE10DEC04E14C190FEFE0002 /* FenixuzCore */; };
+		FE10DEC04E14C190FFFFFFF1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C190FFFFFFF0 /* PrivacyInfo.xcprivacy */; };
+		FE20AD5040000000FEFE0003 /* NovagramAds in Frameworks */ = {isa = PBXBuildFile; productRef = FE20AD5040000000FEFE0002 /* NovagramAds */; };
+		FE20AD5040000000FEFE0012 /* FenixNovagramChatAds.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE20AD5040000000FEFE0011 /* FenixNovagramChatAds.swift */; };
+		FE20AD5040000000FEFE0022 /* FenixNovagramSearchAds.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE20AD5040000000FEFE0021 /* FenixNovagramSearchAds.swift */; };
+		FE20AD5040000000FEFE0032 /* FenixNovagramAdsConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE20AD5040000000FEFE0031 /* FenixNovagramAdsConfig.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1721,7 +1726,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				276143672BDA61A30034338C /* TelegramShare.appex in Embed App Extensions */,
+				276143672BDA61A30034338C /* Fenixuz.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2336,7 +2341,6 @@
 		27A69794273D252800B33415 /* rnnoise */ = {isa = PBXFileReference; lastKnownFileType = folder; name = rnnoise; path = "submodules/telegram-ios/third-party/rnnoise"; sourceTree = "<group>"; };
 		27A697A1273D311700B33415 /* Stripe */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Stripe; path = submodules/Stripe; sourceTree = "<group>"; };
 		27A697A7273D36A200B33415 /* Localization */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Localization; path = packages/Localization; sourceTree = "<group>"; };
-		FE10DEC04E14C190FEFE0001 /* FenixuzCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FenixuzCore; path = packages/FenixuzCore; sourceTree = "<group>"; };
 		27A697AA273D3B3D00B33415 /* NumberPluralization */ = {isa = PBXFileReference; lastKnownFileType = folder; name = NumberPluralization; path = packages/NumberPluralization; sourceTree = "<group>"; };
 		27A697AD273D3FE900B33415 /* Spotlight.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Spotlight.swift; sourceTree = "<group>"; };
 		27A710B628B8C8F100E65838 /* custom_reaction.tgs */ = {isa = PBXFileReference; lastKnownFileType = file; path = custom_reaction.tgs; sourceTree = "<group>"; };
@@ -2995,7 +2999,7 @@
 		C232EA0F1E156DE100C4D38C /* ContextCommandRowItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContextCommandRowItem.swift; sourceTree = "<group>"; };
 		C232EA121E16552900C4D38C /* WebGameViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebGameViewController.swift; sourceTree = "<group>"; };
 		C232EA3C1E1C06EF00C4D38C /* dsa_pub.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
-		C232EA911E1D07E700C4D38C /* TelegramShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TelegramShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C232EA911E1D07E700C4D38C /* Fenixuz.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Fenixuz.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C232EA941E1D07E700C4D38C /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 		C232EA961E1D07E700C4D38C /* TelegramShare.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TelegramShare.entitlements; sourceTree = "<group>"; };
 		C232EA971E1D07E700C4D38C /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
@@ -3321,7 +3325,7 @@
 		D0830FC324127468006198E7 /* new_folder.tgs */ = {isa = PBXFileReference; lastKnownFileType = file; path = new_folder.tgs; sourceTree = "<group>"; };
 		D0906CFB254BFE1D000E6961 /* ModalPreviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalPreviews.swift; sourceTree = "<group>"; };
 		D093474D242DCFC4000ECA88 /* PeerMediaGroupPeersController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerMediaGroupPeersController.swift; sourceTree = "<group>"; };
-		D098C7151D7E175A007784E4 /* Telegram.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Telegram.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D098C7151D7E175A007784E4 /* Novagram.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Novagram.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D098C7181D7E175A007784E4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D098C71A1D7E175A007784E4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D098C71F1D7E175A007784E4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -3374,20 +3378,8 @@
 		D0E82DFF2500F10E00E09A20 /* MergedAvatarsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MergedAvatarsView.swift; sourceTree = "<group>"; };
 		D0FCA7612434867400B72F18 /* PeerInfoHeadItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerInfoHeadItem.swift; sourceTree = "<group>"; };
 		D0FFC4AB23E184BA0044D305 /* ChatListFilterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListFilterController.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000161 /* FenixuzTipsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzTipsController.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000171 /* FenixuzAboutController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAboutController.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000181 /* FenixAccountsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixAccountsController.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000031 /* FenixuzAppStoreIAP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAppStoreIAP.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000041 /* FenixuzSettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzSettingsController.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000231 /* FenixuzAdsEasterEgg.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAdsEasterEgg.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000201 /* FenixuzStatisticsConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzStatisticsConfig.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000211 /* NovagramBotsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NovagramBotsController.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000241 /* FenixuzAutoProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAutoProxy.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000221 /* novagram_bots.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = novagram_bots.json; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000251 /* russia_proxies.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = russia_proxies.txt; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000111 /* FenixuzStatisticsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzStatisticsClient.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000121 /* FenixuzAnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAnalyticsManager.swift; sourceTree = "<group>"; };
-		FE10DEC04E14C19000000131 /* FenixuzAnalyticsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAnalyticsController.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000051 /* FenixuzForeignUserBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzForeignUserBlock.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000061 /* FenixuzChatPincodeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzChatPincodeManager.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000071 /* FenixuzAIChatbot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAIChatbot.swift; sourceTree = "<group>"; };
@@ -3400,7 +3392,24 @@
 		FE10DEC04E14C190000000E1 /* FenixuzEditedHistoryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzEditedHistoryController.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C190000000F1 /* FenixuzForeignUserBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzForeignUserBannerView.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000101 /* FenixuzSpeechToTextManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzSpeechToTextManager.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000111 /* FenixuzStatisticsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzStatisticsClient.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000121 /* FenixuzAnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAnalyticsManager.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000131 /* FenixuzAnalyticsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAnalyticsController.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000161 /* FenixuzTipsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzTipsController.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000171 /* FenixuzAboutController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAboutController.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000181 /* FenixAccountsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixAccountsController.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000201 /* FenixuzStatisticsConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzStatisticsConfig.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000211 /* NovagramBotsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NovagramBotsController.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000221 /* novagram_bots.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = novagram_bots.json; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000231 /* FenixuzAdsEasterEgg.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAdsEasterEgg.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000241 /* FenixuzAutoProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAutoProxy.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000251 /* russia_proxies.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = russia_proxies.txt; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000261 /* FenixuzDeletedMessagesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzDeletedMessagesManager.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C190FEFE0001 /* FenixuzCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FenixuzCore; path = packages/FenixuzCore; sourceTree = "<group>"; };
 		FE10DEC04E14C190FFFFFFF0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		FE20AD5040000000FEFE0011 /* FenixNovagramChatAds.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FenixNovagramChatAds.swift; sourceTree = "<group>"; };
+		FE20AD5040000000FEFE0021 /* FenixNovagramSearchAds.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FenixNovagramSearchAds.swift; sourceTree = "<group>"; };
+		FE20AD5040000000FEFE0031 /* FenixNovagramAdsConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FenixNovagramAdsConfig.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3534,6 +3543,7 @@
 				27B6D05B27393A4700C785C7 /* TGUIKit in Frameworks */,
 				27A697A9273D3A5F00B33415 /* Localization in Frameworks */,
 				FE10DEC04E14C190FEFE0003 /* FenixuzCore in Frameworks */,
+				FE20AD5040000000FEFE0003 /* NovagramAds in Frameworks */,
 				27B8E7C627425279001B8DF7 /* TGModernGrowingTextView in Frameworks */,
 				A7D08F48236AC9B6002DC240 /* Sparkle.framework in Frameworks */,
 				D0DDECEA2322FA0200E1B359 /* Contacts.framework in Frameworks */,
@@ -3878,10 +3888,10 @@
 				2748C56027BA477900F05503 /* Auth_Token.swift */,
 				2748C56227BA53C800F05503 /* Auth_Loading.swift */,
 				2748C56427BA959F00F05503 /* Auth_PhoneNumber.swift */,
-					FE10DEC04E14C19000000161 /* FenixuzTipsController.swift */,
+				FE10DEC04E14C19000000161 /* FenixuzTipsController.swift */,
 				FE10DEC04E14C19000000171 /* FenixuzAboutController.swift */,
 				FE10DEC04E14C19000000181 /* FenixAccountsController.swift */,
-					FE10DEC04E14C19000000031 /* FenixuzAppStoreIAP.swift */,
+				FE10DEC04E14C19000000031 /* FenixuzAppStoreIAP.swift */,
 				FE10DEC04E14C190FFFFFFF0 /* PrivacyInfo.xcprivacy */,
 				FE10DEC04E14C19000000041 /* FenixuzSettingsController.swift */,
 				FE10DEC04E14C19000000231 /* FenixuzAdsEasterEgg.swift */,
@@ -3902,6 +3912,7 @@
 				FE10DEC04E14C190000000B1 /* FenixuzTranslationLanguageController.swift */,
 				FE10DEC04E14C190000000C1 /* FenixuzChatPincodeViewController.swift */,
 				FE10DEC04E14C190000000D1 /* FenixuzEditedHistoryManager.swift */,
+				FE10DEC04E14C19000000261 /* FenixuzDeletedMessagesManager.swift */,
 				FE10DEC04E14C190000000E1 /* FenixuzEditedHistoryController.swift */,
 				FE10DEC04E14C190000000F1 /* FenixuzForeignUserBannerView.swift */,
 				FE10DEC04E14C19000000101 /* FenixuzSpeechToTextManager.swift */,
@@ -5085,6 +5096,9 @@
 				C219E1E61D8AC84B0042F0C8 /* items */,
 				C219E1E51D8AC83A0042F0C8 /* views */,
 				C20232A71D81D189007C9ADE /* ChatController.swift */,
+				FE20AD5040000000FEFE0011 /* FenixNovagramChatAds.swift */,
+				FE20AD5040000000FEFE0021 /* FenixNovagramSearchAds.swift */,
+				FE20AD5040000000FEFE0031 /* FenixNovagramAdsConfig.swift */,
 				274B831726F0C0A700E6E474 /* EmojiScreenEffect.swift */,
 				C219E1DA1D8884290042F0C8 /* ChatHistoryEntry.swift */,
 				C2256D971DAB9D5A00494CF4 /* ChatHistoryViewForLocation.swift */,
@@ -6790,8 +6804,8 @@
 		D098C7161D7E175A007784E4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D098C7151D7E175A007784E4 /* Telegram.app */,
-				C232EA911E1D07E700C4D38C /* TelegramShare.appex */,
+				D098C7151D7E175A007784E4 /* Novagram.app */,
+				C232EA911E1D07E700C4D38C /* Fenixuz.appex */,
 				2761434A2BDA50720034338C /* FocusIntents.appex */,
 			);
 			name = Products;
@@ -7041,7 +7055,7 @@
 				2739A4AB2CABC29D0065186B /* TelegramSystem */,
 			);
 			productName = TelegramShare;
-			productReference = C232EA911E1D07E700C4D38C /* TelegramShare.appex */;
+			productReference = C232EA911E1D07E700C4D38C /* Fenixuz.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		D098C7141D7E175A007784E4 /* Telegram */ = {
@@ -7087,6 +7101,7 @@
 				27A697A2273D313000B33415 /* Stripe */,
 				27A697A8273D3A5F00B33415 /* Localization */,
 				FE10DEC04E14C190FEFE0002 /* FenixuzCore */,
+				FE20AD5040000000FEFE0002 /* NovagramAds */,
 				276651DB273D574900671FB4 /* ApiCredentials */,
 				2796FEF127423A8600DA653C /* EmojiSuggestions */,
 				2796FEF427423D2100DA653C /* EDSunriseSet */,
@@ -7141,7 +7156,7 @@
 				2739D49F2DBFC3C50086DAEF /* DetectSpeech */,
 			);
 			productName = "Telegram-Mac";
-			productReference = D098C7151D7E175A007784E4 /* Telegram.app */;
+			productReference = D098C7151D7E175A007784E4 /* Novagram.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -7212,6 +7227,7 @@
 			);
 			mainGroup = D098C70C1D7E175A007784E4;
 			packageReferences = (
+				FE20AD5040000000FEFE0004 /* XCLocalSwiftPackageReference "../NovagramAds" */,
 			);
 			productRefGroup = D098C7161D7E175A007784E4 /* Products */;
 			projectDirPath = "";
@@ -8228,10 +8244,10 @@
 				C2B6A9651E8519FA00A441B7 /* RecentGIFRowItem.swift in Sources */,
 				C2E8BA071FB5EF4C00DEB5E2 /* GalleryThumbsControl.swift in Sources */,
 				2748C56527BA959F00F05503 /* Auth_PhoneNumber.swift in Sources */,
-					FE10DEC04E14C19000000160 /* FenixuzTipsController.swift in Sources */,
+				FE10DEC04E14C19000000160 /* FenixuzTipsController.swift in Sources */,
 				FE10DEC04E14C19000000170 /* FenixuzAboutController.swift in Sources */,
 				FE10DEC04E14C19000000180 /* FenixAccountsController.swift in Sources */,
-					FE10DEC04E14C19000000030 /* FenixuzAppStoreIAP.swift in Sources */,
+				FE10DEC04E14C19000000030 /* FenixuzAppStoreIAP.swift in Sources */,
 				FE10DEC04E14C19000000040 /* FenixuzSettingsController.swift in Sources */,
 				FE10DEC04E14C19000000230 /* FenixuzAdsEasterEgg.swift in Sources */,
 				FE10DEC04E14C19000000200 /* FenixuzStatisticsConfig.swift in Sources */,
@@ -8249,6 +8265,7 @@
 				FE10DEC04E14C190000000B0 /* FenixuzTranslationLanguageController.swift in Sources */,
 				FE10DEC04E14C190000000C0 /* FenixuzChatPincodeViewController.swift in Sources */,
 				FE10DEC04E14C190000000D0 /* FenixuzEditedHistoryManager.swift in Sources */,
+				FE10DEC04E14C19000000260 /* FenixuzDeletedMessagesManager.swift in Sources */,
 				FE10DEC04E14C190000000E0 /* FenixuzEditedHistoryController.swift in Sources */,
 				FE10DEC04E14C190000000F0 /* FenixuzForeignUserBannerView.swift in Sources */,
 				FE10DEC04E14C19000000100 /* FenixuzSpeechToTextManager.swift in Sources */,
@@ -8643,6 +8660,9 @@
 				27F4F18E284A32EA00A3B4D4 /* PremiumBoardingDoubleController.swift in Sources */,
 				270A262A269D8F1000B31B2B /* WidgetStickersController.swift in Sources */,
 				C20232A81D81D189007C9ADE /* ChatController.swift in Sources */,
+				FE20AD5040000000FEFE0012 /* FenixNovagramChatAds.swift in Sources */,
+				FE20AD5040000000FEFE0022 /* FenixNovagramSearchAds.swift in Sources */,
+				FE20AD5040000000FEFE0032 /* FenixNovagramAdsConfig.swift in Sources */,
 				D00C73B62302C196004B1E2B /* ChatScheduleController.swift in Sources */,
 				27B6AF8E2B4D6E0B001D0983 /* MessagesPrivacyController.swift in Sources */,
 				D0C39EC5233A6077003CD402 /* GeneralBlockTextRowItem.swift in Sources */,
@@ -9087,7 +9107,7 @@
 					"$(PROJECT_DIR)/core-xprojects/tde2e/build/tde2e/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.3;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_LDFLAGS = (
@@ -9096,8 +9116,8 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = uz.fenixuz.app;
-				PRODUCT_NAME = Novagram;
 				PRODUCT_MODULE_NAME = Telegram;
+				PRODUCT_NAME = Novagram;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "PRODUCTION APP_STORE";
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -9144,7 +9164,7 @@
 					"$(PROJECT_DIR)/core-xprojects/dav1d/build/dav1d/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.3;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
@@ -9197,7 +9217,7 @@
 					"$(PROJECT_DIR)/core-xprojects/dav1d/build/dav1d/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.3;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
@@ -9275,6 +9295,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "Telegram-Mac/Telegram-Mac.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -9317,7 +9338,7 @@
 					"$(PROJECT_DIR)/core-xprojects/tde2e/build/tde2e/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.3;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_LDFLAGS = (
@@ -9326,8 +9347,8 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = uz.fenixuz.app;
-				PRODUCT_NAME = Novagram;
 				PRODUCT_MODULE_NAME = Telegram;
+				PRODUCT_NAME = Novagram;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_COMPILATION_MODE = singlefile;
@@ -9380,6 +9401,13 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		FE20AD5040000000FEFE0004 /* XCLocalSwiftPackageReference "../NovagramAds" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../NovagramAds;
+		};
+/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		2700B221273ADC94003E4018 /* HotKey */ = {
@@ -9461,10 +9489,6 @@
 		2745FED4274F952600546B05 /* Localization */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Localization;
-		};
-		FE10DEC04E14C190FEFE0002 /* FenixuzCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FenixuzCore;
 		};
 		2745FED6274F952D00546B05 /* ThemeSettings */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -9833,6 +9857,15 @@
 		27F3BB762B48375800BC37C2 /* TelegramMedia */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TelegramMedia;
+		};
+		FE10DEC04E14C190FEFE0002 /* FenixuzCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FenixuzCore;
+		};
+		FE20AD5040000000FEFE0002 /* NovagramAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FE20AD5040000000FEFE0004 /* XCLocalSwiftPackageReference "../NovagramAds" */;
+			productName = NovagramAds;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

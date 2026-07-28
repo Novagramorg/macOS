@@ -10,19 +10,18 @@ import Foundation
 import TGUIKit
 import SwiftSignalKit
 
-private final class WidgetNavigationButton : Control {
-    
-    
+private final class WidgetNavigationButton: Control {
+
     enum Direction {
         case left
         case right
     }
-    
+
     private let textView = TextView()
     private let imageView = ImageView()
     private let view = View()
     private let visualEffect = VisualEffect()
-    
+
     required init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         addSubview(visualEffect)
@@ -35,38 +34,38 @@ private final class WidgetNavigationButton : Control {
         self.layer?.cornerRadius = 16
         scaleOnClick = true
     }
-    
+
     override func updateLocalizationAndTheme(theme: PresentationTheme) {
         super.updateLocalizationAndTheme(theme: theme)
-        
+
         let theme = theme as! TelegramPresentationTheme
         self.background = theme.shouldBlurService && !isLite(.blur) ? .clear : theme.chatServiceItemColor
         self.visualEffect.bgColor = theme.blurServiceColor
         self.visualEffect.isHidden = !theme.shouldBlurService || isLite(.blur)
     }
-    
+
     private var direction: Direction?
 
     func setup(_ text: String, image: CGImage, direction: Direction) {
         self.direction = direction
-        
+
         let layout = TextViewLayout(.initialize(string: text, color: theme.chatServiceItemTextColor, font: .medium(.text)))
         layout.measure(width: .greatestFiniteMagnitude)
         textView.update(layout)
-        
+
         imageView.image = image
         imageView.sizeToFit()
         updateLocalizationAndTheme(theme: theme)
     }
-    
+
     override func layout() {
         super.layout()
-        
+
         visualEffect.frame = bounds
-        
-        view.setFrameSize(NSMakeSize(textView.frame.width + 4 + imageView.frame.width, frame.height))
+
+        view.setFrameSize(NSSize(width: textView.frame.width + 4 + imageView.frame.width, height: frame.height))
         view.center()
-        
+
         if let direction = direction {
             switch direction {
             case .left:
@@ -78,32 +77,32 @@ private final class WidgetNavigationButton : Control {
             }
         }
     }
-    
+
     func size() -> NSSize {
-        return NSMakeSize(28 + textView.frame.width + 4 + imageView.frame.width, 32)
+        return NSSize(width: 28 + textView.frame.width + 4 + imageView.frame.width, height: 32)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
 
 final class WidgetListView: View {
-    
+
     enum PresentMode {
         case immidiate
         case leftToRight
         case rightToLeft
-        
+
         var animated: Bool {
             return self != .immidiate
         }
     }
-    
+
     private let documentView = View()
-    
+
     private var controller: ViewController?
-    
+
     private var prev: WidgetNavigationButton?
     private var next: WidgetNavigationButton?
 
@@ -114,17 +113,16 @@ final class WidgetListView: View {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    var _next:(()->Void)?
-    var _prev:(()->Void)?
 
-    
+    var _next: (() -> Void)?
+    var _prev: (() -> Void)?
+
     func present(controller: ViewController, hasNext: Bool, hasPrev: Bool, mode: PresentMode) {
         let previous = self.controller
         self.controller = controller
-        
+
         let duration: Double = 0.5
-        
+
         if let previous = previous {
             if mode.animated {
                 previous.view._change(opacity: 0, duration: duration, timingFunction: .spring, completion: { [weak previous] completed in
@@ -136,7 +134,7 @@ final class WidgetListView: View {
                 previous.removeFromSuperview()
             }
         }
-        
+
         documentView.addSubview(controller.view)
         controller.view.centerX(y: 0)
 
@@ -146,15 +144,15 @@ final class WidgetListView: View {
             let from: NSPoint
             switch mode {
             case .leftToRight:
-                from = NSMakePoint(to.x - 50, to.y)
+                from = NSPoint(x: to.x - 50, y: to.y)
             case .rightToLeft:
-                from = NSMakePoint(to.x + 50, to.y)
+                from = NSPoint(x: to.x + 50, y: to.y)
             default:
                 from = to
             }
             controller.view.layer?.animatePosition(from: from, to: to, duration: duration, timingFunction: .spring)
         }
-        
+
         if hasPrev {
             if self.prev == nil {
                 self.prev = .init(frame: .zero)
@@ -188,18 +186,18 @@ final class WidgetListView: View {
             self.next = nil
         }
         updateLocalizationAndTheme(theme: theme)
-        
+
         needsLayout = true
     }
-    
+
     override func updateLocalizationAndTheme(theme: PresentationTheme) {
         super.updateLocalizationAndTheme(theme: theme)
-        
+
         backgroundColor = .clear
         documentView.backgroundColor = .clear
-        
+
         let theme = theme as! TelegramPresentationTheme
-        
+
         if let prev = prev {
             prev.setup(strings().emptyChatNavigationPrev, image: theme.emptyChatNavigationPrev, direction: .left)
             prev.setFrameSize(prev.size())
@@ -210,49 +208,49 @@ final class WidgetListView: View {
         }
         needsLayout = true
     }
-    
+
     override func layout() {
         super.layout()
-        documentView.frame = NSMakeRect(0, 0, frame.width, 320)
-        
+        documentView.frame = NSRect(x: 0, y: 0, width: frame.width, height: 320)
+
         guard let controller = controller else {
             return
         }
         controller.view.centerX(y: 0)
-        
+
         if let prev = prev {
-            prev.setFrameOrigin(NSMakePoint(controller.frame.minX, documentView.frame.maxY + 10))
+            prev.setFrameOrigin(NSPoint(x: controller.frame.minX, y: documentView.frame.maxY + 10))
         }
         if let next = next {
-            next.setFrameOrigin(NSMakePoint(controller.frame.maxX - next.frame.width, documentView.frame.maxY + 10))
+            next.setFrameOrigin(NSPoint(x: controller.frame.maxX - next.frame.width, y: documentView.frame.maxY + 10))
         }
     }
 }
 
-final class WidgetController : TelegramGenericViewController<WidgetListView> {
-    
-    private var controllers:[ViewController] = []
-    
+final class WidgetController: TelegramGenericViewController<WidgetListView> {
+
+    private var controllers: [ViewController] = []
+
     private var selected: Int = 0
     private var disposable: Disposable?
-    
+
     override init(_ context: AccountContext) {
         super.init(context)
         self.bar = .init(height: 0)
     }
-    
+
     private func loadController(_ controller: ViewController) {
-        controller._frameRect = NSMakeRect(0, 0, 320, 320)
+        controller._frameRect = NSRect(x: 0, y: 0, width: 320, height: 320)
         controller.bar = .init(height: 0)
         controller.loadViewIfNeeded()
     }
-    
+
     private func presentSelected(_ mode: WidgetListView.PresentMode) {
         let controller = controllers[selected]
         loadController(controller)
         genericView.present(controller: controller, hasNext: true, hasPrev: true, mode: mode)
     }
-    
+
     override func backKeyAction() -> KeyHandlerResult {
         if prev() {
             return .invoked
@@ -265,7 +263,7 @@ final class WidgetController : TelegramGenericViewController<WidgetListView> {
         }
         return .rejected
     }
-    
+
     @discardableResult private func next() -> Bool {
         if selected < controllers.count - 1 {
             selected += 1
@@ -290,32 +288,29 @@ final class WidgetController : TelegramGenericViewController<WidgetListView> {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         controllers.append(WidgetAppearanceController(context))
-        #if BETA || STABLE
-        controllers.append(WidgetAppIconController(context))
-        #endif
 
         controllers.append(WidgetStickersController(context))
         controllers.append(WidgetRecentPeersController(context))
-     
+
         let current = controllers[selected]
-        
+
         loadController(current)
-        
+
         ready.set(current.ready.get())
-        
+
         genericView.present(controller: current, hasNext: true, hasPrev: true, mode: .immidiate)
-        
+
         genericView._next = { [weak self] in
             self?.next()
         }
         genericView._prev = { [weak self] in
             self?.prev()
         }
-        
+
         var currentMouseInside = false
-        
+
         context.window.set(mouseHandler: { [weak self] _ in
             let mouseInside = self?.genericView.mouseInside() ?? false
             if mouseInside {
@@ -329,10 +324,10 @@ final class WidgetController : TelegramGenericViewController<WidgetListView> {
             }
             return .rejected
         }, with: self, for: .mouseMoved)
-        
+
         runTimer()
     }
-    
+
     private func runTimer() {
 //        self.disposable?.dispose()
 //        
@@ -340,15 +335,7 @@ final class WidgetController : TelegramGenericViewController<WidgetListView> {
 //            self?.next()
 //        })
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-    }
-    
+
     deinit {
         disposable?.dispose()
         context.window.removeAllHandlers(for: self)

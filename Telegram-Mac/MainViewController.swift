@@ -334,7 +334,7 @@ class MainViewController: TelegramViewController {
     }
 
     private func showFilterTooltip() {
-        tabController.showTooltip(text: strings().chatListFilterTooltip, for: showCallTabs ? 3 : 2)
+        tabController.showTooltip(text: strings().chatListFilterTooltip, for: chatIndex)
     }
 
     private var showCallTabs: Bool = true
@@ -646,19 +646,21 @@ class MainViewController: TelegramViewController {
         self.tabController.current?.viewDidDisappear(animated)
     }
 
+    // Fenixuz: Tasks tab was removed, so every tab after calls shifted down by one.
+    // Tab order is now: contacts(0), calls(1, optional), chats, settings.
     var chatIndex: Int {
         if showCallTabs {
-            return 3
-        } else {
             return 2
+        } else {
+            return 1
         }
     }
 
     var settingsIndex: Int {
         if showCallTabs {
-            return 4
-        } else {
             return 3
+        } else {
+            return 2
         }
     }
 

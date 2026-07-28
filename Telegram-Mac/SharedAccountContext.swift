@@ -19,14 +19,11 @@ import ApiCredentials
 import PrivateCallScreen
 #endif
 
-
 private struct AccountAttributes: Equatable {
     let sortIndex: Int32
     let isTestingEnvironment: Bool
     let backupData: AccountBackupData?
 }
-
-
 
 private enum AddedAccountsResult {
     case upgrading(Float)
@@ -37,19 +34,16 @@ private enum AddedAccountResult {
     case ready(AccountRecordId, Account?, Int32)
 }
 
-
-
-
 public final class AccountWithInfo: Equatable {
     public let account: Account
     public let peer: Peer
-    
+
     init(account: Account, peer: Peer) {
         self.account = account
         self.peer = peer
     }
-    
-    public static func ==(lhs: AccountWithInfo, rhs: AccountWithInfo) -> Bool {
+
+    public static func == (lhs: AccountWithInfo, rhs: AccountWithInfo) -> Bool {
         if lhs.account !== rhs.account {
             return false
         }
@@ -59,10 +53,6 @@ public final class AccountWithInfo: Equatable {
         return true
     }
 }
-
-
-
-
 
 class SharedAccountContext {
     let accountManager: AccountManager<TelegramAccountManagerTypes>
@@ -74,20 +64,19 @@ class SharedAccountContext {
             bp += 1
         }
     }
-    
+
     let inputSource: InputSources = InputSources()
     let devicesContext: DevicesContext
     private let _baseSettings: Atomic<BaseApplicationSettings> = Atomic(value: BaseApplicationSettings.defaultSettings)
-    
+
     var baseSettings: BaseApplicationSettings {
         return _baseSettings.with { $0 }
     }
-    
+
     var baseApplicationSettings: Signal<BaseApplicationSettings, NoError> {
         return baseAppSettings(accountManager: self.accountManager)
     }
-    
-   
+
     func isLite(_ key: LiteModeKey = .any) -> Bool {
         let mode = baseSettings.liteMode
         if mode.enabled {
@@ -98,45 +87,42 @@ class SharedAccountContext {
                 return true
             }
         }
-        
+
         return !mode.isEnabled(key: key)
     }
     #endif
 
     private(set) var batteryLevel: Double = 100
-    
+
     private var batteryLevelTimer: SwiftSignalKit.Timer?
-    
+
     private let managedAccountDisposables = DisposableDict<AccountRecordId>()
-    
-    
+
     private let appEncryption: Atomic<AppEncryptionParameters>
-    
+
     var appEncryptionValue: AppEncryptionParameters {
         return appEncryption.with { $0 }
     }
-    
-    func updateAppEncryption(_ f: (AppEncryptionParameters)->AppEncryptionParameters) {
+
+    func updateAppEncryption(_ f: (AppEncryptionParameters) -> AppEncryptionParameters) {
         _ = self.appEncryption.modify(f)
     }
-    
-    
+
     private var activeAccountsValue: (primary: Account?, accounts: [(AccountRecordId, Account, Int32)], currentAuth: UnauthorizedAccount?)?
     private let activeAccountsPromise = Promise<(primary: Account?, accounts: [(AccountRecordId, Account, Int32)], currentAuth: UnauthorizedAccount?)>()
     var activeAccounts: Signal<(primary: Account?, accounts: [(AccountRecordId, Account, Int32)], currentAuth: UnauthorizedAccount?), NoError> {
         return self.activeAccountsPromise.get()
     }
-    private var activeAccountsInfoValue:(primary: AccountRecordId?, accounts: [AccountWithInfo])?
+    private var activeAccountsInfoValue: (primary: AccountRecordId?, accounts: [AccountWithInfo])?
     private let activeAccountsWithInfoPromise = Promise<(primary: AccountRecordId?, accounts: [AccountWithInfo])>()
     var activeAccountsWithInfo: Signal<(primary: AccountRecordId?, accounts: [AccountWithInfo]), NoError> {
         return self.activeAccountsWithInfoPromise.get()
     }
 
-    private var accountPhotos: [PeerId : CGImage] = [:]
+    private var accountPhotos: [PeerId: CGImage] = [:]
     private var cleaningUpAccounts = false
-    
-    
-    public var callStatusBarMenuItems:(()->[ContextMenuItem])? = nil {
+
+    public var callStatusBarMenuItems: (() -> [ContextMenuItem])? {
         didSet {
             updateStatusBarMenuItem()
         }
@@ -144,8 +130,7 @@ class SharedAccountContext {
 
     private var statusItem: NSStatusItem?
 
-    
-    func updateStatusBarImage(_ image: NSImage?) -> Void {
+    func updateStatusBarImage(_ image: NSImage?) {
         let icon: NSImage
         if let image = image {
             icon = image
@@ -155,12 +140,12 @@ class SharedAccountContext {
         }
         statusItem?.image = icon
     }
-    
+
     private func updateStatusBarMenuItem() {
-        
+
         let menu = NSMenu()
-        
-        if let items = self.callStatusBarMenuItems?()  {
+
+        if let items = self.callStatusBarMenuItems?() {
             for item in items {
                 item.menu = nil
                 menu.addItem(item)
@@ -183,46 +168,43 @@ class SharedAccountContext {
                     }
                     let image: NSImage?
                     if let cgImage = self.accountPhotos[account.account.peerId] {
-                        image = NSImage(cgImage: cgImage, size: NSMakeSize(16, 16))
+                        image = NSImage(cgImage: cgImage, size: NSSize(width: 16, height: 16))
                     } else {
                         image = nil
                     }
-                    
+
                     menu.addItem(ContextMenuItem(account.peer.displayTitle, handler: {
                         self.switchToAccount(id: account.account.id, action: nil)
                     }, image: image, state: state))
-                    
+
                     if account.account.id == activeAccountsInfoValue.primary {
                         menu.addItem(ContextSeparatorItem())
                     }
                 }
-                
-                
+
                 menu.addItem(ContextSeparatorItem())
             }
-            
+
             menu.addItem(ContextMenuItem(strings().statusBarActivate, handler: {
-                if !mainWindow.isKeyWindow  {
+                if !mainWindow.isKeyWindow {
                     NSApp.activate(ignoringOtherApps: true)
                     mainWindow.deminiaturize(nil)
                 } else {
                     NSApp.hide(nil)
                 }
-                
+
             }, dynamicTitle: {
                 return !mainWindow.isKeyWindow ? strings().statusBarActivate : strings().statusBarHide
             }))
-                    
+
             menu.addItem(ContextMenuItem(strings().statusBarQuit, handler: {
                 NSApp.terminate(nil)
             }))
         }
-        
-       
-        
+
         statusItem?.menu = menu
     }
-    
+
     private func updateStatusBar(_ show: Bool) {
         if show {
             if statusItem == nil {
@@ -237,10 +219,8 @@ class SharedAccountContext {
     }
 
     private let displayUpgradeProgress: (Float?) -> Void
-    
 
-    
-    init(accountManager: AccountManager<TelegramAccountManagerTypes>, networkArguments: NetworkInitializationArguments, rootPath: String, encryptionParameters: ValueBoxEncryptionParameters, appEncryption: AppEncryptionParameters, displayUpgradeProgress: @escaping(Float?) -> Void) {
+    init(accountManager: AccountManager<TelegramAccountManagerTypes>, networkArguments: NetworkInitializationArguments, rootPath: String, encryptionParameters: ValueBoxEncryptionParameters, appEncryption: AppEncryptionParameters, displayUpgradeProgress: @escaping (Float?) -> Void) {
         self.accountManager = accountManager
         self.displayUpgradeProgress = displayUpgradeProgress
         self.appEncryption = Atomic(value: appEncryption)
@@ -251,20 +231,17 @@ class SharedAccountContext {
         }
         _ = (baseAppSettings(accountManager: accountManager) |> deliverOnMainQueue).start(next: { settings in
             _ = self._baseSettings.swap(settings)
+            updateLiquidGlassEnabled(settings.liquidGlassEnabled) // Novagram: sync TGUIKit glass flag
             self.updateStatusBar(settings.statusBar)
             forceUpdateStatusBarIconByDockTile(sharedContext: self)
         })
         #endif
-        
-        
 
-        
         var supplementary: Bool = false
         #if SHARE
         supplementary = true
         #endif
-        
-        
+
         self.batteryLevelTimer = .init(timeout: 1 * 60, repeat: true, completion: {
             let internalFinder = InternalFinder()
             if let internalBattery = internalFinder.getInternalBattery() {
@@ -274,13 +251,11 @@ class SharedAccountContext {
                 }
             }
         }, queue: .concurrentDefaultQueue())
-        
-        
+
         self.batteryLevelTimer?.start()
-        
 
         let differenceDisposable = MetaDisposable()
-        let _ = (accountManager.accountRecords()
+        _ = (accountManager.accountRecords()
             |> map { view -> (AccountRecordId?, [AccountRecordId: AccountAttributes], (AccountRecordId, Bool)?) in
                 var result: [AccountRecordId: AccountAttributes] = [:]
                 for record in view.records {
@@ -379,7 +354,7 @@ class SharedAccountContext {
                             }
                     }
                 }
-                
+
                 let mappedAddedAccounts = combineLatest(queue: .mainQueue(), addedSignals)
                     |> map { results -> AddedAccountsResult in
                         var readyAccounts: [(AccountRecordId, Account?, Int32)] = []
@@ -401,7 +376,7 @@ class SharedAccountContext {
                             return .ready(readyAccounts)
                         }
                 }
-                
+
                 differenceDisposable.set(combineLatest(queue: .mainQueue(), mappedAddedAccounts, addedAuthSignal).start(next: { mappedAddedAccounts, authAccount in
                     var addedAccounts: [(AccountRecordId, Account?, Int32)] = []
                     switch mappedAddedAccounts {
@@ -411,24 +386,23 @@ class SharedAccountContext {
                     case let .ready(value):
                         addedAccounts = value
                     }
-                    
+
                     var hadUpdates = false
                     if self.activeAccountsValue == nil {
                         self.activeAccountsValue = (nil, [], nil)
                         hadUpdates = true
                     }
-                    
+
                     struct AccountPeerKey: Hashable {
                         let peerId: PeerId
                         let isTestingEnvironment: Bool
                     }
 
-                    
                     var existingAccountPeerKeys = Set<AccountPeerKey>()
                     for accountRecord in addedAccounts {
                         if let account = accountRecord.1 {
                             if existingAccountPeerKeys.contains(AccountPeerKey(peerId: account.peerId, isTestingEnvironment: account.testingEnvironment)) {
-                                let _ = accountManager.transaction({ transaction in
+                                _ = accountManager.transaction({ transaction in
                                     transaction.updateRecord(accountRecord.0, { _ in
                                         return nil
                                     })
@@ -445,7 +419,7 @@ class SharedAccountContext {
                                 hadUpdates = true
                             }
                         } else {
-                            let _ = accountManager.transaction({ transaction in
+                            _ = accountManager.transaction({ transaction in
                                 transaction.updateRecord(accountRecord.0, { _ in
                                     return nil
                                 })
@@ -492,21 +466,18 @@ class SharedAccountContext {
                         self.activeAccountsValue!.accounts.sort(by: { $0.2 < $1.2 })
                         self.activeAccountsPromise.set(.single(self.activeAccountsValue!))
                     }
-                    
+
                     if self.activeAccountsValue!.primary == nil && self.activeAccountsValue!.currentAuth == nil {
                         self.beginNewAuth(testingEnvironment: false)
                     }
-                    
+
                     if (authAccount != nil || self.activeAccountsValue!.primary != nil) && !self.cleaningUpAccounts {
                         self.cleaningUpAccounts = true
-                        let _ = managedCleanupAccounts(networkArguments: networkArguments, accountManager: self.accountManager, rootPath: rootPath, auxiliaryMethods: telegramAccountAuxiliaryMethods, encryptionParameters: encryptionParameters).start()
+                        _ = managedCleanupAccounts(networkArguments: networkArguments, accountManager: self.accountManager, rootPath: rootPath, auxiliaryMethods: telegramAccountAuxiliaryMethods, encryptionParameters: encryptionParameters).start()
                     }
                 }))
             })
-        
 
-        
-        
         self.activeAccountsWithInfoPromise.set(self.activeAccounts
             |> mapToSignal { primary, accounts, _ -> Signal<(primary: AccountRecordId?, accounts: [AccountWithInfo]), NoError> in
                 return combineLatest(accounts.map { _, account, _ -> Signal<AccountWithInfo?, NoError> in
@@ -530,10 +501,10 @@ class SharedAccountContext {
                         return (primary?.id, accountsWithInfoResult)
                 }
             })
-        
-        let signal = self.activeAccountsWithInfoPromise.get() |> mapToSignal { (primary, accounts) -> Signal<(primary: AccountRecordId?, accounts: [AccountWithInfo], [PeerId : CGImage]), NoError> in
-            let photos:[Signal<(PeerId, CGImage?), NoError>] = accounts.map { info in
-                return peerAvatarImage(account: info.account, photo: .peer(info.peer, info.peer.smallProfileImage, info.peer.nameColor, info.peer.displayLetters, nil, nil), displayDimensions: NSMakeSize(32, 32)) |> map {
+
+        let signal = self.activeAccountsWithInfoPromise.get() |> mapToSignal { (primary, accounts) -> Signal<(primary: AccountRecordId?, accounts: [AccountWithInfo], [PeerId: CGImage]), NoError> in
+            let photos: [Signal<(PeerId, CGImage?), NoError>] = accounts.map { info in
+                return peerAvatarImage(account: info.account, photo: .peer(info.peer, info.peer.smallProfileImage, info.peer.nameColor, info.peer.displayLetters, nil, nil), displayDimensions: NSSize(width: 32, height: 32)) |> map {
                     (info.account.peerId, $0.0)
                 }
             }
@@ -541,25 +512,25 @@ class SharedAccountContext {
                 let photos = photos.compactMap {
                     return $0.1 == nil ? nil : ($0.0, $0.1!)
                 }
-                let dict:[PeerId: CGImage] = photos.reduce([:], { result, current in
+                let dict: [PeerId: CGImage] = photos.reduce([:], { result, current in
                     var result = result
                     result[current.0] = current.1
                     return result
                 })
                 return (primary, accounts, dict)
             }
-            
+
         } |> deliverOnMainQueue
-        
+
         #if !SHARE
-        var spotlights:[AccountRecordId : SpotlightContext] = [:]
-        
+        var spotlights: [AccountRecordId: SpotlightContext] = [:]
+
         _ = signal.start(next: { (primary, accounts, photos) in
             self.activeAccountsInfoValue = (primary, accounts)
             self.accountPhotos = photos
             self.updateStatusBarMenuItem()
             BrowserStateContext.checkActive(accounts.map { $0.account.id })
-            
+
             #if !SHARE
             spotlights.removeAll()
             for info in accounts {
@@ -569,48 +540,46 @@ class SharedAccountContext {
         })
         #endif
     }
-    
+
     public func beginNewAuth(testingEnvironment: Bool) {
-        let _ = self.accountManager.transaction({ transaction -> Void in
-            let _ = transaction.createAuth([.environment(AccountEnvironmentAttribute(environment: testingEnvironment ? .test : .production))])
+        _ = self.accountManager.transaction({ transaction in
+            _ = transaction.createAuth([.environment(AccountEnvironmentAttribute(environment: testingEnvironment ? .test : .production))])
         }).start()
     }
-    
-    private var launchActions:[AccountRecordId : LaunchNavigation] = [:]
-    
-   
-    func setLaunchAction(_ action: LaunchNavigation, for accountId: AccountRecordId) -> Void {
+
+    private var launchActions: [AccountRecordId: LaunchNavigation] = [:]
+
+    func setLaunchAction(_ action: LaunchNavigation, for accountId: AccountRecordId) {
         assert(Queue.mainQueue().isCurrent())
         launchActions[accountId] = action
     }
-    
+
     func getLaunchActionOnce(for accountId: AccountRecordId) -> LaunchNavigation? {
         assert(Queue.mainQueue().isCurrent())
         let action = launchActions[accountId]
         launchActions.removeValue(forKey: accountId)
         return action
     }
-    
+
     #if !SHARE
     private let crossCallSession: Atomic<PCallSession?> = Atomic<PCallSession?>(value: nil)
-    
+
     func getCrossAccountCallSession() -> PCallSession? {
         return crossCallSession.with { $0 }
     }
-    
+
     private let crossGroupCall: Atomic<GroupCallContext?> = Atomic<GroupCallContext?>(value: nil)
-    
+
     func getCrossAccountGroupCall() -> GroupCallContext? {
         return crossGroupCall.with { $0 }
     }
-   
+
     #endif
-    
-    
+
     private func updateAccountBackupData(account: Account) -> Signal<Never, NoError> {
         return accountBackupData(postbox: account.postbox)
-            |> mapToSignal { backupData -> Signal<Never, NoError> in
-                return self.accountManager.transaction { transaction -> Void in
+            |> mapToSignal { _ -> Signal<Never, NoError> in
+                return self.accountManager.transaction { transaction in
                     transaction.updateRecord(account.id, { record in
                         guard let record = record else {
                             return nil
@@ -622,7 +591,7 @@ class SharedAccountContext {
                                 return true
                             }
                         }
-                       
+
                         return AccountRecord(id: record.id, attributes: attributes, temporarySessionId: record.temporarySessionId)
                     })
                     }
@@ -630,26 +599,24 @@ class SharedAccountContext {
         }
     }
 
-    
     public func switchToAccount(id: AccountRecordId, action: LaunchNavigation?) {
-        
+
         #if !SHARE
         if let value = appDelegate?.supportAccountContextValue?.find(id) {
             value.focus()
-            return;
+            return
         }
         #endif
-        
+
         if self.activeAccountsValue?.primary?.id == id {
             return
         }
         if let action = action {
             setLaunchAction(action, for: id)
         }
-        
-        
+
         assert(Queue.mainQueue().isCurrent())
-        
+
         #if SHARE
         if let activeAccountsValue = self.activeAccountsValue, let account = activeAccountsValue.accounts.first(where: {$0.0 == id}) {
             var activeAccountsValue = activeAccountsValue
@@ -660,16 +627,15 @@ class SharedAccountContext {
         return
         #else
 
-
          _ = self.accountManager.transaction({ transaction in
             if transaction.getCurrent()?.0 != id {
                 transaction.setCurrentId(id)
             }
         }).start()
         #endif
-        
+
     }
-    
+
     public func openAccount(id: AccountRecordId) {
     #if !SHARE
 
@@ -686,15 +652,12 @@ class SharedAccountContext {
         #endif
     }
 
-    
-    
-    
     #if !SHARE
-    
-    var hasActiveCall:Bool {
+
+    var hasActiveCall: Bool {
         return crossCallSession.with( { $0 }) != nil || crossGroupCall.with( { $0 }) != nil
     }
-    
+
     var p2pCall: PCallSession? {
         return crossCallSession.with( { $0 })
     }
@@ -703,7 +666,7 @@ class SharedAccountContext {
         _ = crossGroupCall.swap(nil)
         _ = crossCallSession.swap(nil)
     }
-    
+
     func endCurrentCall() -> Signal<Bool, NoError> {
         if let groupCall = crossGroupCall.with({ $0 }) {
             return groupCall.leaveSignal() |> filter { $0 }
@@ -712,16 +675,16 @@ class SharedAccountContext {
         }
         return .single(true)
     }
-    
-    func showCall(with session:PCallSession) {
+
+    func showCall(with session: PCallSession) {
         appDelegate?.enumerateAccountContexts { accountContext in
             let callHeader = accountContext.bindings.rootNavigation().callHeader
             callHeader?.show(true, contextObject: session)
         }
         _ = crossCallSession.swap(session)
     }
-    private let groupCallContextValue:Promise<GroupCallContext?> = Promise(nil)
-    var groupCallContext:Signal<GroupCallContext?, NoError> {
+    private let groupCallContextValue: Promise<GroupCallContext?> = Promise(nil)
+    var groupCallContext: Signal<GroupCallContext?, NoError> {
         return groupCallContextValue.get()
     }
     func showGroupCall(with context: GroupCallContext) {
@@ -731,11 +694,11 @@ class SharedAccountContext {
         }
         _ = crossGroupCall.swap(context)
     }
-    
-    func updateCurrentGroupCallValue(_ value: GroupCallContext?) -> Void {
-        groupCallContextValue.set(.single(crossGroupCall.modify( { _ in return value } )))
+
+    func updateCurrentGroupCallValue(_ value: GroupCallContext?) {
+        groupCallContextValue.set(.single(crossGroupCall.modify( { _ in return value })))
     }
-    
+
     func endGroupCall(terminate: Bool) -> Signal<Bool, NoError> {
         if let groupCall = crossGroupCall.swap(nil) {
             return groupCall.call.leave(terminateIfPossible: terminate) |> filter { $0 } |> take(1)
@@ -743,17 +706,16 @@ class SharedAccountContext {
             return .single(true)
         }
     }
-    
+
     #endif
-    
-    
+
     #if !SHARE
     private let crossInlinePlayer: Atomic<InlineAudioPlayerView.ContextObject?> = Atomic<InlineAudioPlayerView.ContextObject?>(value: nil)
 
     func getCrossInlinePlayer() -> InlineAudioPlayerView.ContextObject? {
         return crossInlinePlayer.with { $0 }
     }
-    func endInlinePlayer(animated: Bool) -> Void {
+    func endInlinePlayer(animated: Bool) {
         let value = crossInlinePlayer.swap(nil)
         value?.controller.stop()
         appDelegate?.enumerateAccountContexts { accountContext in
@@ -761,7 +723,7 @@ class SharedAccountContext {
             header?.hide(animated)
         }
     }
-    
+
     func showInlinePlayer(_ object: InlineAudioPlayerView.ContextObject) {
         appDelegate?.enumerateAccountContexts { accountContext in
             let header = accountContext.bindings.rootNavigation().header
@@ -770,15 +732,15 @@ class SharedAccountContext {
         let previous = crossInlinePlayer.swap(object)
         previous?.controller.stop()
     }
-    
+
     func getAudioPlayer() -> APController? {
         return getCrossInlinePlayer()?.controller
     }
-    
+
     #endif
-    
+
     deinit {
         batteryLevelTimer?.invalidate()
     }
-    
+
 }

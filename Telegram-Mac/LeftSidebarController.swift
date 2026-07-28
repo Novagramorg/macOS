@@ -22,16 +22,16 @@ private func readAllInFilter(_ filter: ChatListFilter?, context: AccountContext)
     for additionalGroupId in filterPredicate.includeAdditionalPeerGroupIds {
         markItems.append((EngineChatList.Group(additionalGroupId), filterPredicate))
     }
-    let _ = context.engine.messages.markAllChatsAsReadInteractively(items: markItems).start()
+    _ = context.engine.messages.markAllChatsAsReadInteractively(items: markItems).start()
 }
 
 func filterContextMenuItems(_ filter: ChatListFilter, unreadCount: Int?, includeAllMuted: Bool? = nil, context: AccountContext) -> [ContextMenuItem] {
-    var items:[ContextMenuItem] = []
+    var items: [ContextMenuItem] = []
     if var data = filter.data {
         items.append(.init(strings().chatListFilterEdit, handler: {
             context.bindings.rootNavigation().push(ChatListFilterController(context: context, filter: filter))
         }, itemImage: MenuAnimation.menu_edit.value))
-        
+
         items.append(.init(strings().chatListFilterAddChats, handler: {
             showModal(with: ShareModalController(SelectCallbackObject(context, defaultSelectedIds: Set(data.includePeers.peers), additionTopItems: nil, limit: 100, limitReachedText: strings().chatListFilterIncludeLimitReached, callback: { peerIds in
                 return context.engine.peers.updateChatListFiltersInteractively({ filters in
@@ -43,10 +43,10 @@ func filterContextMenuItems(_ filter: ChatListFilter, unreadCount: Int?, include
                     }
                     return filters
                 }) |> ignoreValues
-                
+
             })), for: context.window)
         }, itemImage: MenuAnimation.menu_plus.value))
-        
+
         if let unreadCount = unreadCount {
             if unreadCount > 0 {
                 items.append(.init(strings().chatListFilterReadAll, handler: {
@@ -57,19 +57,19 @@ func filterContextMenuItems(_ filter: ChatListFilter, unreadCount: Int?, include
         if data.categories.isEmpty && !data.excludeRead && !data.excludeMuted && !data.excludeArchived && data.excludePeers.isEmpty && !data.includePeers.peers.isEmpty {
             if let allMuted = includeAllMuted {
                 items.append(.init(allMuted ? strings().chatListFilterUnmuteAll : strings().chatListFilterMuteAll, handler: {
-                    let _ = context.engine.peers.updateMultiplePeerMuteSettings(peerIds: data.includePeers.peers, muted: !allMuted).start()
+                    _ = context.engine.peers.updateMultiplePeerMuteSettings(peerIds: data.includePeers.peers, muted: !allMuted).start()
                 }, itemImage: !allMuted ? MenuAnimation.menu_mute.value : MenuAnimation.menu_unmuted.value))
             }
         }
-        
+
         if data.isShared {
             items.append(.init(strings().chatListFilterShare, handler: {
                 shareSharedFolder(context: context, filter: filter)
             }, itemImage: MenuAnimation.menu_share.value))
         }
-        
+
         items.append(ContextSeparatorItem())
-        
+
         items.append(.init(strings().chatListFilterDelete, handler: {
             if filter.data?.isShared == true {
                 deleteSharedFolder(context: context, filter: filter)
@@ -88,33 +88,32 @@ func filterContextMenuItems(_ filter: ChatListFilter, unreadCount: Int?, include
             context.bindings.rootNavigation().push(ChatListFiltersListController(context: context))
         }, itemImage: MenuAnimation.menu_edit.value))
     }
-    
+
     return items
 }
 
 private final class LeftSidebarArguments {
     let context: AccountContext
-    let callback:(ChatListFilter)->Void
-    let menuItems:(ChatListFilter, Int?, Bool?)->[ContextMenuItem]
-    init(context: AccountContext, callback: @escaping(ChatListFilter)->Void, menuItems: @escaping(ChatListFilter, Int?, Bool?)->[ContextMenuItem]) {
+    let callback: (ChatListFilter) -> Void
+    let menuItems: (ChatListFilter, Int?, Bool?) -> [ContextMenuItem]
+    init(context: AccountContext, callback: @escaping (ChatListFilter) -> Void, menuItems: @escaping (ChatListFilter, Int?, Bool?) -> [ContextMenuItem]) {
         self.context = context
         self.callback = callback
         self.menuItems = menuItems
     }
 }
 
-
 final class LeftSidebarView: Control {
     fileprivate let tableView = TableView()
-    private let visualEffectView: NSVisualEffectView
+    private let glassView: AdaptiveGlassEffectView
     private let borderView = View()
     fileprivate var context: AccountContext?
     fileprivate let edit = ImageButton()
     required init(frame frameRect: NSRect) {
-        self.visualEffectView = NSVisualEffectView(frame: NSMakeRect(0, 0, frameRect.width, frameRect.height))
+        self.glassView = AdaptiveGlassEffectView(legacyMaterial: .ultraDark, blendingMode: .behindWindow)
         super.init(frame: frameRect)
-        
-        addSubview(self.visualEffectView)
+
+        addSubview(self.glassView)
         addSubview(self.borderView)
 
         addSubview(self.tableView)
@@ -123,15 +122,11 @@ final class LeftSidebarView: Control {
             return .clear
         }
 
-        visualEffectView.blendingMode = .behindWindow
-        visualEffectView.material = .ultraDark
-        visualEffectView.state = .active
-        
         self.edit.autohighlight = false
         self.edit.scaleOnClick = false
-       
+
         updateLocalizationAndTheme(theme: theme)
-        
+
         contextMenu = { [weak self] in
             let menu = ContextMenu()
             menu.addItem(ContextMenuItem(strings().navigationEdit, handler: {
@@ -142,43 +137,57 @@ final class LeftSidebarView: Control {
             return menu
         }
     }
-    
+
     override func updateLocalizationAndTheme(theme: PresentationTheme) {
         super.updateLocalizationAndTheme(theme: theme)
         let theme = theme as! TelegramPresentationTheme
-        
+
         borderView.backgroundColor = theme.colors.border
         self.backgroundColor = theme.colors.listBackground
-        self.borderView.isHidden = !theme.colors.isDark
-        self.visualEffectView.isHidden = theme.colors.isDark
+        // Novagram: upstream hides the blur on dark themes (a legacy
+        // NSVisualEffectView trade-off). Real Liquid Glass is meant to show on dark
+        // too — 12.9 does exactly that — so keep it visible when glass is on, and
+        // give the rail the same rounded floating-panel shape as the chat list.
+        if isLiquidGlassAvailable {
+            self.borderView.isHidden = true
+            self.glassView.isHidden = false
+            // the rail is the window backdrop in 12.9, not a floating panel — the
+            // chat list is what floats on top of it, so no corner radius here
+            self.glassView.cornerRadius = 0
+            self.backgroundColor = .clear
+        } else {
+            self.borderView.isHidden = !theme.colors.isDark
+            self.glassView.isHidden = theme.colors.isDark
+            self.glassView.cornerRadius = 0
+        }
         self.edit.set(image: theme.icons.folders_sidebar_edit, for: .Normal)
         self.edit.set(image: theme.icons.folders_sidebar_edit_active, for: .Highlight)
         self.edit.borderColor = theme.colors.grayIcon.withAlphaComponent(0.1)
         needsLayout = true
 
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func layout() {
         super.layout()
-        self.visualEffectView.frame = bounds
-        self.tableView.frame = NSMakeRect(0, 0, frame.width, frame.height - 50)
-        self.borderView.frame = NSMakeRect(frame.width - .borderSize, 0, .borderSize, frame.height)
-        self.edit.frame = NSMakeRect(0, frame.height - 50, frame.width, 50)
+        self.glassView.frame = bounds
+        self.tableView.frame = NSRect(x: 0, y: 0, width: frame.width, height: frame.height - 50)
+        self.borderView.frame = NSRect(x: frame.width - .borderSize, y: 0, width: .borderSize, height: frame.height)
+        self.edit.frame = NSRect(x: 0, y: frame.height - 50, width: frame.width, height: 50)
         self.edit.border = tableView.frame.height < tableView.documentSize.height ? [.Top] : []
     }
 }
 
-private enum LeftSibarBarEntry : Comparable, Identifiable {
+private enum LeftSibarBarEntry: Comparable, Identifiable {
     static func < (lhs: LeftSibarBarEntry, rhs: LeftSibarBarEntry) -> Bool {
         return lhs.index < rhs.index
     }
     case topOffset
     case folder(index: Int, selected: Bool, filter: ChatListFilter, unreadCount: Int, hasUnmutedUnread: Bool)
-    
+
     var stableId: Int32 {
         switch self {
         case .topOffset:
@@ -187,7 +196,7 @@ private enum LeftSibarBarEntry : Comparable, Identifiable {
             return filter.id
         }
     }
-    
+
     var index: Int {
         switch self {
         case .topOffset:
@@ -196,7 +205,7 @@ private enum LeftSibarBarEntry : Comparable, Identifiable {
             return index
         }
     }
-    
+
     func item(_ arguments: LeftSidebarArguments, initialSize: NSSize) -> TableRowItem {
         switch self {
         case let .folder(_, selected, filter, unreadCount, hasUnmutedUnread):
@@ -209,52 +218,52 @@ private enum LeftSibarBarEntry : Comparable, Identifiable {
 
 private func leftSidebarEntries(_ filterData: FilterData, _ badges: ChatListFilterBadges) -> [LeftSibarBarEntry] {
     var index: Int = 1
-    
-    var entries:[LeftSibarBarEntry] = []
+
+    var entries: [LeftSibarBarEntry] = []
     entries.append(.topOffset)
-    
+
     for filter in filterData.tabs {
         let badge = badges.count(for: filter)
         entries.append(.folder(index: index, selected: filter.id == filterData.filter.id, filter: filter, unreadCount: badge?.count ?? 0, hasUnmutedUnread: badge?.hasUnmutedUnread ?? false))
         index += 1
     }
-    
+
     return entries
 }
 
-fileprivate func prepareTransition(left:[AppearanceWrapperEntry<LeftSibarBarEntry>], right: [AppearanceWrapperEntry<LeftSibarBarEntry>], initialSize:NSSize, arguments:LeftSidebarArguments) -> TableUpdateTransition {
-    
+private func prepareTransition(left: [AppearanceWrapperEntry<LeftSibarBarEntry>], right: [AppearanceWrapperEntry<LeftSibarBarEntry>], initialSize: NSSize, arguments: LeftSidebarArguments) -> TableUpdateTransition {
+
     let (removed, inserted, updated) = proccessEntriesWithoutReverse(left, right: right) { entry -> TableRowItem in
         return entry.entry.item(arguments, initialSize: initialSize)
     }
-    
+
     return TableUpdateTransition(deleted: removed, inserted: inserted, updated: updated, animated: true)
 }
 
 class LeftSidebarController: TelegramGenericViewController<LeftSidebarView> {
 
     let filterData: Signal<FilterData, NoError>
-    let updateFilter: (_ f:(FilterData)->FilterData)->Void
-    
+    let updateFilter: (_ f: (FilterData) -> FilterData) -> Void
+
     private let disposable = MetaDisposable()
-    
-    init(_ context: AccountContext, filterData: Signal<FilterData, NoError>, updateFilter: @escaping(_ f:(FilterData)->FilterData)->Void) {
+
+    init(_ context: AccountContext, filterData: Signal<FilterData, NoError>, updateFilter: @escaping (_ f: (FilterData) -> FilterData) -> Void) {
         self.filterData = filterData
         self.updateFilter = updateFilter
         super.init(context)
         self.bar = .init(height: 0)
     }
-    
+
     deinit {
         disposable.dispose()
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         let context = self.context
-        
+
         genericView.context = context
-        
+
         let arguments = LeftSidebarArguments(context: context, callback: { filter in
             navigateToChatListFilter(filter.id, context: context)
 
@@ -262,9 +271,9 @@ class LeftSidebarController: TelegramGenericViewController<LeftSidebarView> {
             return filterContextMenuItems(filter, unreadCount: unreadCount, includeAllMuted: allMuted, context: context)
         })
         let initialSize = self.atomicSize
-        
+
         let previous: Atomic<[AppearanceWrapperEntry<LeftSibarBarEntry>]> = Atomic(value: [])
-                
+
         genericView.edit.set(handler: { _ in
             if let controller = context.bindings.rootNavigation().controller as? InputDataController {
                 if controller.identifier == "filters" {
@@ -274,28 +283,27 @@ class LeftSidebarController: TelegramGenericViewController<LeftSidebarView> {
             context.bindings.rootNavigation().push(ChatListFiltersListController(context: context))
         }, for: .Click)
 
-        
         let signal: Signal<TableUpdateTransition, NoError> = combineLatest(queue: prepareQueue, filterData, chatListFilterItems(engine: context.engine, accountManager: context.sharedContext.accountManager), appearanceSignal) |> map { filterData, badges, appearance in
             let entries = leftSidebarEntries(filterData, badges).map { AppearanceWrapperEntry.init(entry: $0, appearance: appearance) }
             return prepareTransition(left: previous.swap(entries), right: entries, initialSize: initialSize.with { $0 }, arguments: arguments)
         } |> deliverOnMainQueue
-        
+
         self.genericView.tableView.alwaysOpenRowsOnMouseUp = true
-        
+
         disposable.set(signal.start(next: { [weak self] transition in
-            
+
             guard let `self` = self else {
                 return
             }
             self.genericView.tableView.merge(with: transition)
             self.genericView.updateLocalizationAndTheme(theme: theme)
             self.readyOnce()
-            
-            let range:NSRange
+
+            let range: NSRange
             if context.isPremium {
-                range = NSMakeRange(1, self.genericView.tableView.count - 1)
+                range = NSRange(location: 1, length: self.genericView.tableView.count - 1)
             } else {
-                range = NSMakeRange(2, self.genericView.tableView.count - 2)
+                range = NSRange(location: 2, length: self.genericView.tableView.count - 2)
             }
             if self.genericView.tableView.resortController?.resortRange != range {
                 self.genericView.tableView.resortController = TableResortController(resortRange: range, start: { _ in }, resort: { _ in }, complete: { from, to in
@@ -310,20 +318,19 @@ class LeftSidebarController: TelegramGenericViewController<LeftSidebarView> {
     }
 }
 
-
 func navigateToChatListFilter(_ filter: Int32, context: AccountContext) {
-    
+
     context.bindings.mainController().chatList.updateFilter { state in
         return state.withUpdatedFilterId(filter)
     }
-    
+
     let rootNavigation = context.bindings.rootNavigation()
-    
+
     let leftController = context.bindings.mainController()
     leftController.showChatList()
-    
+
     leftController.navigation.close(animated: true)
-    
+
     if context.layout == .single {
         rootNavigation.close(animated: true)
     }

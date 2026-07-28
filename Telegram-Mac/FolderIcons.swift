@@ -8,7 +8,6 @@
 
 import Cocoa
 
-
 enum FolderIconState {
     case sidebar
     case sidebarActive
@@ -19,7 +18,10 @@ enum FolderIconState {
         case .sidebar:
             return NSColor.white.withAlphaComponent(0.5)
         case .sidebarActive:
-            return .white
+            // Novagram: official Telegram 12.9 tints the selected folder with the
+            // accent colour, not plain white — it is the only coloured element in
+            // the rail and is what makes the current folder readable at a glance.
+            return theme.colors.accent
         case .preview:
             return theme.colors.grayIcon
         case .settings:
@@ -49,14 +51,12 @@ let allSidebarFolderIcons: [FolderIcon] = [FolderIcon(emoticon: .emoji("🐱")),
                                            FolderIcon(emoticon: .emoji("👨‍💼")),
                                            FolderIcon(emoticon: .emoji("👤")),
                                            FolderIcon(emoticon: .emoji("👥")),
-                                           //FolderIcon(emoticon: .emoji("📢")),
+                                           // FolderIcon(emoticon: .emoji("📢")),
                                            FolderIcon(emoticon: .emoji("💬")),
                                            FolderIcon(emoticon: .emoji("✅")),
                                            FolderIcon(emoticon: .emoji("☑️")),
                                            FolderIcon(emoticon: .emoji("🤖")),
                                            FolderIcon(emoticon: .emoji("🗂"))]
-
-
 
 enum FolderEmoticon {
     case emoji(String)
@@ -69,7 +69,7 @@ enum FolderEmoticon {
     case channels
     case bots
     case folder
-    
+
     var emoji: String? {
         switch self {
         case let .emoji(emoji):
@@ -85,7 +85,7 @@ enum FolderEmoticon {
         case .folder: return "🗂"
         }
     }
-    
+
     var drawable: MenuAnimation {
         switch self {
         case .allChats:
@@ -170,7 +170,6 @@ enum FolderEmoticon {
         }
     }
 
-    
     var iconName: String {
         switch self {
         case .allChats:
@@ -262,15 +261,13 @@ enum FolderEmoticon {
 
 final class FolderIcon {
     let emoticon: FolderEmoticon
-    
+
     init(emoticon: FolderEmoticon) {
         self.emoticon = emoticon
     }
-    
+
     func icon(for state: FolderIconState) -> CGImage {
         return NSImage(named: self.emoticon.iconName)!.precomposed(state.color, flipVertical: state == .preview)
     }
-    
+
 }
-
-

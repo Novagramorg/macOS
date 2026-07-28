@@ -1978,6 +1978,7 @@ class ChatController: EditableViewController<ChatControllerView>, Notifable, Tab
     private let updatedChannelParticipants: MetaDisposable = MetaDisposable()
     private let sentMessageEventsDisposable = MetaDisposable()
     private let proccessingMessageEventsDisposable = MetaDisposable()
+    private let deletedMessagesDisposable = MetaDisposable()  // Fenixuz: "show deleted messages" tombstones
     private let messageActionCallbackDisposable: MetaDisposable = MetaDisposable()
     private let shareContactDisposable: MetaDisposable = MetaDisposable()
     private let peerInputActivitiesDisposable: MetaDisposable = MetaDisposable()
@@ -2451,6 +2452,19 @@ class ChatController: EditableViewController<ChatControllerView>, Notifable, Tab
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        // Fenixuz "show deleted messages": record every deletion so a 🗑 tombstone can keep it
+        // visible. Only re-renders when the toggle is ON; recording is cheap and always safe.
+        deletedMessagesDisposable.set((context.account.stateManager.deletedMessages
+            |> deliverOnMainQueue).start(next: { [weak self] ids in
+            guard let self = self else { return }
+            FenixuzDeletedMessages.flog("FENIXDEL signal: \(ids.count) ids, chatPeer=\(self.chatInteraction.peerId.toInt64()), enabled=\(FenixuzDeletedMessages.shared.isEnabled)")
+            let created = FenixuzDeletedMessages.shared.recordDeleted(ids, peerId: self.chatInteraction.peerId)
+            if created, FenixuzDeletedMessages.shared.isEnabled, let location = self.locationValue {
+                FenixuzDeletedMessages.flog("FENIXDEL signal: refreshing chat via setLocation")
+                self.setLocation(location.content)
+            }
+        }))
+
         if let contents = mode.customChatContents as? HashtagSearchGlobalChatContents, let hashtag = contents.kind.hashtag {
             contents.hashtagSearchResultsUpdate = { [weak self] result in
                 self?.searchState.set(.init(hashtag, result.0.messages))
@@ -2902,12 +2916,15 @@ class ChatController: EditableViewController<ChatControllerView>, Notifable, Tab
 
         let previousUpdatingMedia = Atomic<[MessageId: ChatUpdatingMessageMedia]?>(value: nil)
 
-        let adMessages: Signal<(fixed: Message?, opportunistic: [Message], version: Int), NoError>
+        let baseAdMessages: Signal<(fixed: Message?, opportunistic: [Message], version: Int), NoError>
         if let ad = self.adMessages {
-            adMessages = ad.allMessages
+            baseAdMessages = ad.allMessages
         } else {
-            adMessages = .single((nil, [], 0))
+            baseAdMessages = .single((nil, [], 0))
         }
+        // Fenixuz: inject OUR channel ad (Novagram backend) into the sponsored slot — Telegram's
+        // own is api_id-gated, so empty on this fork. Off-gate/non-channel → base is unchanged.
+        let adMessages = FenixNovagramChatAds.withInjectedAd(baseAdMessages, context: context, peerId: peerId)
 
         let themeEmoticon: Signal<String?, NoError> = self.peerView.get() |> map {
             ($0 as? PeerView)?.cachedData
@@ -3253,7 +3270,8 @@ class ChatController: EditableViewController<ChatControllerView>, Notifable, Tab
                 if let peer = chatInteraction.peer, peer.isRestrictedChannel(context.contentSettings) {
                     proccesedView = ChatHistoryView(originalView: view, filteredEntries: [], theme: chatTheme)
                 } else {
-                    let msgEntries = view.entries
+                    // Fenixuz: re-inject 🗑 tombstones for deleted messages (no-op unless the toggle is ON).
+                    let msgEntries = FenixuzDeletedMessages.shared.process(view.entries, peerId: chatInteraction.peerId, hasEarlier: view.earlierId != nil, hasLater: view.laterId != nil)
 
                     if msgEntries.count == 9 {
                         var bp = 0
@@ -6348,6 +6366,11 @@ class ChatController: EditableViewController<ChatControllerView>, Notifable, Tab
         }
 
         chatInteraction.markAdAction = { [weak self] opaqueId, media in
+            // Fenixuz: our own ad taps report to OUR backend and must NOT fall through to
+            // Telegram's markAction (which would POST our synthetic opaqueId to Telegram's ad server).
+            if FenixNovagramChatAds.reportClickIfOurs(opaqueId: opaqueId, context: context) {
+                return
+            }
             self?.adMessages?.markAction(opaqueId: opaqueId, media: media)
         }
 
@@ -8323,6 +8346,14 @@ class ChatController: EditableViewController<ChatControllerView>, Notifable, Tab
                             }, itemImage: MenuAnimation.menu_show_info.value))
                         }
 
+                        // Fenixuz: "Jump to First Message" (pro_messager/show_view_first_message) —
+                        // gated entry that scrolls to the very first message in this chat's history.
+                        if UserDefaults(suiteName: "pro_messager")?.bool(forKey: "show_view_first_message") ?? false {
+                            items.append(ContextMenuItem(FenixuzL10n.current.settings_chat_firstMessage_title, handler: { [weak self] in
+                                self?.chatInteraction.scrollToTheFirst()
+                            }, itemImage: MenuAnimation.menu_sort_up.value))
+                        }
+
                         if let notificationSettings = peerView.notificationSettings as? TelegramPeerNotificationSettings, !self.isAdChat {
                             if chatInteraction.peerId != context.peerId {
                                 items.append(ContextMenuItem(!notificationSettings.isMuted ? strings().chatContextEnableNotifications : strings().chatContextDisableNotifications, handler: { [weak self] in
@@ -8739,6 +8770,7 @@ class ChatController: EditableViewController<ChatControllerView>, Notifable, Tab
         messageActionCallbackDisposable.dispose()
         sentMessageEventsDisposable.dispose()
         proccessingMessageEventsDisposable.dispose()
+        deletedMessagesDisposable.dispose()
         chatInteraction.remove(observer: self)
         contextQueryState?.1.dispose()
         self.urlPreviewQueryState?.1.dispose()

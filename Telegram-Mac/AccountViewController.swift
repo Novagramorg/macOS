@@ -132,6 +132,7 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
     case fenixuz(index: Int, viewType: GeneralViewType)
     case fenixAccounts(index: Int, viewType: GeneralViewType)
     case analytics(index: Int, viewType: GeneralViewType)
+    case novagramBots(index: Int, viewType: GeneralViewType)
     case stickers(index: Int, viewType: GeneralViewType)
     case notifications(index: Int, viewType: GeneralViewType, status: UNUserNotifications.AuthorizationStatus)
     case language(index: Int, viewType: GeneralViewType, current: String)
@@ -218,6 +219,8 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
             return .index(26)
         case .analytics:
             return .index(900)
+        case .novagramBots:
+            return .index(902)
         case let .attach(index, _, _):
             return .index(28 + index)
         case let .whiteSpace(index, _):
@@ -250,6 +253,8 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
         case let .fenixAccounts(index, _):
             return index
         case let .analytics(index, _):
+            return index
+        case let .novagramBots(index, _):
             return index
         case let  .proxy(index, _, _):
             return index
@@ -352,7 +357,7 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
             }, border: [BorderType.Right], inset: NSEdgeInsets(left: 12, right: 12))
         case let .fenixuz(_, viewType):
             // Fenixuz fork: Settings → FenixuzPro panel (iOS bilan 1:1 — oltin sarlavha + flame ikonka).
-            let proIcon = fenixuzSettingsIcon(systemName: "flame.fill", color: .gold) ?? theme.icons.settingsGeneral
+            let proIcon = fenixuzSettingsIcon(systemName: "n.square.fill", color: .gold) ?? theme.icons.settingsGeneral
             return GeneralInteractedRowItem(initialSize, stableId: stableId, name: "Novagram Settings", icon: proIcon, activeIcon: proIcon, nameStyle: ControlStyle(font: .normal(.title), foregroundColor: NSColor(rgb: 0xD4AF37)), type: .next, viewType: viewType, action: {
                 arguments.presentController(FenixuzSettingsController(arguments.context), true)
             }, border: [BorderType.Right], inset: NSEdgeInsets(left: 12, right: 12))
@@ -367,6 +372,12 @@ private enum AccountInfoEntry: TableItemListNodeEntry {
             let icon = fenixuzSettingsIcon(systemName: "chart.bar.fill", color: .green) ?? theme.icons.settingsGeneral
             return GeneralInteractedRowItem(initialSize, stableId: stableId, name: "Analytics", icon: icon, activeIcon: icon, type: .next, viewType: viewType, action: {
                 arguments.presentController(FenixuzAnalyticsController(arguments.context), true)
+            }, border: [BorderType.Right], inset: NSEdgeInsets(left: 12, right: 12))
+        case let .novagramBots(_, viewType):
+            // Fenixuz: Novagram Bots — top-level entry for fast access (moved out of the Novagram Settings submenu).
+            let icon = fenixuzSettingsIcon(systemName: "bolt.fill", color: .green) ?? theme.icons.settingsGeneral
+            return GeneralInteractedRowItem(initialSize, stableId: stableId, name: "Novagram Bots", icon: icon, activeIcon: icon, type: .next, viewType: viewType, action: {
+                arguments.presentController(NovagramBotsController(arguments.context), true)
             }, border: [BorderType.Right], inset: NSEdgeInsets(left: 12, right: 12))
         case let .stories(_, viewType):
             return GeneralInteractedRowItem(initialSize, stableId: stableId, name: strings().accountSettingsMyProfile, icon: theme.icons.settingsStories, activeIcon: theme.icons.settingsStoriesActive, type: .next, viewType: viewType, action: {
@@ -601,6 +612,10 @@ private func accountInfoEntries(peerView: PeerView, context: AccountContext, acc
 
     // Fenixuz: FenixuzPro pinned to the top of the settings list (above My Profile).
     entries.append(.fenixuz(index: index, viewType: .singleItem))
+    index += 1
+
+    // Fenixuz: Novagram Bots — top-level fast access (moved out of the Novagram Settings submenu).
+    entries.append(.novagramBots(index: index, viewType: .singleItem))
     index += 1
 
     // Fenixuz: Analytics page — live Novagram users + active accounts.
@@ -1141,6 +1156,17 @@ class AccountViewController: TelegramGenericViewController<AccountControllerView
                 }
             } else if navigation.controller is FenixuzSettingsController {
                 if let item = tableView.item(stableId: AnyHashable(AccountInfoEntryId.index(27))) {
+                    _ = tableView.select(item: item)
+                }
+            } else if navigation.controller is NovagramBotsController {
+                // Novagram: these two rows are appended right after .fenixuz (27),
+                // so they take 28 and 29. Without these branches the rows open their
+                // page but never light up as the selected row.
+                if let item = tableView.item(stableId: AnyHashable(AccountInfoEntryId.index(28))) {
+                    _ = tableView.select(item: item)
+                }
+            } else if navigation.controller is FenixuzAnalyticsController {
+                if let item = tableView.item(stableId: AnyHashable(AccountInfoEntryId.index(29))) {
                     _ = tableView.select(item: item)
                 }
             } else if navigation.controller is RecentSessionsController {

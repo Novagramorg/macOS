@@ -1035,4 +1035,9 @@ public struct FenixuzL10n {
             return pick(en: "Plain (None)", uz: "Uslubsiz (Oddiy)", ru: "Без стиля (Обычный)")
         }
     }
+
+    // MARK: - Liquid Glass settings (macOS 26)
+
+    public var glass_settingsTitle: String { pick(en: "Liquid Glass", uz: "Liquid Glass", ru: "Liquid Glass") }
+    public var glass_settingsSubtitle: String { pick(en: "Translucent glass material for sidebars, bars and panels (macOS 26)", uz: "Yon panel, panel va oynalar uchun shaffof shisha materiali (macOS 26)", ru: "Полупрозрачный стеклянный материал для панелей (macOS 26)") }
 }

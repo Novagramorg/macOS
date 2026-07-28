@@ -20,10 +20,10 @@ extension TelegramBirthday {
 
         let day = calendar.component(.day, from: date)
         let month = calendar.component(.month, from: date)
-        
+
         return self.day == day && self.month == month
     }
-    
+
     func isTomorrow() -> Bool {
         let currentDate = Date()
         let calendar = Calendar.current
@@ -45,36 +45,34 @@ extension TelegramBirthday {
 
         return day == dayYesterday && month == monthYesterday
     }
-    
-    
+
     func yearsSince() -> Int? {
-        
+
         guard let year else {
             return nil
         }
-        
+
         let calendar = Calendar.current
-        
+
         // Components of the input date
         var dateComponents = DateComponents()
         dateComponents.day = Int(day)
         dateComponents.month = Int(month)
         dateComponents.year = Int(year)
-        
+
         // Construct the date from components
         guard let fromDate = calendar.date(from: dateComponents) else {
             return nil // Invalid date was provided
         }
-        
+
         // Get the current date
         let toDate = Date()
-        
+
         // Calculate the difference in years
         let components = calendar.dateComponents([.year], from: fromDate, to: toDate)
         return components.year
     }
 
-    
     var isEligble: Bool {
         return self.isToday || self.isTomorrow() || self.isYesterday()
     }
@@ -97,22 +95,22 @@ extension TelegramBirthday {
 
 private final class Arguments {
     let context: AccountContext
-    let openFilterSettings: (ChatListFilter)->Void
-    let createTopic: ()->Void
-    let switchOffForum: ()->Void
-    let getHideProgress:()->CGFloat?
-    let hideDeprecatedSystem:()->Void
-    let applySharedFolderUpdates:(ChatFolderUpdates)->Void
-    let hideSharedFolderUpdates:()->Void
-    let openStory:(StoryInitialIndex?, Bool, Bool)->Void
-    let getStoryInterfaceState:()->StoryListChatListRowItem.InterfaceState
-    let getNavigationHeight:()->CGFloat
-    let revealStoriesState:()->Void
-    let getState:()->PeerListState
-    let getDeltaProgress:()->CGFloat?
-    let acceptSession:(NewSessionReview)->Void
-    let revokeSession:(NewSessionReview)->Void
-    init(context: AccountContext, openFilterSettings: @escaping(ChatListFilter)->Void, createTopic: @escaping()->Void, switchOffForum: @escaping()->Void, getHideProgress:@escaping()->CGFloat?,  hideDeprecatedSystem:@escaping()->Void, applySharedFolderUpdates:@escaping(ChatFolderUpdates)->Void, hideSharedFolderUpdates: @escaping()->Void, openStory:@escaping(StoryInitialIndex?, Bool, Bool)->Void, getStoryInterfaceState:@escaping()->StoryListChatListRowItem.InterfaceState, getNavigationHeight: @escaping()->CGFloat, revealStoriesState:@escaping()->Void, getState:@escaping()->PeerListState, getDeltaProgress:@escaping()->CGFloat?, acceptSession:@escaping(NewSessionReview)->Void, revokeSession:@escaping(NewSessionReview)->Void) {
+    let openFilterSettings: (ChatListFilter) -> Void
+    let createTopic: () -> Void
+    let switchOffForum: () -> Void
+    let getHideProgress: () -> CGFloat?
+    let hideDeprecatedSystem: () -> Void
+    let applySharedFolderUpdates: (ChatFolderUpdates) -> Void
+    let hideSharedFolderUpdates: () -> Void
+    let openStory: (StoryInitialIndex?, Bool, Bool) -> Void
+    let getStoryInterfaceState: () -> StoryListChatListRowItem.InterfaceState
+    let getNavigationHeight: () -> CGFloat
+    let revealStoriesState: () -> Void
+    let getState: () -> PeerListState
+    let getDeltaProgress: () -> CGFloat?
+    let acceptSession: (NewSessionReview) -> Void
+    let revokeSession: (NewSessionReview) -> Void
+    init(context: AccountContext, openFilterSettings: @escaping (ChatListFilter) -> Void, createTopic: @escaping () -> Void, switchOffForum: @escaping () -> Void, getHideProgress: @escaping () -> CGFloat?, hideDeprecatedSystem: @escaping () -> Void, applySharedFolderUpdates: @escaping (ChatFolderUpdates) -> Void, hideSharedFolderUpdates: @escaping () -> Void, openStory: @escaping (StoryInitialIndex?, Bool, Bool) -> Void, getStoryInterfaceState: @escaping () -> StoryListChatListRowItem.InterfaceState, getNavigationHeight: @escaping () -> CGFloat, revealStoriesState: @escaping () -> Void, getState: @escaping () -> PeerListState, getDeltaProgress: @escaping () -> CGFloat?, acceptSession: @escaping (NewSessionReview) -> Void, revokeSession: @escaping (NewSessionReview) -> Void) {
         self.context = context
         self.openFilterSettings = openFilterSettings
         self.createTopic = createTopic
@@ -132,7 +130,7 @@ private final class Arguments {
     }
 }
 
-enum UIChatListEntryId : Hashable {
+enum UIChatListEntryId: Hashable {
     case chatId(EngineChatList.Item.Id, PeerId, Int32)
     case groupId(EngineChatList.Group)
     case forum(PeerId)
@@ -149,36 +147,33 @@ enum UIChatListEntryId : Hashable {
     case custom
 }
 
-
-struct UIChatAdditionalItem : Equatable {
+struct UIChatAdditionalItem: Equatable {
     static func == (lhs: UIChatAdditionalItem, rhs: UIChatAdditionalItem) -> Bool {
         return lhs.item == rhs.item && lhs.index == rhs.index
     }
-    
+
     let item: EngineChatList.AdditionalItem
     let index: Int
 }
 
-
-
-struct UIChatListBirthday : Equatable {
+struct UIChatListBirthday: Equatable {
     let birthday: TelegramBirthday
     let peer: EnginePeer
 }
 
-struct UIChatListBuyStarsAction : UIChatListTextAction {
+struct UIChatListBuyStarsAction: UIChatListTextAction {
     var text: NSAttributedString
-    
+
     var info: NSAttributedString
-    
+
     func action() {
         showModal(with: Star_ListScreen(context: context, source: .prolongSubscription(.init(context.myPeer!), 500)), for: context.window)
     }
-    
+
     func dismiss() {
-        
+
     }
-    
+
     func isEqual(_ rhs: UIChatListTextAction) -> Bool {
         if let _ = rhs as? UIChatListBuyStarsAction {
             return true
@@ -186,16 +181,16 @@ struct UIChatListBuyStarsAction : UIChatListTextAction {
             return false
         }
     }
-    
+
     private let context: AccountContext
     let canDismiss: Bool
-    
+
     init(context: AccountContext, state: StarsSubscriptionsContext.State) {
         self.context = context
         self.canDismiss = true
         let amount = state.balance
         let peers = state.subscriptions.map(\.peer)
-        
+
         let title: String
         let text: String
         let starsValue = strings().chatListSubscriptionsLowBalanceCountable(Int(amount.value))
@@ -208,27 +203,27 @@ struct UIChatListBuyStarsAction : UIChatListTextAction {
         }
         let attributedTitle = NSMutableAttributedString(string: "\(clown_space)\(title)", font: .normal(.text), textColor: theme.colors.text)
         attributedTitle.insertEmbedded(.embeddedAnimated(LocalAnimatedSticker.star_currency_new.file), for: clown)
-        
+
         self.text = attributedTitle
         self.info = NSAttributedString(string: text, font: .normal(.text), textColor: theme.colors.grayText)
 
     }
-    
+
 }
 
-struct UIChatFrozenAction : UIChatListTextAction {
+struct UIChatFrozenAction: UIChatListTextAction {
     var text: NSAttributedString
-    
+
     var info: NSAttributedString
-    
+
     func action() {
         showModal(with: FrozenAccountController(context: context), for: context.window)
     }
-    
+
     func dismiss() {
-        
+
     }
-    
+
     func isEqual(_ rhs: UIChatListTextAction) -> Bool {
         if let _ = rhs as? UIChatFrozenAction {
             return true
@@ -236,21 +231,21 @@ struct UIChatFrozenAction : UIChatListTextAction {
             return false
         }
     }
-    
+
     private let context: AccountContext
     let canDismiss: Bool
-    
+
     init(context: AccountContext, freezeTime: Int32) {
         self.context = context
         self.canDismiss = false
-       
+
         let attributedTitle = NSMutableAttributedString(string: strings().chatListFreezeAccountTitle, font: .medium(.text), textColor: theme.colors.redUI)
-        
+
         self.text = attributedTitle
         let appealLink = context.appConfiguration.getStringValue("freeze_appeal_url", orElse: "https://t.me/spambot")
 
         let text = strings().chatListFreezeAccount
-        
+
         self.info = parseMarkdownIntoAttributedString(text, attributes: .init(body: .init(font: .normal(.text), textColor: theme.colors.grayText), bold: .init(font: .medium(.text), textColor: theme.colors.grayText), link: .init(font: .normal(.text), textColor: theme.colors.accent), linkAttribute: { link in
             return (NSAttributedString.Key.link.rawValue, inAppLink.callback(link, { value in
                 switch value {
@@ -267,26 +262,25 @@ struct UIChatFrozenAction : UIChatListTextAction {
         }))
 
     }
-    
+
 }
 
-
-struct UICustomLinkAction : UIChatListTextAction {
+struct UICustomLinkAction: UIChatListTextAction {
     var text: NSAttributedString
-    
+
     var info: NSAttributedString
-    
+
     func action() {
         let context = self.context
         execute(inapp: inApp(for: self.url.nsstring, context: context, openInfo: { peerId, _, messageId, action in
             context.bindings.rootNavigation().push(ChatAdditionController(context: context, chatLocation: .peer(peerId), focusTarget: .init(messageId: messageId), initialAction: action))
         }))
     }
-    
+
     func dismiss() {
         _ = context.engine.notices.dismissServerProvidedSuggestion(suggestion: self.id).start()
     }
-    
+
     func isEqual(_ rhs: UIChatListTextAction) -> Bool {
         if let _ = rhs as? UICustomLinkAction {
             return true
@@ -294,54 +288,50 @@ struct UICustomLinkAction : UIChatListTextAction {
             return false
         }
     }
-    
+
     private let context: AccountContext
     private let id: String
     private let url: String
     var canDismiss: Bool {
         return true
     }
-    
+
     init(context: AccountContext, id: String, url: String, title: ServerSuggestionInfo.Item.Text, subtitle: ServerSuggestionInfo.Item.Text) {
         self.context = context
         self.id = id
         self.url = url
-               
-        let text = ChatMessageItem.applyMessageEntities(with: [TextEntitiesMessageAttribute(entities: title.entities)], for: title.string, message: nil, context: context, fontSize: .text, openInfo: { peerId, _, messageId, initAction in
-            
+
+        let text = ChatMessageItem.applyMessageEntities(with: [TextEntitiesMessageAttribute(entities: title.entities)], for: title.string, message: nil, context: context, fontSize: .text, openInfo: { _, _, _, _ in
+
         }, textColor: theme.colors.text, isDark: theme.colors.isDark, bubbled: false).mutableCopy() as! NSMutableAttributedString
-        
+
         InlineStickerItem.apply(to: text, associatedMedia: [:], entities: title.entities, isPremium: true)
-        
+
         self.text = text
-        
-        let info = ChatMessageItem.applyMessageEntities(with: [TextEntitiesMessageAttribute(entities: subtitle.entities)], for: subtitle.string, message: nil, context: context, fontSize: .text, openInfo: { _, _ ,_ , _ in }, textColor: theme.colors.grayText, isDark: theme.colors.isDark, bubbled: false).mutableCopy() as! NSMutableAttributedString
-        
+
+        let info = ChatMessageItem.applyMessageEntities(with: [TextEntitiesMessageAttribute(entities: subtitle.entities)], for: subtitle.string, message: nil, context: context, fontSize: .text, openInfo: { _, _, _, _ in }, textColor: theme.colors.grayText, isDark: theme.colors.isDark, bubbled: false).mutableCopy() as! NSMutableAttributedString
+
         InlineStickerItem.apply(to: info, associatedMedia: [:], entities: subtitle.entities, isPremium: true)
 
-        
         self.info = info
 
     }
-    
+
 }
-
-
-
 
 protocol UIChatListTextAction {
     var text: NSAttributedString { get }
     var info: NSAttributedString { get }
-    
-    func action() -> Void
-    func dismiss() -> Void
-    
+
+    func action()
+    func dismiss()
+
     var canDismiss: Bool { get }
-    
+
     func isEqual(_ rhs: any UIChatListTextAction) -> Bool
 }
 
-enum UIChatListEntry : Identifiable, Comparable {
+enum UIChatListEntry: Identifiable, Comparable {
     case chat(EngineChatList.Item, [PeerListState.InputActivities.Activity], UIChatAdditionalItem?, filter: ChatListFilter, generalStatus: ItemHideStatus?, selectedForum: PeerId?, appearMode: PeerListState.AppearMode, hideContent: Bool, folders: FilterData?, canPreviewChat: Bool)
     case group(Int, EngineChatList.GroupItem, Bool, ItemHideStatus, PeerListState.AppearMode, Bool, EngineStorySubscriptions?)
     case reveal([ChatListFilter], ChatListFilter, ChatListFilterBadges)
@@ -430,7 +420,7 @@ enum UIChatListEntry : Identifiable, Comparable {
             }
         }
     }
-    
+
     var index: ChatListIndex {
         switch self {
         case let .chat(entry, _, additionItem, _, _, _, _, _, _, _):
@@ -446,7 +436,7 @@ enum UIChatListEntry : Identifiable, Comparable {
                 return index
             case let .forum(pinnedIndex, timestamp, threadId, namespace, id):
                 let index: UInt16?
-                
+
                 if threadId == 1, entry.threadData?.isHidden == true {
                     index = 0
                 } else {
@@ -457,7 +447,7 @@ enum UIChatListEntry : Identifiable, Comparable {
                         index = UInt16(value + 1)
                     }
                 }
-                
+
                 return ChatListIndex(pinningIndex: index, messageIndex: .init(id: MessageId(peerId: entry.renderedPeer.peerId, namespace: namespace, id: id), timestamp: timestamp))
             }
         case .reveal:
@@ -488,11 +478,11 @@ enum UIChatListEntry : Identifiable, Comparable {
             return ChatListIndex(pinningIndex: 0, messageIndex: MessageIndex.absoluteUpperBound().globalPredecessor())
         }
     }
-    
+
     static func < (lhs: UIChatListEntry, rhs: UIChatListEntry) -> Bool {
        return lhs.index < rhs.index
     }
-    
+
     var stableId: UIChatListEntryId {
         switch self {
         case let .chat(entry, _, _, filterId, _, _, _, _, _, _):
@@ -525,15 +515,13 @@ enum UIChatListEntry : Identifiable, Comparable {
             return .space
         }
     }
-    
+
 }
 
+private func prepareEntries(from: [AppearanceWrapperEntry<UIChatListEntry>]?, to: [AppearanceWrapperEntry<UIChatListEntry>], adIndex: UInt16?, arguments: Arguments, initialSize: NSSize, animated: Bool, scrollState: TableScrollState? = nil, groupId: EngineChatList.Group, listMode: PeerListMode) -> Signal<TableUpdateTransition, NoError> {
 
-
-fileprivate func prepareEntries(from:[AppearanceWrapperEntry<UIChatListEntry>]?, to:[AppearanceWrapperEntry<UIChatListEntry>], adIndex: UInt16?, arguments: Arguments, initialSize:NSSize, animated:Bool, scrollState:TableScrollState? = nil, groupId: EngineChatList.Group, listMode: PeerListMode) -> Signal<TableUpdateTransition, NoError> {
-    
     return Signal { subscriber in
-                
+
         func makeItem(_ entry: AppearanceWrapperEntry<UIChatListEntry>) -> TableRowItem {
             switch entry.entry {
             case let .chat(item, activities, addition, filter, hideStatus, selectedForum, appearMode, hideContent, filterData, previewChat):
@@ -556,11 +544,11 @@ fileprivate func prepareEntries(from:[AppearanceWrapperEntry<UIChatListEntry>]?,
                         mode = .chat
                     }
                 }
-                
+
                 return ChatListRowItem(initialSize, context: arguments.context, stableId: entry.entry.stableId, mode: mode, messages: messages, index: entry.entry.index, readState: item.readCounters, draft: item.draft, pinnedType: pinnedType, renderedPeer: item.renderedPeer, peerPresence: item.presence, forumTopicData: item.forumTopicData, forumTopicItems: item.topForumTopicItems, activities: activities, associatedGroupId: groupId, isMuted: item.isMuted, hasFailed: item.hasFailed, hasUnreadMentions: item.hasUnseenMentions, hasUnreadReactions: item.hasUnseenReactions, filter: filter, hideStatus: hideStatus, appearMode: appearMode, hideContent: hideContent, getHideProgress: arguments.getHideProgress, selectedForum: selectedForum, autoremoveTimeout: item.autoremoveTimeout, story: item.storyStats, openStory: arguments.openStory, isContact: item.isContact, displayAsTopics: item.displayAsTopicList, folders: filterData, canPreviewChat: previewChat)
 
             case let .group(_, item, animated, hideStatus, appearMode, hideContent, storyState):
-                var messages:[Message] = []
+                var messages: [Message] = []
                 if let message = item.topMessage {
                     messages.append(message._asMessage())
                 }
@@ -588,22 +576,20 @@ fileprivate func prepareEntries(from:[AppearanceWrapperEntry<UIChatListEntry>]?,
             case let .loading(filter):
                 return ChatListLoadingRowItem(initialSize, stableId: entry.stableId, filter: filter, context: arguments.context)
             case .space:
-                return ChatListSpaceItem(initialSize, stableId: entry.stableId, getState: arguments.getState, getDeltaProgress: arguments.getDeltaProgress, getInterfaceState: arguments.getStoryInterfaceState, getNavigationHeight: arguments.getNavigationHeight) 
+                return ChatListSpaceItem(initialSize, stableId: entry.stableId, getState: arguments.getState, getDeltaProgress: arguments.getDeltaProgress, getInterfaceState: arguments.getStoryInterfaceState, getNavigationHeight: arguments.getNavigationHeight)
             case let .custom(action):
                 return ChatListTextActionRowItem(initialSize, stableId: entry.stableId, context: arguments.context, title: action.text, info: action.info, canDismiss: action.canDismiss, action: action.action, dismiss: action.dismiss)
             }
         }
-        
-        
-        let (deleted,inserted,updated) = proccessEntries(from, right: to, { entry -> TableRowItem in
+
+        let (deleted, inserted, updated) = proccessEntries(from, right: to, { entry -> TableRowItem in
             return makeItem(entry)
         })
-        
+
         let animated = animated
         let nState = scrollState ?? (animated ? .none(nil) : .saveVisible(.lower, false))
-        
-      
-        let transition = TableUpdateTransition(deleted: deleted, inserted: inserted, updated:updated, animated: animated, state: nState, grouping: !animated || scrollState != nil, animateVisibleOnly: false, groupInOne: false)
+
+        let transition = TableUpdateTransition(deleted: deleted, inserted: inserted, updated: updated, animated: animated, state: nState, grouping: !animated || scrollState != nil, animateVisibleOnly: false, groupInOne: false)
         subscriber.putNext(transition)
         subscriber.putCompletion()
         return ActionDisposable {
@@ -611,12 +597,11 @@ fileprivate func prepareEntries(from:[AppearanceWrapperEntry<UIChatListEntry>]?,
     }
 }
 
-
-enum ItemHideStatus : Equatable {
+enum ItemHideStatus: Equatable {
     case normal
     case collapsed
     case hidden(Bool)
-    
+
     var rawValue: Int {
         switch self {
         case .normal:
@@ -635,7 +620,7 @@ enum ItemHideStatus : Equatable {
             return false
         }
     }
-    
+
     init?(rawValue: Int) {
         switch rawValue {
         case 0:
@@ -650,7 +635,7 @@ enum ItemHideStatus : Equatable {
     }
 }
 
-struct FilterData : Equatable {
+struct FilterData: Equatable {
     let filter: ChatListFilter
     let tabs: [ChatListFilter]
     let sidebar: Bool
@@ -669,11 +654,11 @@ struct FilterData : Equatable {
         self.requestTimestamp = requestTimestamp
         self.isTop = isTop
     }
-    
+
     var isEmpty: Bool {
         return self.tabs.isEmpty || (self.tabs.count == 1 && self.tabs[0] == .allChats)
     }
-    
+
     var isFirst: Bool {
         return self.tabs.firstIndex(of: filter) == 0
     }
@@ -685,7 +670,7 @@ struct FilterData : Equatable {
         let filter = filter ?? self.tabs.first ?? .allChats
         return FilterData(filter: filter, tabs: self.tabs, sidebar: self.sidebar, showTags: self.showTags, request: self.request, badges: self.badges, requestTimestamp: self.requestTimestamp, isTop: self.isTop)
     }
-    func withUpdatedTabs(_ tabs:  [ChatListFilter]) -> FilterData {
+    func withUpdatedTabs(_ tabs: [ChatListFilter]) -> FilterData {
         return FilterData(filter: self.filter, tabs: tabs, sidebar: self.sidebar, showTags: self.showTags, request: self.request, badges: self.badges, requestTimestamp: self.requestTimestamp, isTop: self.isTop)
     }
     func withUpdatedSidebar(_ sidebar: Bool) -> FilterData {
@@ -703,18 +688,17 @@ struct FilterData : Equatable {
     func withUpdatedBadges(_ badges: ChatListFilterBadges) -> FilterData {
         return FilterData(filter: self.filter, tabs: self.tabs, sidebar: sidebar, showTags: self.showTags, request: request, badges: badges, requestTimestamp: self.requestTimestamp, isTop: self.isTop)
     }
-    
+
 }
 
+class ChatListController: PeersListController {
 
-class ChatListController : PeersListController {
-    
     private let folderUpdatesDisposable = MetaDisposable()
 
-    func updateFilter(_ f:(FilterData)->FilterData) {
-        
+    func updateFilter(_ f: (FilterData) -> FilterData) {
+
         let data = f(stateValue.with { $0.filterData })
-        
+
         if !context.isPremium {
             if let index = data.tabs.firstIndex(of: data.filter) {
                 if index > context.premiumLimits.dialog_filters_limit_default {
@@ -723,9 +707,9 @@ class ChatListController : PeersListController {
                 }
             }
         }
-        
+
         var changedFolder = false
-        
+
         updateState { previous in
             var previous = previous
             var current = f(previous.filterData)
@@ -736,63 +720,67 @@ class ChatListController : PeersListController {
             previous.filterData = current
             return previous
         }
-        
+
         if changedFolder {
             self.removeRevealStateIfNeeded(nil)
             self.genericView.tableView.scroll(to: .up(true))
             self.folderUpdatesDisposable.set(context.engine.peers.pollChatFolderUpdates(folderId: data.filter.id).start())
-            self.genericView.searchView.change(state: .None,  true)
+            self.genericView.searchView.change(state: .None, true)
         }
 
         setCenterTitle(self.defaultBarTitle)
     }
-    
-    private let previousChatList:Atomic<EngineChatList?> = Atomic(value: nil)
-    private let first = Atomic(value:true)
+
+    private let previousChatList: Atomic<EngineChatList?> = Atomic(value: nil)
+    private let first = Atomic(value: true)
     private let animated = Atomic(value: false)
     private let removePeerIdGroupDisposable = MetaDisposable()
     private let downloadsDisposable = MetaDisposable()
     private let disposable = MetaDisposable()
     private let reorderDisposable = MetaDisposable()
     private let globalPeerDisposable = MetaDisposable()
-    private let animateGroupNextTransition:Atomic<EngineChatList.Group?> = Atomic(value: nil)
-    
+    private let animateGroupNextTransition: Atomic<EngineChatList.Group?> = Atomic(value: nil)
+
     private let downloadsSummary: DownloadsSummary
-    
+
     private let suggestAutoarchiveDisposable = MetaDisposable()
-    
+
     private var didSuggestAutoarchive: Bool = false
-    
+
     private var preloadStorySubscriptionsDisposable: Disposable?
     private var preloadStoryResourceDisposables: [MediaId: Disposable] = [:]
 
     private let subContext: StarsSubscriptionsContext?
 
-    
     private let filterDisposable = MetaDisposable()
-    
 
-    
-    override func viewDidResized(_ size: NSSize) {
-        super.viewDidResized(size)
+    // Fenixuz: "Hide folders" (pro_messager/hide_folders). Cache the last real tab list +
+    // sidebar so the FenixSettingsChanged observer can hide/restore folders instantly.
+    private var fenixLastFolderTabs: [ChatListFilter] = []
+    private var fenixLastSidebar: Bool = false
+
+    @objc private func fenixHideFoldersChanged() {
+        let hide = UserDefaults(suiteName: "pro_messager")?.bool(forKey: "hide_folders") ?? false
+        self.updateFilter { current in
+            current.withUpdatedTabs(hide ? [] : self.fenixLastFolderTabs)
+        }
     }
-    
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         let initialSize = self.atomicSize
         let context = self.context
         let previousChatList = self.previousChatList
         let first = Atomic<(hasEarlier: Bool, hasLater: Bool)>(value: (hasEarlier: false, hasLater: false))
-        let scrollUp:Atomic<Bool> = self.first
+        let scrollUp: Atomic<Bool> = self.first
         let groupId = self.mode.groupId
         let mode = self.mode
-        let previousEntries:Atomic<[AppearanceWrapperEntry<UIChatListEntry>]?> = Atomic(value: nil)
+        let previousEntries: Atomic<[AppearanceWrapperEntry<UIChatListEntry>]?> = Atomic(value: nil)
         let animated: Atomic<Bool> = self.animated
         let animateGroupNextTransition = self.animateGroupNextTransition
-        var scroll:TableScrollState? = nil
-        
+        var scroll: TableScrollState?
+
         let preferHighQualityStories: Signal<Bool, NoError> = combineLatest(
             context.sharedContext.baseApplicationSettings
             |> map { settings in
@@ -809,13 +797,12 @@ class ChatListController : PeersListController {
         }
         |> distinctUntilChanged
 
-        
         self.preloadStorySubscriptionsDisposable = (self.context.engine.messages.preloadStorySubscriptions(isHidden: self.mode.groupId == .archive, preferHighQuality: preferHighQualityStories)
                    |> deliverOnMainQueue).start(next: { [weak self] resources in
                        guard let `self` = self else {
                            return
                        }
-                       
+
                        var validIds: [MediaId] = []
                        for (_, info) in resources.sorted(by: { $0.value.priority < $1.value.priority }) {
                            if let mediaId = info.media.id {
@@ -825,7 +812,7 @@ class ChatListController : PeersListController {
                                }
                            }
                        }
-                       
+
                        var removeIds: [MediaId] = []
                        for (id, disposable) in self.preloadStoryResourceDisposables {
                            if !validIds.contains(id) {
@@ -837,8 +824,6 @@ class ChatListController : PeersListController {
                            self.preloadStoryResourceDisposables.removeValue(forKey: id)
                        }
                    })
-
-
 
         let arguments = Arguments(context: context, openFilterSettings: { filter in
             if case .filter = filter {
@@ -904,46 +889,43 @@ class ChatListController : PeersListController {
             _ = context.engine.privacy.terminateAnotherSession(id: session.id).start()
             showModal(with: SuspiciousRevokeModal(context: context, session: session), for: context.window)
         })
-        
+
         let previousLocation: Atomic<ChatLocation?> = Atomic(value: nil)
         globalPeerDisposable.set(context.globalPeerHandler.get().start(next: { [weak self] location in
             if previousLocation.swap(location) != location {
                 self?.removeRevealStateIfNeeded(nil)
             }
-            
+
             self?.removeHighlightEvents()
-            
+
             self?.updateHighlightEvents(location != nil)
-            
+
             if location == nil {
                 self?.setHighlightEvents()
             }
         }))
 
-        
         let chatHistoryView: Signal<(ChatListViewUpdate, FilterData, Bool, ChatFolderUpdates?), NoError> = filterSignal |> mapToSignal { data in
-            
+
             let signal = combineLatest(context.engine.peers.subscribedChatFolderUpdates(folderId: data.filter.id), chatListViewForLocation(chatListLocation: mode.location, location: data.request, filter: data.filter, account: context.account))
             return  signal |> map { updates, view in
                 return (view, data, false, updates)
             }
         }
-        
+
         //            self.storyList =
 
-        
         let storyState: Signal<EngineStorySubscriptions?, NoError>
         if self.mode.groupId == .root {
             storyState = context.engine.messages.storySubscriptions(isHidden: true) |> map(Optional.init)
         } else {
             storyState = .single(nil)
         }
-        
+
         let suspiciousSession: Signal<[NewSessionReview], NoError> = newSessionReviews(postbox: context.account.postbox)
 
         let previousLayout: Atomic<SplitViewState> = Atomic(value: context.layout)
-                
-        
+
         let suggestions = context.engine.notices.getServerProvidedSuggestions()
         let birthdays: Signal<[UIChatListBirthday], NoError> = combineLatest(context.engine.notices.getServerDismissedSuggestions(), context.account.stateManager.contactBirthdays) |> map { dismissed, list in
             return (list.filter {
@@ -951,7 +933,7 @@ class ChatListController : PeersListController {
             }, dismissed)
         } |> mapToSignal { values, dismissed in
             return context.account.postbox.transaction { transaction in
-                var birthdays:[UIChatListBirthday] = []
+                var birthdays: [UIChatListBirthday] = []
                 if !dismissed.contains(ServerProvidedSuggestion.todayBirthdays.id) {
                     for (key, value) in values {
                         if let peer = transaction.getPeer(key) {
@@ -962,45 +944,43 @@ class ChatListController : PeersListController {
                 return birthdays
             }
         }
-        
+
         let myBirthday = context.engine.data.subscribe(TelegramEngine.EngineData.Item.Peer.Birthday(id: context.peerId))
-        
+
         let subState: Signal<StarsSubscriptionsContext.State?, NoError>
         if let subContext {
             subState = subContext.state |> map(Optional.init)
         } else {
             subState = .single(nil)
         }
-        
-        
+
         let appConfiguration = context.account.postbox.preferencesView(keys: [PreferencesKeys.appConfiguration]) |> map { view in
             return view.values[PreferencesKeys.appConfiguration]?.get(AppConfiguration.self) ?? AppConfiguration.defaultValue
         }
-        
-        let list:Signal<TableUpdateTransition, NoError> = combineLatest(queue: prepareQueue, chatHistoryView, appearanceSignal, stateUpdater, appNotificationSettings(accountManager: context.sharedContext.accountManager), additionalSettings(accountManager: context.sharedContext.accountManager), chatListFilterItems(engine: context.engine, accountManager: context.sharedContext.accountManager), storyState, suspiciousSession, suggestions, birthdays, myBirthday, context.starsContext.state, subState, appConfiguration) |> mapToQueue { value, appearance, state, inAppSettings, additionalSettings, filtersCounter, storyState, suspiciousSession, suggestions, birthdays, myBirthday, starsSubscriptionsState, missingBalanceState, appConfiguration -> Signal<TableUpdateTransition, NoError> in
-                                
+
+        let list: Signal<TableUpdateTransition, NoError> = combineLatest(queue: prepareQueue, chatHistoryView, appearanceSignal, stateUpdater, appNotificationSettings(accountManager: context.sharedContext.accountManager), additionalSettings(accountManager: context.sharedContext.accountManager), chatListFilterItems(engine: context.engine, accountManager: context.sharedContext.accountManager), storyState, suspiciousSession, suggestions, birthdays, myBirthday, context.starsContext.state, subState, appConfiguration) |> mapToQueue { value, appearance, state, inAppSettings, additionalSettings, _, storyState, suspiciousSession, suggestions, birthdays, myBirthday, _, missingBalanceState, appConfiguration -> Signal<TableUpdateTransition, NoError> in
+
             let filterData = value.1
             let folderUpdates = value.3
             let update = value.0
             let removeNextAnimation = update.removeNextAnimation
             let previous = first.swap((hasEarlier: update.list.hasEarlier,
                                        hasLater: update.list.hasLater))
-            
+
             let ignoreFlags = scrollUp.swap(false)
-            
+
             if !ignoreFlags || (!ignoreFlags && (previous.hasEarlier != update.list.hasEarlier || previous.hasLater != update.list.hasLater) && !removeNextAnimation) {
                 scroll = nil
             }
-            
 
             _ = previousChatList.swap(update.list)
-            var prepare:[(EngineChatList.Item, UIChatAdditionalItem?)] = []
+            var prepare: [(EngineChatList.Item, UIChatAdditionalItem?)] = []
             for value in update.list.items {
                 prepare.append((value, nil))
             }
-            
+
             let hiddenItems: PeerListHiddenItems = state.hiddenItems
-            
+
             if !update.list.hasLater, case .allChats = filterData.filter {
                 let items = update.list.additionalItems.filter {
                     !hiddenItems.promo.contains($0.item.renderedPeer.peerId)
@@ -1011,7 +991,7 @@ class ChatListController : PeersListController {
             }
             var mapped: [UIChatListEntry] = prepare.map { item in
                 let space: PeerActivitySpace
-                var generalStatus: ItemHideStatus? = nil
+                var generalStatus: ItemHideStatus?
                 switch item.0.id {
                 case let .forum(threadId):
                     space = .init(peerId: item.0.renderedPeer.peerId, category: .thread(threadId))
@@ -1023,7 +1003,7 @@ class ChatListController : PeersListController {
                 }
                 return .chat(item.0, state.activities.activities[space] ?? [], item.1, filter: filterData.filter, generalStatus: generalStatus, selectedForum: state.selectedForum, appearMode: state.controllerAppear, hideContent: state.appear == .short, folders: state.filterData, canPreviewChat: additionalSettings.previewChats)
             }
-            
+
             if case .filter = filterData.filter, mapped.isEmpty {} else {
                 if !update.list.hasLater {
                     let hideStatus: ItemHideStatus
@@ -1043,9 +1023,7 @@ class ChatListController : PeersListController {
                     }
                 }
             }
-            
-           
-            
+
             if mapped.isEmpty {
                 if !update.list.isLoading {
                     mapped.append(.empty(filterData.filter, mode, state.splitState, .init(state.forumPeer?.peer)))
@@ -1057,11 +1035,9 @@ class ChatListController : PeersListController {
                     mapped.append(.loading(filterData.filter))
                 }
             }
-            
-            
+
             var additionItems: [UIChatListEntry] = []
-            
-            
+
             if let suspiciousSession = suspiciousSession.first, mode == .plain, state.splitState != .minimisize {
                 additionItems.append(.suspicious(suspiciousSession))
             }
@@ -1072,7 +1048,7 @@ class ChatListController : PeersListController {
                     }
                 }
             }
-            
+
             if state.mode == .plain, !update.list.hasLater, state.splitState != .minimisize, state.filterData.filter == .allChats {
                 for suggestion in suggestions {
                     switch suggestion {
@@ -1083,13 +1059,13 @@ class ChatListController : PeersListController {
                     }
                 }
             }
-            
+
             if state.mode == .plain, !update.list.hasLater, state.splitState != .minimisize, state.filterData.filter == .allChats {
                 if suggestions.contains(.gracePremium) {
                     additionItems.append(.grace(true))
                 }
             }
-                        
+
             if state.mode == .plain, !update.list.hasLater, state.splitState != .minimisize, state.filterData.filter == .allChats {
                 if suggestions.contains(.setupBirthday), myBirthday == nil {
                     additionItems.append(.birthdays([]))
@@ -1099,72 +1075,63 @@ class ChatListController : PeersListController {
                     }
                 }
             }
-            
+
             let freezeTime = appConfiguration.getGeneralValue("freeze_since_date", orElse: 0)
-            
+
             if freezeTime != 0 {
                 additionItems.append(.custom(UIChatFrozenAction(context: context, freezeTime: freezeTime)))
             }
 
-            
-            
             if FastSettings.systemUnsupported(inAppSettings.deprecatedNotice), mode == .plain, state.splitState == .single {
                 additionItems.append(.systemDeprecated(filterData.filter))
             }
             if let updates = folderUpdates {
                 additionItems.append(.sharedFolderUpdated(updates))
             }
-            
+
             if let first = additionItems.first {
                 mapped.append(first)
             }
-            
-            
+
             var animated = animated.swap(true)
-                        
+
             if value.2 {
                 animated = false
                 scroll = .up(true)
             }
-            
+
             if state.filterData.requestTimestamp + 2 > CACurrentMediaTime() {
                 animated = false
             }
-            
-            
+
             let layoutUpdated = previousLayout.swap(context.layout) != context.layout
-                        
+
             if layoutUpdated {
                 scroll = .up(false)
                 animated = false
             }
-            
+
             mapped.append(.space)
 
-            
             let entries = mapped.sorted().compactMap { entry -> AppearanceWrapperEntry<UIChatListEntry>? in
                 return AppearanceWrapperEntry(entry: entry, appearance: appearance)
             }
-            
+
             if animated {
                 var bp = 0
                 bp += 1
             }
-            
+
             return prepareEntries(from: previousEntries.swap(entries), to: entries, adIndex: nil, arguments: arguments, initialSize: initialSize.with { $0 }, animated: animated, scrollState: scroll, groupId: groupId, listMode: mode)
         }
-        
-        
-        
+
         let appliedTransition = list |> deliverOnMainQueue |> mapToQueue { [weak self] transition -> Signal<Void, NoError> in
             self?.enqueueTransition(transition)
             return .complete()
         }
-        
+
         disposable.set(appliedTransition.start())
-      
-        
-        
+
         var pinnedCount: Int = 0
         self.genericView.tableView.enumerateItems { item -> Bool in
             guard let item = item as? ChatListRowItem, item.isFixedItem else {return false}
@@ -1173,27 +1140,25 @@ class ChatListController : PeersListController {
             }
             return item.isFixedItem
         }
-        
-        genericView.tableView.resortController = TableResortController(resortRange: NSMakeRange(0, pinnedCount), start: { row in
-            
-        }, resort: { row in
-            
+
+        genericView.tableView.resortController = TableResortController(resortRange: NSRange(location: 0, length: pinnedCount), start: { _ in
+
+        }, resort: { _ in
+
         }, complete: { [weak self] from, to in
             self?.resortPinned(from, to)
         })
-        
-        
-        genericView.tableView.addScroll(listener: TableScrollListener(dispatchWhenVisibleRangeUpdated: false, { [weak self] scroll in
+
+        genericView.tableView.addScroll(listener: TableScrollListener(dispatchWhenVisibleRangeUpdated: false, { [weak self] _ in
             guard let `self` = self else {
                 return
             }
             self.removeRevealStateIfNeeded(nil)
         }))
-        
-        
-        genericView.tableView.addScroll(listener: TableScrollListener(dispatchWhenVisibleRangeUpdated: true, { [weak self] scroll in
-           
-            var refreshStoryPeerIds:[PeerId] = []
+
+        genericView.tableView.addScroll(listener: TableScrollListener(dispatchWhenVisibleRangeUpdated: true, { [weak self] _ in
+
+            var refreshStoryPeerIds: [PeerId] = []
             self?.genericView.tableView.enumerateVisibleItems(with: { item in
                 if let item = item as? ChatListRowItem, let peer = item.peer as? TelegramUser, !item.isContact {
                     refreshStoryPeerIds.append(peer.id)
@@ -1203,26 +1168,26 @@ class ChatListController : PeersListController {
             context.account.viewTracker.refreshStoryStatsForPeerIds(peerIds: refreshStoryPeerIds)
 
         }))
-        
+
         genericView.tableView.set(stickClass: ChatListRevealItem.self, handler: { _ in
-            
+
         })
-        
+
         genericView.tableView.emptyChecker = { items in
             let filter = items.filter { !($0 is ChatListEmptyRowItem) }
             return filter.isEmpty
         }
 
         genericView.tableView.setScrollHandler({ [weak self] scroll in
-            
+
             let view = previousChatList.modify({$0})
             self?.removeRevealStateIfNeeded(nil)
 
             if let strongSelf = self, let view = view {
-                var messageIndex:EngineChatList.Item.Index?
-                
+                var messageIndex: EngineChatList.Item.Index?
+
                 let isTop: Bool
-                
+
                 switch scroll.direction {
                 case .bottom:
                     if view.hasEarlier {
@@ -1257,12 +1222,12 @@ class ChatListController : PeersListController {
                     }
                 }
             }
-            
+
         })
-        
+
         let filterView = chatListFilterPreferences(engine: context.engine) |> deliverOnMainQueue |> distinctUntilChanged
         let filterBadges = chatListFilterItems(engine: context.engine, accountManager: context.sharedContext.accountManager) |> deliverOnMainQueue |> distinctUntilChanged
-        
+
         switch mode {
         case let .filter(filterId):
             filterDisposable.set(combineLatest(filterView, filterBadges).start(next: { [weak self] filters, badges in
@@ -1285,20 +1250,26 @@ class ChatListController : PeersListController {
             }))
         case .folder:
             filterDisposable.set(filterView.start(next: { [weak self] filters in
+                self?.fenixLastFolderTabs = filters.list
+                self?.fenixLastSidebar = filters.sidebar
+                let hide = UserDefaults(suiteName: "pro_messager")?.bool(forKey: "hide_folders") ?? false
                 self?.updateFilter( { current in
                     var current = current
-                    current = current.withUpdatedTabs(filters.list)
+                    current = current.withUpdatedTabs(hide ? [] : filters.list)
                         .withUpdatedSidebar(filters.sidebar)
                         .withUpdatedShowTags(filters.showTags)
                     return current
-                } )
+                })
             }))
         default:
             var first: Bool = true
             filterDisposable.set(combineLatest(filterView, filterBadges).start(next: { [weak self] filters, badges in
+                self?.fenixLastFolderTabs = filters.list
+                self?.fenixLastSidebar = filters.sidebar
+                let hide = UserDefaults(suiteName: "pro_messager")?.bool(forKey: "hide_folders") ?? false
                 self?.updateFilter( { current in
                     var current = current
-                    current = current.withUpdatedTabs(filters.list)
+                    current = current.withUpdatedTabs(hide ? [] : filters.list)
                         .withUpdatedSidebar(filters.sidebar)
                         .withUpdatedShowTags(filters.showTags)
                     if !first, let updated = filters.list.first(where: { $0.id == current.filter.id }) {
@@ -1308,11 +1279,13 @@ class ChatListController : PeersListController {
                     }
                     current = current.withUpdatedBadges(badges)
                     return current
-                } )
+                })
                 first = false
             }))
         }
-        
+
+        NotificationCenter.default.addObserver(self, selector: #selector(fenixHideFoldersChanged), name: NSNotification.Name("FenixSettingsChanged"), object: nil)
+
         switch mode {
         case .folder, .plain, .filter:
             let downloadArguments: DownloadsControlArguments = DownloadsControlArguments(open: { [weak self] in
@@ -1320,16 +1293,16 @@ class ChatListController : PeersListController {
             }, navigate: { [weak self] messageId in
                 self?.open(with: .chatId(.chatList(messageId.peerId), messageId.peerId, -1), messageId: messageId, initialAction: nil, close: false, forceAnimated: true)
             })
-            
+
             downloadsDisposable.set(self.downloadsSummary.state.start(next: { [weak self] state in
                 self?.genericView.updateDownloads(state, context: context, arguments: downloadArguments, animated: true)
             }))
         default:
             break
         }
-        
+
     }
-    
+
     func collapseOrExpandArchive() {
         updateHiddenItemsState { current in
             var current = current
@@ -1342,7 +1315,7 @@ class ChatListController : PeersListController {
             return current
         }
     }
-    
+
     func hidePromoItem(_ peerId: PeerId) {
         updateHiddenItemsState { current in
             var current = current
@@ -1353,7 +1326,7 @@ class ChatListController : PeersListController {
         }
         _ = hideAccountPromoInfoChat(account: self.context.account, peerId: peerId).start()
     }
-    
+
     func toggleHideArchive() {
         updateHiddenItemsState { current in
             var current = current
@@ -1366,20 +1339,18 @@ class ChatListController : PeersListController {
             return current
         }
     }
-    
-    
+
     func setAnimateGroupNextTransition(_ groupId: EngineChatList.Group) {
         _ = self.animateGroupNextTransition.swap(groupId)
-        
+
     }
-    
-    
+
     private func enqueueTransition(_ transition: TableUpdateTransition) {
         self.genericView.tableView.merge(with: transition)
         self.readyOnce()
-        
+
         self.afterTransaction(transition)
-                
+
         switch self.mode {
         case .folder:
             if self.genericView.tableView.isEmpty {
@@ -1388,17 +1359,16 @@ class ChatListController : PeersListController {
         default:
             break
         }
-        
+
         var first: ChatListRowItem?
         self.genericView.tableView.enumerateItems { item -> Bool in
             if let item = item as? ChatListRowItem, item.hideStatus != nil {
                 first = item
             }
-            
+
             return first == nil
         }
-        
-        
+
         if let first = first, let hideStatus = first.hideStatus {
             self.genericView.tableView.autohide = TableAutohide(item: first, hideUntilOverscroll: hideStatus.isHidden, hideHandler: { [weak self] hidden in
                 self?.updateHiddenItemsState { current in
@@ -1414,8 +1384,8 @@ class ChatListController : PeersListController {
         } else {
             self.genericView.tableView.autohide = nil
         }
-        
-        var pinnedRange: NSRange = NSMakeRange(NSNotFound, 0)
+
+        var pinnedRange: NSRange = NSRange(location: NSNotFound, length: 0)
         self.genericView.tableView.enumerateItems { item -> Bool in
             guard let item = item as? ChatListRowItem else {return true}
             switch item.pinnedType {
@@ -1429,22 +1399,22 @@ class ChatListController : PeersListController {
             }
             return item.isFixedItem || item.groupId != .root
         }
-        
+
         self.updatePinnedItems(self.collectPinnedItems)
         self.genericView.tableView.resortController?.resortRange = pinnedRange
-        
-        
-        let needPreload = previousChatList.with  { $0?.hasLater == false }
-        var preloadItems:Set<ChatHistoryPreloadItem> = Set()
+
+        let needPreload = previousChatList.with { $0?.hasLater == false }
+        var preloadItems: Set<ChatHistoryPreloadItem> = Set()
         if needPreload {
             switch mode {
             case .plain, .folder:
                 self.genericView.tableView.enumerateItems(with: { item -> Bool in
-                    guard let item = item as? ChatListRowItem, let index = item.chatListIndex else {return true}
+                    guard let item = item as? ChatListRowItem, let index = item.chatListIndex else {
+                                            return true
+                                        }
                     preloadItems.insert(.init(index: index, threadId: item.mode.threadId, isMuted: item.isMuted, hasUnread: item.hasUnread))
                     return preloadItems.count < 30
                 })
-                break
             default:
                 break
             }
@@ -1453,16 +1423,15 @@ class ChatListController : PeersListController {
             context.account.viewTracker.chatListPreloadItems.set(.single(preloadItems) |> delay(0.2, queue: prepareQueue))
         }
     }
-    
+
     private func resortPinned(_ from: Int, _ to: Int) {
         let context = self.context
         switch mode {
         case let .forum(peerId, _, _):
-            var items:[Int64] = []
+            var items: [Int64] = []
 
             var offset: Int = 0
-                       
-            
+
             self.genericView.tableView.enumerateItems { item -> Bool in
                 guard let item = item as? ChatListRowItem else {
                     offset += 1
@@ -1479,7 +1448,7 @@ class ChatListController : PeersListController {
                 default:
                     break
                 }
-               
+
                 return item.isFixedItem || item.groupId != .root
             }
             _ = first.swap(true)
@@ -1487,21 +1456,21 @@ class ChatListController : PeersListController {
             reorderDisposable.set(signal.start())
 
         default:
-            var items:[PinnedItemId] = []
+            var items: [PinnedItemId] = []
 
             var offset: Int = 0
-            
+
             let groupId: EngineChatList.Group = self.mode.groupId
 
             let location: TogglePeerChatPinnedLocation
-            
+
             switch self.filterValue.filter {
             case .allChats:
                 location = .group(groupId._asGroup())
             case let .filter(id, _, _, _):
                 location = .filter(id)
             }
-            
+
             self.genericView.tableView.enumerateItems { item -> Bool in
                 guard let item = item as? ChatListRowItem else {
                     offset += 1
@@ -1518,19 +1487,18 @@ class ChatListController : PeersListController {
                         break
                     }
                 }
-               
+
                 return item.isFixedItem || item.groupId != .root
             }
             _ = first.swap(true)
             reorderDisposable.set(context.engine.peers.reorderPinnedItemIds(location: location, itemIds: items).start())
         }
-        
+
     }
-    
-    override var collectPinnedItems:[PinnedItemId] {
-        var items:[PinnedItemId] = []
-        
-        
+
+    override var collectPinnedItems: [PinnedItemId] {
+        var items: [PinnedItemId] = []
+
         self.genericView.tableView.enumerateItems { item -> Bool in
             guard let item = item as? ChatListRowItem else {return false}
             if let location = item.chatLocation {
@@ -1546,16 +1514,15 @@ class ChatListController : PeersListController {
         return items
     }
 
-    private var lastScrolledIndex: ChatListIndex? = nil
-    
-    
+    private var lastScrolledIndex: ChatListIndex?
+
     override func scrollup(force: Bool = false) {
-        
+
         if force {
             self.genericView.tableView.scroll(to: .up(true), ignoreLayerAnimation: true)
             return
         }
-        
+
         if searchSection != nil {
             updateState { current in
                 var current = current
@@ -1568,9 +1535,9 @@ class ChatListController : PeersListController {
             self.genericView.searchView.change(state: .None, true)
             return
         }
-        
+
         let view = self.previousChatList.with { $0 }
-        
+
         if self.genericView.tableView.contentOffset.y == 0, view?.hasLater == false {
             switch mode {
             case .folder:
@@ -1588,9 +1555,8 @@ class ChatListController : PeersListController {
                 return
             }
         }
-        
-        
-        let scrollToTop:()->Void = { [weak self] in
+
+        let scrollToTop: () -> Void = { [weak self] in
             guard let `self` = self else {return}
 
             let view = self.previousChatList.modify({$0})
@@ -1620,15 +1586,14 @@ class ChatListController : PeersListController {
         }
         scrollToTop()
     }
-    
-    
+
     func globalSearch(_ query: String, peer: EnginePeer?, cached: CachedSearchMessages?, isSuperTag: Bool) {
         let context = self.context
-        
+
         if query.isEmpty {
             self.genericView.searchView.change(state: .Focus, true)
         } else {
-            
+
             let invoke = { [weak self] in
                 if let peer {
                     let peerId = peer.id
@@ -1639,7 +1604,7 @@ class ChatListController : PeersListController {
                 }
                 self?.genericView.searchView.change(state: .Focus, false)
             }
-            
+
             switch context.layout {
             case .single:
                 context.bindings.rootNavigation().back()
@@ -1651,21 +1616,16 @@ class ChatListController : PeersListController {
                 invoke()
             }
         }
-        
+
     }
-    
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        
+
         subContext?.load(force: true)
-        
+
         let isLocked = (NSApp.delegate as? AppDelegate)?.passlock ?? .single(false)
-        
-        
-        
-        
+
         self.suggestAutoarchiveDisposable.set(combineLatest(queue: .mainQueue(), isLocked, context.isKeyWindow, context.engine.notices.getServerProvidedSuggestions()).start(next: { [weak self] locked, isKeyWindow, values in
                 guard let strongSelf = self, let navigation = strongSelf.navigationController else {
                     return
@@ -1686,16 +1646,15 @@ class ChatListController : PeersListController {
                     return
                 }
                 strongSelf.didSuggestAutoarchive = true
-                
+
                 let context = strongSelf.context
                 _ = context.engine.notices.dismissServerProvidedSuggestion(suggestion: ServerProvidedSuggestion.autoarchivePopular.id).startStandalone()
-                
+
                 verifyAlert_button(for: context.window, header: strings().alertHideNewChatsHeader, information: strings().alertHideNewChatsText, ok: strings().alertHideNewChatsOK, cancel: strings().alertHideNewChatsCancel, successHandler: { _ in
                     execute(inapp: .settings(link: "tg://settings/privacy", context: context, section: .privacy))
                 })
-                
+
             }))
-    
 
         context.window.set(mouseHandler: { [weak self] event -> KeyHandlerResult in
             guard let `self` = self else {return .rejected}
@@ -1715,13 +1674,11 @@ class ChatListController : PeersListController {
             }
             return .rejected
         }, with: self, for: .leftMouseDown, priority: .high)
-        
-        
+
         context.window.add(swipe: { [weak self] direction, _ -> SwipeHandlerResult in
             guard let `self` = self, let window = self.window else {return .failed}
             let swipeState: SwipeState?
-            
-            
+
             let hitTestView = self.genericView.hitTest(self.genericView.convert(window.mouseLocationOutsideOfEventStream, from: nil))
             if let view = hitTestView, view.isInSuperclassView(ChatListRevealView.self) {
                 return .failed
@@ -1749,24 +1706,22 @@ class ChatListController : PeersListController {
 
             }
 
-            
             switch direction {
             case let .left(_state):
-                if (!self.mode.isPlain || self.mode.groupId == .archive || self.mode.isForum) && checkFolder  {
+                if (!self.mode.isPlain || self.mode.groupId == .archive || self.mode.isForum) && checkFolder {
                     swipeState = nil
                 } else {
                     swipeState = _state
                 }
-                
+
             case let .right(_state):
                 swipeState = _state
             case .none:
                 swipeState = nil
             }
-            
-            
+
             guard let state = swipeState, self.context.layout != .minimisize else {return .failed}
-            
+
             switch state {
             case .start:
                 let row = self.genericView.tableView.row(at: self.genericView.tableView.clipView.convert(window.mouseLocationOutsideOfEventStream, from: nil))
@@ -1779,25 +1734,24 @@ class ChatListController : PeersListController {
                 } else {
                     return .failed
                 }
-               
+
             case let .swiping(_delta, controller):
                 let controller = controller as! RevealTableItemController
 
                 guard let view = controller.item.view as? RevealTableView else {return .nothing}
-                
-                var delta:CGFloat
+
+                var delta: CGFloat
                 switch direction {
                 case .left:
-                    delta = _delta//max(0, _delta)
+                    delta = _delta// max(0, _delta)
                 case .right:
-                    delta = -_delta//min(-_delta, 0)
+                    delta = -_delta// min(-_delta, 0)
                 default:
                     delta = _delta
                 }
-                
-                
+
                 delta -= view.additionalRevealDelta
-                
+
                 let newDelta = min(view.width * log2(abs(delta) + 1) * log2(delta < 0 ? view.width * 8 : view.width) / 100.0, abs(delta))
 
                 if delta < 0 {
@@ -1806,18 +1760,16 @@ class ChatListController : PeersListController {
                     delta = newDelta
                 }
 
-                
-
                 view.moveReveal(delta: delta)
             case let .success(_, controller), let .failed(_, controller):
                 let controller = controller as! RevealTableItemController
                 guard let view = (controller.item.view as? RevealTableView) else {return .nothing}
-                
+
                 var direction = direction
-                
+
                 switch direction {
                 case let .left(state):
-                  
+
                     if view.containerX < 0 && abs(view.containerX) > view.rightRevealWidth / 2 {
                         direction = .right(state.withAlwaysSuccess())
                     } else if abs(view.containerX) < view.rightRevealWidth / 2 && view.containerX < view.leftRevealWidth / 2 {
@@ -1836,26 +1788,24 @@ class ChatListController : PeersListController {
                 default:
                     break
                 }
-                
+
                 view.completeReveal(direction: direction)
             }
-            
+
           //  return .success()
-            
+
             return .nothing
         }, with: self.genericView.tableView, identifier: "chat-list", priority: .high)
-        
-      
-        
+
         if context.bindings.rootNavigation().stackCount == 1 {
             setHighlightEvents()
         }
     }
-    
+
     private func setHighlightEvents() {
-        
+
         removeHighlightEvents()
-        
+
         context.window.set(handler: { [weak self] _ -> KeyHandlerResult in
             if let item = self?.genericView.tableView.highlightedItem(), item.index > 0 {
                 self?.genericView.tableView.highlightPrev(turnDirection: false)
@@ -1865,8 +1815,7 @@ class ChatListController : PeersListController {
             }
             return .invoked
         }, with: self, for: .UpArrow, priority: .low)
-        
-        
+
         context.window.set(handler: { [weak self] _ -> KeyHandlerResult in
             self?.genericView.tableView.highlightNext(turnDirection: false)
             while self?.genericView.tableView.highlightedItem() is PopularPeersRowItem || self?.genericView.tableView.highlightedItem() is SeparatorRowItem {
@@ -1874,15 +1823,15 @@ class ChatListController : PeersListController {
             }
             return .invoked
         }, with: self, for: .DownArrow, priority: .low)
-        
+
     }
-    
+
     private func removeHighlightEvents() {
         genericView.tableView.cancelHighlight()
         context.window.remove(object: self, for: .DownArrow, forceCheckFlags: true)
         context.window.remove(object: self, for: .UpArrow, forceCheckFlags: true)
     }
-    
+
     private func removeRevealStateIfNeeded(_ ignoreId: PeerId?) {
         genericView.tableView.enumerateItems { item -> Bool in
             if let item = item as? ChatListRowItem, item.peerId != ignoreId {
@@ -1891,7 +1840,7 @@ class ChatListController : PeersListController {
             return true
         }
     }
-    
+
     private func _openChat(_ index: Int) {
         if !genericView.tableView.isEmpty {
             let archiveItem = genericView.tableView.item(at: 0) as? ChatListRowItem
@@ -1908,23 +1857,23 @@ class ChatListController : PeersListController {
                     }
                 }
             }
-            
+
             if genericView.tableView.count > index {
                 _ = genericView.tableView.select(item: genericView.tableView.item(at: index), notify: true, byClick: true)
             }
         }
     }
-    
+
     func openChat(_ index: Int, force: Bool = false) {
         if case .forum = self.mode {
             _openChat(index)
         } else if case .folder = self.mode {
             _openChat(index)
-        } else if force  {
+        } else if force {
             _openChat(index)
         } else {
             let prefs = chatListFilterPreferences(engine: context.engine) |> deliverOnMainQueue |> take(1)
-            
+
             _ = prefs.start(next: { [weak self] filters in
                 if filters.isEmpty {
                     self?._openChat(index)
@@ -1939,29 +1888,27 @@ class ChatListController : PeersListController {
             })
         }
     }
-    
+
     override var removeAfterDisapper: Bool {
         return false
     }
-    
 
-    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         context.window.removeAllHandlers(for: self)
         context.window.removeAllHandlers(for: genericView.tableView)
-        
+
         removeRevealStateIfNeeded(nil)
-        
+
         suggestAutoarchiveDisposable.set(nil)
     }
-    
+
 //    override func getLeftBarViewOnce() -> BarView {
 //        return MajorBackNavigationBar(self, context: context, excludePeerId: context.peerId)
 //    }
-    
-    
+
     deinit {
+        NotificationCenter.default.removeObserver(self)
         removePeerIdGroupDisposable.dispose()
         disposable.dispose()
         reorderDisposable.dispose()
@@ -1975,8 +1922,7 @@ class ChatListController : PeersListController {
             disposable.dispose()
         }
     }
-    
-    
+
     override var enableBack: Bool {
         switch mode {
         case .folder, .filter:
@@ -1985,7 +1931,7 @@ class ChatListController : PeersListController {
             return false
         }
     }
-    
+
     override var defaultBarTitle: String {
         switch mode {
         case .filter:
@@ -2016,18 +1962,17 @@ class ChatListController : PeersListController {
         }
         return super.escapeKeyAction()
     }
-    
-    
-    init(_ context: AccountContext, modal:Bool = false, mode: PeerListMode = .plain) {
-        
+
+    init(_ context: AccountContext, modal: Bool = false, mode: PeerListMode = .plain) {
+
         if mode == .plain {
             self.subContext = context.engine.payments.peerStarsSubscriptionsContext(starsContext: nil, missingBalance: true)
         } else {
             self.subContext = nil
         }
-        
+
         self.downloadsSummary = DownloadsSummary(context.fetchManager as! FetchManagerImpl, context: context)
-        let searchOptions:AppSearchOptions
+        let searchOptions: AppSearchOptions
         switch mode {
         case .savedMessagesChats:
             searchOptions = [.messages, .chats]
@@ -2035,20 +1980,20 @@ class ChatListController : PeersListController {
             searchOptions = [.messages, .chats]
         }
         super.init(context, followGlobal: !modal, mode: mode, searchOptions: searchOptions)
-        
+
         if mode.filterId != nil {
             context.closeFolderFirst = true
         }
     }
 
-    override func selectionWillChange(row:Int, item:TableRowItem, byClick: Bool) -> Bool {
+    override func selectionWillChange(row: Int, item: TableRowItem, byClick: Bool) -> Bool {
         if let item = item as? ChatListRowItem, let peer = item.peer, let modalAction = context.bindings.rootNavigation().modalAction {
             if !modalAction.isInvokable(for: peer) {
                 modalAction.alertError(for: peer, with: item.context.window)
                 return false
             }
             modalAction.afterInvoke()
-            
+
             if let modalAction = modalAction as? FWDNavigationAction {
                 if item.peerId == context.peerId {
                     _ = Sender.forwardMessages(messageIds: modalAction.messages.map { $0.id }, context: context, peerId: context.peerId, replyId: nil, threadId: nil).start()
@@ -2057,7 +2002,7 @@ class ChatListController : PeersListController {
                     return false
                 }
             }
-            
+
         }
         if let item = item as? ChatListRowItem {
             if item.groupId != .root {
@@ -2094,10 +2039,8 @@ class ChatListController : PeersListController {
         }
         return true
     }
-    
-   
-    
-    override  func selectionDidChange(row:Int, item:TableRowItem, byClick:Bool, isNew:Bool) -> Void {
+
+    override  func selectionDidChange(row: Int, item: TableRowItem, byClick: Bool, isNew: Bool) {
         let navigation = context.bindings.rootNavigation()
         if let item = item as? ChatListRowItem {
             if !isNew, let controller = navigation.controller as? ChatController, !(item.isForum && !item.isTopic) {
@@ -2121,24 +2064,24 @@ class ChatListController : PeersListController {
                 case .scheduled, .pinned:
                     navigation.back()
                 }
-                
+
             } else {
-                
+
                 let context = self.context
-                                
+
                 context.updateGlobalPeer()
-                
+
                 let initialAction: ChatInitialAction?
-                
+
                 switch item.pinnedType {
                 case let .ad(info):
                     initialAction = .ad(info.promoInfo.content)
                 default:
                     initialAction = nil
                 }
-                
+
                 open(with: item.entryId, initialAction: initialAction, addition: false, openAsTopics: item.displayAsTopics)
-                
+
             }
         }
     }
@@ -2156,6 +2099,5 @@ class ChatListController : PeersListController {
         }
         return true
     }
-  
-}
 
+}

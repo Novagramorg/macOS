@@ -495,3 +495,40 @@ Bu fork (TelegramSwift) **Mac uchun native Swift** versiyasi. Bizning ikkinchi f
 | Build | `cmake --build out --target Telegram` | `xcodebuild -scheme Telegram` |
 | macOS look | Qt UI (Win/Linux'ga o'xshash) | Native Mac (App Store'dagidek) |
 | Tarqatish maqsadi | DMG + Windows + Linux | Mac App Store |
+
+---
+
+## 10. NovagramAds — Mac ads porti (2026-07-11)
+
+iOS `submodules/Fenixuz/NovagramAds` featuresi Mac'ga portlandi: kanal sponsored slotida VA global qidiruvda BIZNING reklama (`ads-api.vipads.uz`). Telegram o'z sponsored xabarlarini rasmiy api_id'ga bog'laydi, shuning uchun ular bu fork'da bo'sh — biz o'sha slot'ni to'ldiramiz.
+
+### SDK — SHARED SPM package (copy YO'Q, DRY)
+
+Manba: `../NovagramAds` (git: `github.com/Codingtech2/novagram-ads-sdk-apple`, tag 2.0.0) — iOS ham shundan vendor qiladi. Mac uni **local Swift package** sifatida ulaydi (Xcode: Add Package Dependencies → Add Local → `../NovagramAds`, `NovagramAds` product'ni `Telegram` target'ga). Vendored copy YO'Q.
+- **Package.swift tuzatildi:** `platforms macOS "13.3" → .macOS(.v10_15)` (app deployment target 10.15; SDK'da `SDKURLSessionCompat` shim <12 uchun bor). iOS min tegilmadi.
+
+### Bridge — 2 yangi fayl (Telegram-Mac target'ga qo'shilishi kerak)
+
+`import NovagramAds` qiladi (SDK'ni TelegramCore'dan ajratadi). App Store gate = compile-time `#if APP_STORE` (iOS runtime `isAppStoreBuild` o'rniga).
+- `Telegram-Mac/FenixNovagramChatAds.swift` — `withInjectedAd(base:context:peerId:)`, `reportClickIfOurs(opaqueId:context:)`. opaqueId = `novagram:<orderId>`.
+- `Telegram-Mac/FenixNovagramSearchAds.swift` — `promotedChannel(context:query:)`, `reportClick(orderId:context:)`.
+
+### Hooklar (Telegram-owned fayllar)
+
+- `ChatController.swift` ~2919 — `adMessages` manbasi `FenixNovagramChatAds.withInjectedAd(...)` bilan o'raladi (gate: `FenixuzAdsGate.showAds` + broadcast channel). Bizning ad `fixed` slot'ga tushadi.
+- `ChatController.swift` ~6365 — `markAdAction` closure'ida bizning opaqueId → `reportClickIfOurs` (backend'ga report) + `return` (Telegram ad-server'ga POST QILINMAYDI).
+- `SearchController.swift` — yangi `.novagramAdPeer(Peer, String, Int)` entry case (+ `ChatListSearchEntryStableId.novagramAdPeerId`), barcha exhaustive switch arm (hash/stableId/index/==/prepareEntries), `combineLatest`ga 8-signal (`promotedChannel`), map'da row 0'ga insert (index -2), `selectItem`da open + `reportClick`.
+- `RecentPeerRowItem.swift` — `novagramOrderId: String?` param; set bo'lsa "ads by Novagram" pill (existing `AdView`, `updateText`, `contextMenu = nil`) va `textAdditionInset`da joy.
+
+### Premium "hide ads" — BIZNING ads'da yashirilgan (IAP yo'q, Apple-safe)
+
+Foydalanuvchi so'rovi: bizning reklamada "Premium bilan reklamani yashirish" TAKLIF QILINMASIN (steering YO'Q — Apple 3.1.1/4.1). Native Telegram Premium oqimi tegilmaydi.
+- `ChatMessageMenuItems.swift` ~413 — `let isNovagramAd = opaqueId.hasPrefix("novagram:")`; `chatContextHideAd` (Hide Ad → Premium) item `&& !isNovagramAd` bilan gate qilindi.
+- Search ad: `RecentPeerRowItem` `contextMenu = nil` — allaqachon Premium yo'q.
+- iOS mirror: `Telegram-iOS/.../ChatInterfaceStateContextMenus.swift` (`SponsoredMessageMenu_Hide` gate) — HOOKS.md'da.
+
+### Qolgan qo'l ishi (Xcode, user bajaradi)
+
+1. `../NovagramAds` ni local package qilib `Telegram` target'ga ula.
+2. `FenixNovagramChatAds.swift` + `FenixNovagramSearchAds.swift` ni `Telegram` target'ga qo'sh (drag → target membership).
+3. Build. `#if APP_STORE` Debug'da false → viewerId test-random (iOS `./run.sh` bilan bir xil).

@@ -1550,14 +1550,33 @@ class PeerListContainerView: Control {
 
         borderView.backgroundColor = theme.colors.border
 
-        self.backgroundColor = theme.colors.background
-        self.backgroundView.backgroundColor = theme.colors.listBackground
-
         searchView.searchTheme = .init(theme.search.backgroundColor, theme.search.searchImage, theme.search.clearImage, {
             return strings().chatListSearchPlaceholder
         }, theme.search.textColor, theme.search.placeholderColor)
 
-        self.containerView.backgroundColor = theme.colors.background
+        // Novagram: 12.9 paints ONE window backdrop and floats a single rounded card
+        // on top of it. Upstream instead fills three stacked opaque layers (self,
+        // backgroundView, containerView) — with glass on, those stack up and read as
+        // a flat box rather than a translucent card. So with Liquid Glass we let the
+        // window backdrop show through everything except `backgroundView`, which
+        // becomes the one and only card surface.
+        let listCornerRadius: CGFloat = isLiquidGlassAvailable ? 12 : 0
+        if isLiquidGlassAvailable {
+            self.backgroundColor = .clear
+            self.backgroundView.backgroundColor = theme.colors.listBackground
+            self.containerView.backgroundColor = .clear
+        } else {
+            self.backgroundColor = theme.colors.background
+            self.backgroundView.backgroundColor = theme.colors.listBackground
+            self.containerView.backgroundColor = theme.colors.background
+        }
+        self.containerView.layer?.cornerRadius = listCornerRadius
+        self.containerView.layer?.masksToBounds = listCornerRadius > 0
+        self.backgroundView.layer?.cornerRadius = listCornerRadius
+        self.backgroundView.layer?.masksToBounds = listCornerRadius > 0
+        self.tableView.layer?.cornerRadius = listCornerRadius
+        self.tableView.layer?.masksToBounds = listCornerRadius > 0
+        self.borderView.isHidden = listCornerRadius > 0
 
         super.updateLocalizationAndTheme(theme: theme)
 
@@ -1682,15 +1701,20 @@ class PeerListContainerView: Control {
 
         var inset: CGFloat = 0
 
-        let containerSize = NSSize(width: state.splitState == .minimisize ? 70 : size.width, height: offset)
+        // Novagram: 12.9 floats the chat list as a rounded panel that is pulled in
+        // from the folder rail on the left and from the window edges vertically.
+        // Zero when Liquid Glass is off, so the classic flush column is unchanged.
+        let glassInset: CGFloat = isLiquidGlassAvailable && state.splitState != .minimisize ? 8 : 0
 
-        transition.updateFrame(view: self.containerView, frame: NSRect(x: 0, y: inset, width: containerSize.width, height: offset))
+        let containerSize = NSSize(width: state.splitState == .minimisize ? 70 : size.width - glassInset, height: offset)
+
+        transition.updateFrame(view: self.containerView, frame: NSRect(x: glassInset, y: inset, width: containerSize.width, height: offset))
 
         transition.updateFrame(view: self.statusContainer, frame: NSRect(x: 0, y: 0, width: containerSize.width, height: statusHeight))
 
         inset = self.statusContainer.frame.maxY
 
-        transition.updateFrame(view: self.backgroundView, frame: size.bounds)
+        transition.updateFrame(view: self.backgroundView, frame: NSRect(x: glassInset, y: glassInset, width: size.width - glassInset, height: size.height - glassInset * 2))
 
         transition.updateFrame(view: self.borderView, frame: CGRect(origin: CGPoint.init(x: 0, y: navigationHeight - .borderSize), size: CGSize(width: size.width, height: .borderSize)))
         transition.updateAlpha(view: borderView, alpha: state.searchState == .Focus ? 0 : 1)
@@ -1712,7 +1736,7 @@ class PeerListContainerView: Control {
         transition.updateFrame(view: searchView, frame: searchRect)
         searchView.updateLayout(size: searchRect.size, transition: transition)
 
-        transition.updateFrame(view: tableView, frame: NSRect(x: 0, y: 0, width: size.width, height: size.height - bottomInset))
+        transition.updateFrame(view: tableView, frame: NSRect(x: glassInset, y: glassInset, width: size.width - glassInset, height: size.height - bottomInset - glassInset * 2))
 
         if let downloads = downloads {
             let rect = NSRect(x: 0, y: size.height - downloads.frame.height, width: size.width - .borderSize, height: downloads.frame.height)

@@ -47,16 +47,15 @@ class LeftSidebarFolderItem: TableRowItem {
 
     fileprivate let folder: ChatListFilter
     fileprivate let selected: Bool
-    fileprivate let callback: (ChatListFilter)->Void
-    fileprivate let menuItems: (ChatListFilter, Int?, Bool?)-> [ContextMenuItem]
+    fileprivate let callback: (ChatListFilter) -> Void
+    fileprivate let menuItems: (ChatListFilter, Int?, Bool?) -> [ContextMenuItem]
     fileprivate let context: AccountContext
     let icon: CGImage
     let badge: CGImage?
     let nameLayout: TextViewLayout
     let unreadCount: Int
-    
-    
-    init(_ initialSize: NSSize, context: AccountContext, folder: ChatListFilter, selected: Bool, unreadCount: Int, hasUnmutedUnread: Bool, callback: @escaping(ChatListFilter)->Void, menuItems: @escaping(ChatListFilter, Int?, Bool?) -> [ContextMenuItem]) {
+
+    init(_ initialSize: NSSize, context: AccountContext, folder: ChatListFilter, selected: Bool, unreadCount: Int, hasUnmutedUnread: Bool, callback: @escaping (ChatListFilter) -> Void, menuItems: @escaping (ChatListFilter, Int?, Bool?) -> [ContextMenuItem]) {
         self.folder = folder
         self.context = context
         self.selected = selected
@@ -64,36 +63,35 @@ class LeftSidebarFolderItem: TableRowItem {
         self.unreadCount = unreadCount
         self.menuItems = menuItems
         var folderIcon = FolderIcon(folder).icon(for: selected ? .sidebarActive : .sidebar)
-        
+
         let attr = NSMutableAttributedString()
-        attr.append(string: folder.title, color: !selected ? NSColor(0xffffff).withAlphaComponent(0.5) : NSColor(0xffffff), font: .medium(10))
+        // Novagram: selected folder label follows the accent colour like 12.9 does,
+        // matching the icon tint in FolderIconState.sidebarActive.
+        attr.append(string: folder.title, color: !selected ? NSColor(0xffffff).withAlphaComponent(0.5) : theme.colors.accent, font: .medium(10))
         InlineStickerItem.apply(to: attr, associatedMedia: [:], entities: folder.entities, isPremium: context.isPremium, playPolicy: folder.enableAnimations ? nil : .framesCount(1))
 
         nameLayout = TextViewLayout(attr, alignment: .center)
-        
-        
+
         nameLayout.measure(width: initialSize.width - 10)
-        
-        
-        
-        let generateIcon:()->CGImage? = {
+
+        let generateIcon: () -> CGImage? = {
             let icon: CGImage?
             if unreadCount > 0 {
-                
+
                 let textColor: NSColor
                 if selected {
                     textColor = .black
-                } else  {
+                } else {
                     textColor = .white
                 }
-                
+
                 let attributedString = NSAttributedString.initialize(string: "\(unreadCount.prettyNumber)", color: textColor, font: .medium(.short))
-                let textLayout = TextNode.layoutText(maybeNode: nil,  attributedString, nil, 1, .start, NSMakeSize(CGFloat.greatestFiniteMagnitude, CGFloat.greatestFiniteMagnitude), nil, false, .center)
-                var size = NSMakeSize(textLayout.0.size.width + 8, textLayout.0.size.height + 5)
-                size = NSMakeSize(max(size.height,size.width), size.height)
-                
+                let textLayout = TextNode.layoutText(maybeNode: nil, attributedString, nil, 1, .start, NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude), nil, false, .center)
+                var size = NSSize(width: textLayout.0.size.width + 8, height: textLayout.0.size.height + 5)
+                size = NSSize(width: max(size.height, size.width), height: size.height)
+
                 let badge = generateImage(size, rotatedContext: { size, ctx in
-                    let rect = NSMakeRect(0, 0, size.width, size.height)
+                    let rect = NSRect(x: 0, y: 0, width: size.width, height: size.height)
                     ctx.clear(rect)
                     if selected {
                         ctx.setFillColor(.white)
@@ -104,29 +102,29 @@ class LeftSidebarFolderItem: TableRowItem {
                     }
                     ctx.round(size, floorToScreenPixels(size.height/2.0))
                     ctx.fill(rect)
-                    
+
 //                    ctx.setBlendMode(.clear)
-                    
+
                     let focus = rect.focus(textLayout.0.size)
                     textLayout.1.draw(focus.offsetBy(dx: 0, dy: -1), in: ctx, backingScaleFactor: System.backingScale, backgroundColor: .white)
-                    
+
                 })!
-                
+
                 folderIcon = generateImage(folderIcon.systemSize, contextGenerator: { size, ctx in
-                    let rect = NSMakeRect(0, 0, size.width, size.height)
+                    let rect = NSRect(x: 0, y: 0, width: size.width, height: size.height)
                     ctx.clear(rect)
-                    
+
                     ctx.draw(folderIcon, in: rect.focus(folderIcon.systemSize))
-                    
-                    ctx.clip(to: NSMakeRect(rect.width - floorToScreenPixels(badge.systemSize.width / 2) - 6, rect.height - badge.systemSize.height + 3, badge.systemSize.width + 4, badge.systemSize.height + 4), mask: badge)
-                    
+
+                    ctx.clip(to: NSRect(x: rect.width - floorToScreenPixels(badge.systemSize.width / 2) - 6, y: rect.height - badge.systemSize.height + 3, width: badge.systemSize.width + 4, height: badge.systemSize.height + 4), mask: badge)
+
                     ctx.clear(rect)
-                    
+
                    // ctx.draw(badge, in: rect)
                 })!
-                
+
                 icon = badge
-                
+
             } else {
                 icon = nil
             }
@@ -136,18 +134,18 @@ class LeftSidebarFolderItem: TableRowItem {
         self.icon = folderIcon
         super.init(initialSize)
     }
-    
+
     override var stableId: AnyHashable {
         return folder.id
     }
-    
+
     override func menuItems(in location: NSPoint) -> Signal<[ContextMenuItem], NoError> {
-        
+
         let id = self.folder.id
         let folder = self.folder
         let unreadCount = self.unreadCount
         let context = self.context
-        
+
         let filterPeersAreMuted: Signal<Bool, NoError> = context.engine.peers.currentChatListFilters()
         |> take(1)
         |> mapToSignal { filters -> Signal<Bool, NoError> in
@@ -172,25 +170,24 @@ class LeftSidebarFolderItem: TableRowItem {
                 return true
             }
         } |> deliverOnMainQueue
-        
+
         return filterPeersAreMuted |> map { [weak self] allMuted in
             return self?.menuItems(folder, unreadCount, allMuted) ?? []
         }
     }
-    
+
     override var height: CGFloat {
         return 32 + 8 + 8 + nameLayout.layoutSize.height + 4
     }
-    
+
     override func viewClass() -> AnyClass {
         return LeftSidebarFolderView.self
     }
-    
+
 }
 
-
-private final class LeftSidebarFolderView : TableRowView {
-    private let imageView = ImageView(frame: NSMakeRect(0, 0, 32, 32))
+private final class LeftSidebarFolderView: TableRowView {
+    private let imageView = ImageView(frame: NSRect(x: 0, y: 0, width: 32, height: 32))
     private let badgeView = ImageView()
     private let textView = InteractiveTextView()
     required init(frame frameRect: NSRect) {
@@ -204,11 +201,11 @@ private final class LeftSidebarFolderView : TableRowView {
         badgeView.isEventLess = true
         imageView.isEventLess = true
     }
- 
+
     override func updateIsResorting() {
         updateHighlight(animated: true)
     }
- 
+
     func updateHighlight(animated: Bool = true) {
         guard let item = item as? LeftSidebarFolderItem else {
             return
@@ -221,13 +218,12 @@ private final class LeftSidebarFolderView : TableRowView {
             self.textView.change(opacity: 1.0, animated: animated)
         }
     }
-    
-    
+
     override func mouseMoved(with event: NSEvent) {
         super.mouseMoved(with: event)
         updateHighlight()
     }
-    
+
     override func mouseEntered(with event: NSEvent) {
         super.mouseEntered(with: event)
         updateHighlight()
@@ -236,16 +232,16 @@ private final class LeftSidebarFolderView : TableRowView {
         super.mouseExited(with: event)
         updateHighlight()
     }
-    
+
     override func mouseDown(with event: NSEvent) {
         super.mouseDown(with: event)
         updateHighlight()
     }
-    
+
     override func mouseUp(with event: NSEvent) {
         super.mouseUp(with: event)
         updateHighlight()
-        
+
         if mouseInside() {
             guard let item = item as? LeftSidebarFolderItem else {
                 return
@@ -253,14 +249,14 @@ private final class LeftSidebarFolderView : TableRowView {
             item.callback(item.folder)
         }
     }
-    
+
     override var backdorColor: NSColor {
         return .clear
     }
-    
+
     override func set(item: TableRowItem, animated: Bool = false) {
         super.set(item: item, animated: animated)
-        
+
         guard let item = item as? LeftSidebarFolderItem else {
             return
         }
@@ -268,25 +264,24 @@ private final class LeftSidebarFolderView : TableRowView {
         imageView.image = item.icon
         imageView.sizeToFit()
         textView.set(text: item.nameLayout, context: item.context)
-        
-        
+
       //  badgeView.animates = animated
         badgeView.image = item.badge
         badgeView.sizeToFit()
-        
+
         updateHighlight(animated: animated)
-        
+
         needsLayout = true
     }
-    
+
     override func layout() {
         super.layout()
-        
+
         imageView.centerX(y: 8)
         textView.centerX(y: imageView.frame.maxY + 4)
-        badgeView.setFrameOrigin(NSMakePoint(imageView.frame.maxX - floorToScreenPixels(badgeView.frame.width / 2) - 4, imageView.frame.minY - 4))
+        badgeView.setFrameOrigin(NSPoint(x: imageView.frame.maxX - floorToScreenPixels(badgeView.frame.width / 2) - 4, y: imageView.frame.minY - 4))
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
