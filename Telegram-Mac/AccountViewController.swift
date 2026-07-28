@@ -1159,14 +1159,15 @@ class AccountViewController: TelegramGenericViewController<AccountControllerView
                     _ = tableView.select(item: item)
                 }
             } else if navigation.controller is NovagramBotsController {
-                // Novagram: these two rows are appended right after .fenixuz (27),
-                // so they take 28 and 29. Without these branches the rows open their
-                // page but never light up as the selected row.
-                if let item = tableView.item(stableId: AnyHashable(AccountInfoEntryId.index(28))) {
+                // Novagram: stableId is a hardcoded constant per case (see the
+                // stableId switch), NOT the running `index` used when appending —
+                // novagramBots is 902 and analytics is 900. Without these branches
+                // the rows open their page but never light up as selected.
+                if let item = tableView.item(stableId: AnyHashable(AccountInfoEntryId.index(902))) {
                     _ = tableView.select(item: item)
                 }
             } else if navigation.controller is FenixuzAnalyticsController {
-                if let item = tableView.item(stableId: AnyHashable(AccountInfoEntryId.index(29))) {
+                if let item = tableView.item(stableId: AnyHashable(AccountInfoEntryId.index(900))) {
                     _ = tableView.select(item: item)
                 }
             } else if navigation.controller is RecentSessionsController {

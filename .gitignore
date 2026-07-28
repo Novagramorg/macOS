@@ -19,6 +19,9 @@ core-xprojects/tde2e/build
 # claude-agents: per-developer plugin profile, worktrees and session state (do not commit)
 .claude/
 
+# App Store screenshot working dir — raw/ holds real chat captures (private data)
+screenshots/
+
 # Backup junk from various editor / refactor operations
 *.bak
 *.bak[0-9]*
