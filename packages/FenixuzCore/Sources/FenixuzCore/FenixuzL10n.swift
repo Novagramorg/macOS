@@ -1040,4 +1040,38 @@ public struct FenixuzL10n {
 
     public var glass_settingsTitle: String { pick(en: "Liquid Glass", uz: "Liquid Glass", ru: "Liquid Glass") }
     public var glass_settingsSubtitle: String { pick(en: "Translucent glass material for sidebars, bars and panels (macOS 26)", uz: "Yon panel, panel va oynalar uchun shaffof shisha materiali (macOS 26)", ru: "Полупрозрачный стеклянный материал для панелей (macOS 26)") }
+
+    // MARK: - Chat export
+
+    public var chatExport_menuTitle: String {
+        pick(en: "Export chat history", uz: "Suhbat tarixini eksport qilish", ru: "Экспорт истории чата")
+    }
+    public var chatExport_progress: String {
+        pick(en: "Exporting…", uz: "Eksport qilinmoqda…", ru: "Экспорт…")
+    }
+    public var chatExport_doneTitle: String {
+        pick(en: "Export completed", uz: "Eksport tugadi", ru: "Экспорт завершён")
+    }
+    public var chatExport_showData: String {
+        pick(en: "Show my data", uz: "Ma'lumotlarimni ochish", ru: "Показать мои данные")
+    }
+    public var chatExport_emptyTitle: String {
+        pick(en: "Nothing to export", uz: "Eksport qiladigan narsa yo'q", ru: "Нечего экспортировать")
+    }
+    public var chatExport_emptyText: String {
+        pick(en: "This chat has no messages stored on this device.", uz: "Bu suhbatning bu qurilmada saqlangan xabarlari yo'q.", ru: "В этом чате нет сообщений, сохранённых на этом устройстве.")
+    }
+    public var chatExport_failedTitle: String {
+        pick(en: "Export failed", uz: "Eksport bajarilmadi", ru: "Экспорт не выполнен")
+    }
+
+    /// "%1$d messages · %2$@" — count and a human-readable size.
+    public func chatExport_doneText(messages: Int, size: String) -> String {
+        let template = pick(
+            en: "%1$d messages · %2$@",
+            uz: "%1$d ta xabar · %2$@",
+            ru: "%1$d сообщений · %2$@"
+        )
+        return String(format: template, messages, size)
+    }
 }

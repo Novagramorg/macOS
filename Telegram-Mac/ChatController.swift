@@ -1997,6 +1997,8 @@ class ChatController: EditableViewController<ChatControllerView>, Notifable, Tab
     private let interactiveReadingDisposable: MetaDisposable = MetaDisposable()
     private let interactiveReadReactionsDisposable: MetaDisposable = MetaDisposable()
     private let deleteChatDisposable: MetaDisposable = MetaDisposable()
+    // Novagram: chat history export (see FenixuzChatExport.swift)
+    private let chatExportDisposable: MetaDisposable = MetaDisposable()
     private let loadSelectionMessagesDisposable: MetaDisposable = MetaDisposable()
     private let updateMediaDisposable = MetaDisposable()
     private let editCurrentMessagePhotoDisposable = MetaDisposable()
@@ -2063,6 +2065,34 @@ class ChatController: EditableViewController<ChatControllerView>, Notifable, Tab
     private let _locationValue: Atomic<ChatHistoryLocationInput?> = Atomic(value: nil)
     private var locationValue: ChatHistoryLocationInput? {
         return _locationValue.with { $0 }
+    }
+
+    /// Novagram: writes this chat's history to `~/Downloads/Novagram Desktop/`.
+    /// Stage 1 emits JSON only — the format picker and media come in later stages.
+    private func runChatExport(peerId: PeerId) {
+        let context = self.context
+        let l10n = FenixuzL10n.current
+        let signal = FenixuzChatExport.export(context: context, peerId: peerId, format: .json)
+
+        chatExportDisposable.set(showModalProgress(signal: signal, for: context.window).start(next: { result in
+            let size = ByteCountFormatter.string(fromByteCount: result.totalSize, countStyle: .file)
+            showModalText(
+                for: context.window,
+                text: l10n.chatExport_doneText(messages: result.messageCount, size: size),
+                title: l10n.chatExport_doneTitle,
+                button: l10n.chatExport_showData,
+                callback: { _ in
+                    NSWorkspace.shared.activateFileViewerSelecting([result.folder])
+                }
+            )
+        }, error: { error in
+            switch error {
+            case .noMessages:
+                showModalText(for: context.window, text: l10n.chatExport_emptyText, title: l10n.chatExport_emptyTitle)
+            case let .writeFailed(reason):
+                showModalText(for: context.window, text: reason, title: l10n.chatExport_failedTitle)
+            }
+        }))
     }
 
     private func setLocation(_ location: ChatHistoryLocationInput) {
@@ -8353,6 +8383,12 @@ class ChatController: EditableViewController<ChatControllerView>, Notifable, Tab
                                 self?.chatInteraction.scrollToTheFirst()
                             }, itemImage: MenuAnimation.menu_sort_up.value))
                         }
+
+                        // Novagram: export this chat's history to disk. Stage 1 writes JSON;
+                        // the HTML writer and media download land in later stages (EXPORT_PLAN.md).
+                        items.append(ContextMenuItem(FenixuzL10n.current.chatExport_menuTitle, handler: { [weak self] in
+                            self?.runChatExport(peerId: peerId)
+                        }, itemImage: MenuAnimation.menu_save_as.value))
 
                         if let notificationSettings = peerView.notificationSettings as? TelegramPeerNotificationSettings, !self.isAdChat {
                             if chatInteraction.peerId != context.peerId {

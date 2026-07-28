@@ -1691,6 +1691,7 @@
 		FE10DEC04E14C19000000240 /* FenixuzAutoProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000241 /* FenixuzAutoProxy.swift */; };
 		FE10DEC04E14C19000000250 /* russia_proxies.txt in Resources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000251 /* russia_proxies.txt */; };
 		FE10DEC04E14C19000000260 /* FenixuzDeletedMessagesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000261 /* FenixuzDeletedMessagesManager.swift */; };
+		FE10DEC04E14C19000000270 /* FenixuzChatExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000271 /* FenixuzChatExport.swift */; };
 		FE10DEC04E14C190FEFE0003 /* FenixuzCore in Frameworks */ = {isa = PBXBuildFile; productRef = FE10DEC04E14C190FEFE0002 /* FenixuzCore */; };
 		FE10DEC04E14C190FFFFFFF1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C190FFFFFFF0 /* PrivacyInfo.xcprivacy */; };
 		FE20AD5040000000FEFE0003 /* NovagramAds in Frameworks */ = {isa = PBXBuildFile; productRef = FE20AD5040000000FEFE0002 /* NovagramAds */; };
@@ -3405,6 +3406,7 @@
 		FE10DEC04E14C19000000241 /* FenixuzAutoProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzAutoProxy.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000251 /* russia_proxies.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = russia_proxies.txt; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000261 /* FenixuzDeletedMessagesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzDeletedMessagesManager.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000271 /* FenixuzChatExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzChatExport.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C190FEFE0001 /* FenixuzCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FenixuzCore; path = packages/FenixuzCore; sourceTree = "<group>"; };
 		FE10DEC04E14C190FFFFFFF0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		FE20AD5040000000FEFE0011 /* FenixNovagramChatAds.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FenixNovagramChatAds.swift; sourceTree = "<group>"; };
@@ -3913,6 +3915,7 @@
 				FE10DEC04E14C190000000C1 /* FenixuzChatPincodeViewController.swift */,
 				FE10DEC04E14C190000000D1 /* FenixuzEditedHistoryManager.swift */,
 				FE10DEC04E14C19000000261 /* FenixuzDeletedMessagesManager.swift */,
+				FE10DEC04E14C19000000271 /* FenixuzChatExport.swift */,
 				FE10DEC04E14C190000000E1 /* FenixuzEditedHistoryController.swift */,
 				FE10DEC04E14C190000000F1 /* FenixuzForeignUserBannerView.swift */,
 				FE10DEC04E14C19000000101 /* FenixuzSpeechToTextManager.swift */,
@@ -8266,6 +8269,7 @@
 				FE10DEC04E14C190000000C0 /* FenixuzChatPincodeViewController.swift in Sources */,
 				FE10DEC04E14C190000000D0 /* FenixuzEditedHistoryManager.swift in Sources */,
 				FE10DEC04E14C19000000260 /* FenixuzDeletedMessagesManager.swift in Sources */,
+				FE10DEC04E14C19000000270 /* FenixuzChatExport.swift in Sources */,
 				FE10DEC04E14C190000000E0 /* FenixuzEditedHistoryController.swift in Sources */,
 				FE10DEC04E14C190000000F0 /* FenixuzForeignUserBannerView.swift in Sources */,
 				FE10DEC04E14C19000000100 /* FenixuzSpeechToTextManager.swift in Sources */,

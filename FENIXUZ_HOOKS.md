@@ -516,6 +516,38 @@ Classes present upstream but not in this fork: `GlassContentView`, `GlassTouchEf
 
 ---
 
+### `Telegram-Mac/ChatController.swift` (chat ⋯ menu, `chatExportDisposable`, `runChatExport`)
+
+**Hook: an `Export chat history` entry in the chat context menu, plus the method it calls.**
+
+```swift
+// declaration, next to deleteChatDisposable
+private let chatExportDisposable: MetaDisposable = MetaDisposable()
+
+// menu, inside `case let .peer(peerId):` after the Jump-to-First-Message hook
+items.append(ContextMenuItem(FenixuzL10n.current.chatExport_menuTitle, handler: { [weak self] in
+    self?.runChatExport(peerId: peerId)
+}, itemImage: MenuAnimation.menu_save_as.value))
+
+// method, next to setLocation
+private func runChatExport(peerId: PeerId) { … }   // progress modal → result / error modal
+```
+
+`runChatExport` wraps `FenixuzChatExport.export(context:peerId:format:)` in `showModalProgress`,
+then reports through `showModalText` — success shows the message count and total size with a
+`Show my data` button that reveals the folder in Finder; `.noMessages` and `.writeFailed`
+get their own localized text.
+
+Reason: the export itself lives in the Fenixuz-owned `FenixuzChatExport.swift`; only the menu
+entry and the thin caller touch upstream code, which keeps the merge surface to three small
+insertions. Strings go through `FenixuzL10n` (en/uz/ru) — never `Locale.current`.
+
+Related Fenixuz-owned files: `Telegram-Mac/FenixuzChatExport.swift` (collector + JSON writer),
+`packages/FenixuzCore/Sources/FenixuzCore/FenixuzL10n.swift` (`chatExport_*` keys).
+Format spec and roadmap: `EXPORT_PLAN.md`; reference exports: `_export-reference/` (gitignored).
+
+---
+
 ## Hook inventory summary (this fork)
 
 | File | Hook count | Purpose |
@@ -541,8 +573,9 @@ Classes present upstream but not in this fork: `GlassContentView`, `GlassTouchEf
 | `Telegram-Mac/PeersListController.swift` | 2 | Rounded floating chat-list panel + 8pt inset (12.9 parity) |
 | `Telegram-Mac/ChatInputView.swift` | 1 | Rounded composer, no top hairline (12.9 parity) |
 | `Telegram-Mac/ApplicationContext.swift` | 1 | Folder rail fixed on all tabs (12.9 parity) |
+| `Telegram-Mac/ChatController.swift` | 3 | Export chat history menu entry + disposable + caller |
 
-**Total Telegram-owned files with hooks: 21. Total hook insertions: 24.** Every Fenixuz-owned code surface (`FenixuzAppStoreIAP.swift`, `FenixuzL10n.swift`, `FenixuzDemoCodeFetcher.swift`, the Fenixuz Settings controllers, the Tasks tab, `packages/TGUIKit/Sources/LiquidGlass.swift`, etc.) lives in `Telegram-Mac/Fenixuz*.swift` or a Novagram/Fenixuz-owned package file and is the source of truth for these features.
+**Total Telegram-owned files with hooks: 22. Total hook insertions: 27.** Every Fenixuz-owned code surface (`FenixuzAppStoreIAP.swift`, `FenixuzL10n.swift`, `FenixuzDemoCodeFetcher.swift`, the Fenixuz Settings controllers, the Tasks tab, `packages/TGUIKit/Sources/LiquidGlass.swift`, etc.) lives in `Telegram-Mac/Fenixuz*.swift` or a Novagram/Fenixuz-owned package file and is the source of truth for these features.
 
 ---
 
