@@ -620,7 +620,45 @@ Plus one new private method, `loginWithBotToken(_:updateState:)`, modelled on `s
 Try Again, and `lockAfterLogin = true` on success so the screen freezes rather than bouncing
 back to phone entry while `AppDelegate` swaps in the authorized context.
 
-### `Telegram-Mac/Auth_PhoneNumber.swift` — 5 hooks
+### `Telegram-Mac/Auth_Token.swift` — 6 hooks (the PRIMARY entry point)
+
+The QR screen — not the phone screen — is where the auth flow actually starts:
+`AuthController`'s `initialState` is `State(..., tokenAvailable: true, ..., qrEnabled: true)`, so
+`updateState` routes to `token_c` on launch. An entry point only on the phone screen is one
+screen too deep and effectively undiscoverable (this was found in device testing, 2026-07-30).
+
+`botTokenButton: TextButton` + `fileprivate var takeBotToken` + a `botTokenEnabled` computed flag
+(`#if APP_STORE` → `false`); `addSubview` (gated) + click handler in `init`; styling in `measure()`
+(`Auth_Insets.infoFontBold`, `FenixuzBrandColors.primary`, `FenixuzL10n.current.botlogin_entry_button`);
+`layout()` grows the container by `betweenError + botTokenButton.frame.height` and places the link at
+`cancelButton.frame.maxY + Auth_Insets.betweenError`; `update(_:cancel:takeBotToken:)` gained a
+**defaulted-nil** third parameter — nil only from the `updateLocalizationAndTheme` refresh path, which
+must not clear an already-set handler.
+
+Brand green, deliberately: the upstream `cancelButton` above it is `theme.colors.accent` (blue), so the
+two footer links read as separate affordances rather than one wrapped row.
+
+Cancelling out of the bot screen clears `botTokenAvailable` only — `tokenAvailable` stays true, so the
+user lands back on the QR screen they came from.
+
+### ⚠️ `AuthController.swift` `AuthView.layout()` — pre-existing bug fixed here (2026-07-30)
+
+Not a bot-token hook; a fork bug the bot-token link exposed. The layout loop stretches every subview
+to the full window height and centers it — that is meant for the step controllers' views, and chrome
+is excluded by identity check. **`novagramProxyButton` was missing from that exclusion list**, so it
+was resized to the full window height; `centerX(y: 12)` then only moved its origin, never restoring
+its height.
+
+Because `addView(_:)` inserts step views with `positioned: .below, relativeTo: self.back`, the proxy
+button sits **above** the step content. The result was an invisible ~100pt-wide, full-height hit area
+running down the centre of the auth window, swallowing clicks on anything centred beneath it —
+the new bot-token link **and** the upstream "Log in by phone number" link (whose middle had been
+dead for as long as the NovagramProxy button has existed).
+
+Fix: add `subview != novagramProxyButton` to the exclusion list. Nothing removed — the button keeps
+its handler and its `centerX(y: 12)` position; only its hit area returns to its natural size.
+
+### `Telegram-Mac/Auth_PhoneNumber.swift` — 5 hooks (secondary entry point)
 
 `botTokenButton: TextButton` + `takeBotToken` closure + a `botTokenEnabled` computed flag
 (`#if APP_STORE` → `false`); `addSubview` + click handler in `init`; styling in

@@ -216,8 +216,12 @@ final class AuthView: Control {
 
     override func layout() {
         super.layout()
+        // The loop is meant for the step controllers' views only — chrome must be excluded or it
+        // gets stretched to the full window height. novagramProxyButton was missing from the list,
+        // which left an invisible full-height hit area down the middle of the window that swallowed
+        // clicks on the footer links below it (addView puts step views BELOW this button).
         for subview in subviews {
-            if subview != continueOn, subview != updateView, subview != back, subview != proxyButton {
+            if subview != continueOn, subview != updateView, subview != back, subview != proxyButton, subview != novagramProxyButton {
                 subview.setFrameSize(NSSize(width: subview.frame.width, height: frame.height))
                 subview.center()
             }
@@ -625,6 +629,12 @@ class AuthController: GenericViewController<AuthView> {
                                 current.tokenAvailable = false
                                 return current
                             }
+                        }, takeBotToken: {
+                            updateState { current in
+                                var current = current
+                                current.botTokenAvailable = true
+                                return current
+                            }
                         })
 
                         let timestamp = Int32(account.network.globalTime)
@@ -666,6 +676,12 @@ class AuthController: GenericViewController<AuthView> {
                         updateState { current in
                             var current = current
                             current.tokenAvailable = false
+                            return current
+                        }
+                    }, takeBotToken: {
+                        updateState { current in
+                            var current = current
+                            current.botTokenAvailable = true
                             return current
                         }
                     })

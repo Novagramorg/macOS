@@ -38,7 +38,10 @@ private final class Auth_BotTokenHeaderView: View {
         let theme = theme as! TelegramPresentationTheme
 
         if let data = LocalAnimatedSticker.business_chatbot.data {
-            self.playerView.set(LottieAnimation(compressed: data, key: .init(key: .bundle("business_chatbot"), size: Auth_Insets.logoSize, backingScale: Int(System.backingScale), fitzModifier: nil, colors: []), playPolicy: .onceEnd))
+            // .loop, not the sticker's default .onceEnd — this screen can sit idle while the user
+            // goes to fetch a token from BotFather, and a frozen robot reads as a hung window.
+            // Same policy the QR screen uses for its matrix animation.
+            self.playerView.set(LottieAnimation(compressed: data, key: .init(key: .bundle("business_chatbot"), size: Auth_Insets.logoSize, backingScale: Int(System.backingScale), fitzModifier: nil, colors: []), playPolicy: .loop))
         }
 
         let layout = TextViewLayout(.initialize(string: FenixuzL10n.current.botlogin_title, color: theme.colors.text, font: Auth_Insets.headerFont))

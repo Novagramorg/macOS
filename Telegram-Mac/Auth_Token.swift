@@ -12,6 +12,7 @@ import TelegramCore
 import SwiftSignalKit
 import ColorPalette
 import TelegramMedia
+import FenixuzCore
 
 enum QRTokenState {
     case qr(CGImage)
@@ -76,6 +77,21 @@ final class Auth_TokenView: View {
     private let titleView = TextView()
     fileprivate let cancelButton = TextButton()
 
+    // Novagram: bot-token login. This screen — not the phone screen — is where the auth flow
+    // starts (initialState has tokenAvailable + qrEnabled true), so the entry point has to be
+    // reachable from here or nobody finds it.
+    fileprivate let botTokenButton = TextButton()
+    fileprivate var takeBotToken: (() -> Void)?
+
+    // Hidden in App Store builds until the macOS listing is past review.
+    private var botTokenEnabled: Bool {
+        #if APP_STORE
+        return false
+        #else
+        return true
+        #endif
+    }
+
     private let firstHelp: ExportTokenOptionView
     private let secondHelp: ExportTokenOptionView
     private let thridHelp: ExportTokenOptionView
@@ -101,6 +117,9 @@ final class Auth_TokenView: View {
         containerView.addSubview(self.logoView)
         containerView.addSubview(self.titleView)
         containerView.addSubview(self.cancelButton)
+        if botTokenEnabled {
+            containerView.addSubview(self.botTokenButton)
+        }
 
         containerView.addSubview(helpView)
 
@@ -115,6 +134,11 @@ final class Auth_TokenView: View {
 
         cancelButton.set(handler: { [weak self] _ in
             self?.cancel?()
+        }, for: .Click)
+
+        botTokenButton.scaleOnClick = true
+        botTokenButton.set(handler: { [weak self] _ in
+            self?.takeBotToken?()
         }, for: .Click)
     }
 
@@ -131,6 +155,15 @@ final class Auth_TokenView: View {
         cancelButton.set(color: theme.colors.accent, for: .Normal)
         cancelButton.set(text: strings().loginQRCancel, for: .Normal)
         _ = cancelButton.sizeToFit()
+
+        if botTokenEnabled {
+            // Brand green, not theme.colors.accent — the upstream link above it is the accent
+            // blue, so the two footer links read as separate things rather than one wrapped row.
+            botTokenButton.set(font: Auth_Insets.infoFontBold, for: .Normal)
+            botTokenButton.set(color: FenixuzBrandColors.primary, for: .Normal)
+            botTokenButton.set(text: FenixuzL10n.current.botlogin_entry_button, for: .Normal)
+            _ = botTokenButton.sizeToFit()
+        }
     }
 
     override func updateLocalizationAndTheme(theme: PresentationTheme) {
@@ -221,7 +254,11 @@ final class Auth_TokenView: View {
 
         helpView.setFrameSize(NSSize(width: max(firstHelp.frame.width, secondHelp.frame.width, thridHelp.frame.width), height: thridHelp.frame.maxY))
 
-        containerView.setFrameSize(NSSize(width: frame.width, height: imageView.frame.height + Auth_Insets.betweenHeader + self.titleView.frame.height + Auth_Insets.betweenHeader + helpView.frame.height + Auth_Insets.betweenHeader + cancelButton.frame.height))
+        var containerHeight = imageView.frame.height + Auth_Insets.betweenHeader + self.titleView.frame.height + Auth_Insets.betweenHeader + helpView.frame.height + Auth_Insets.betweenHeader + cancelButton.frame.height
+        if botTokenEnabled {
+            containerHeight += Auth_Insets.betweenError + botTokenButton.frame.height
+        }
+        containerView.setFrameSize(NSSize(width: frame.width, height: containerHeight))
         containerView.center()
 
         animationContainer.setFrameSize(Auth_Insets.qrSize)
@@ -239,6 +276,10 @@ final class Auth_TokenView: View {
 
         cancelButton.centerX(y: helpView.frame.maxY + Auth_Insets.betweenHeader)
 
+        if botTokenEnabled {
+            // Tighter than betweenHeader: the two links are one group, not two sections.
+            botTokenButton.centerX(y: cancelButton.frame.maxY + Auth_Insets.betweenError)
+        }
     }
 }
 
@@ -254,7 +295,7 @@ final class Auth_TokenController: GenericViewController<Auth_TokenView> {
     }
     private var token: AuthTransferExportedToken?
 
-    func update(_ token: AuthTransferExportedToken?, cancel: @escaping () -> Void) {
+    func update(_ token: AuthTransferExportedToken?, cancel: @escaping () -> Void, takeBotToken: (() -> Void)? = nil) {
 
         var tokenString = (token?.value ?? temp).base64EncodedString()
         tokenString = tokenString.replacingOccurrences(of: "+", with: "-")
@@ -277,6 +318,10 @@ final class Auth_TokenController: GenericViewController<Auth_TokenView> {
             })
 
         genericView.cancel = cancel
+        // nil only from the theme-refresh path below, which must not clear the handler.
+        if let takeBotToken = takeBotToken {
+            genericView.takeBotToken = takeBotToken
+        }
     }
 
     override func updateLocalizationAndTheme(theme: PresentationTheme) {
