@@ -55,7 +55,33 @@ cd ~/Documents/TelegramSwift
 sed -i.bak 's|git@github.com:|https://github.com/|g; s|git@gitlab.com:|https://gitlab.com/|g' .gitmodules
 git submodule sync
 git submodule update --init --recursive
+
+# MAJBURIY: submodule ichidagi fork patch'larini tiklash (pastdagi 3.1a ga qarang)
+./fork-patches/apply-telegramcore-patches.sh
 ```
+
+### 3.1a TelegramCore submodule patch'lari — HAR `git submodule update` DAN KEYIN
+
+`submodules/telegram-ios` — `overtake/Telegram-iOS` ning pinned submodule'i, biz unga push qila
+olmaymiz. Parent repo uning ichidagi fayllarni ko'rmaydi, va **`git submodule update` bizning
+qo'shgan fayllarimizni ogohlantirishsiz o'chiradi.**
+
+Hozircha bitta bunday fayl bor — bot-token login RPC'si:
+
+| Haqiqiy nusxa (parent repo, tracked) | Manzil (submodule, tracked emas) |
+|---|---|
+| `fork-patches/telegramcore/FenixuzBotAuthorization.swift` | `submodules/telegram-ios/submodules/TelegramCore/Sources/FenixuzBotAuthorization.swift` |
+
+```bash
+./fork-patches/apply-telegramcore-patches.sh
+```
+
+Skript idempotent (ikkinchi marta ishga tushirish no-op) va nusxani `diff` bilan tekshiradi.
+Nima uchun app target'da bo'lolmasligi — `FENIXUZ_HOOKS.md` → "Bot token login" bo'limida
+(kerakli 4 ta yordamchi TelegramCore modulida `internal`).
+
+Registratsiya kerak emas: `TelegramCore/Package.swift` da `path: "Sources"` va `sources:`
+massivi yo'q, shuning uchun SwiftPM butun papkani glob qiladi.
 
 ### 3.2 CMake kompatibilik (CMake 4.x dan boshlab `< 3.5` o'chirilgan)
 
@@ -354,6 +380,9 @@ git clone https://github.com/overtake/TelegramSwift.git
 cd TelegramSwift
 # 3.1 dagi sed qo'llang
 git submodule update --init --recursive
+
+# 3.1a — submodule ichidagi fork source patch'lari (MAJBURIY, aks holda bot-token login yo'qoladi)
+./fork-patches/apply-telegramcore-patches.sh
 
 # 3. Bizning barcha patchlarni qaytarib qo'llang (3.2-3.8)
 

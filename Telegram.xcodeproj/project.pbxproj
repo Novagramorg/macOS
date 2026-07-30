@@ -948,6 +948,7 @@
 		27EF749729C44078009FA57B /* ShareCloudFolderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27EF749629C44077009FA57B /* ShareCloudFolderController.swift */; };
 		27EFF4BB27BAF19600006834 /* Auth_CodeEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27EFF4BA27BAF19600006834 /* Auth_CodeEntry.swift */; };
 		27EFF4BD27BBDF4600006834 /* Auth_PasswordEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27EFF4BC27BBDF4600006834 /* Auth_PasswordEntry.swift */; };
+		F96340D8867E7ADB5F84A1F7 /* Auth_BotToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72BD6B79891569F5BABBCB56 /* Auth_BotToken.swift */; };
 		27EFF4BF27BBF2D600006834 /* Auth_NextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27EFF4BE27BBF2D600006834 /* Auth_NextView.swift */; };
 		27EFF4C127BBF49700006834 /* Auth_Insets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27EFF4C027BBF49700006834 /* Auth_Insets.swift */; };
 		27F219702D897C13003C5F97 /* SearchAdAboutController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F2196F2D897C0E003C5F97 /* SearchAdAboutController.swift */; };
@@ -1692,6 +1693,7 @@
 		FE10DEC04E14C19000000250 /* russia_proxies.txt in Resources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000251 /* russia_proxies.txt */; };
 		FE10DEC04E14C19000000260 /* FenixuzDeletedMessagesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000261 /* FenixuzDeletedMessagesManager.swift */; };
 		FE10DEC04E14C19000000270 /* FenixuzChatExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000271 /* FenixuzChatExport.swift */; };
+		FE10DEC04E14C19000000280 /* FenixuzChatExportSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C19000000281 /* FenixuzChatExportSettings.swift */; };
 		FE10DEC04E14C190FEFE0003 /* FenixuzCore in Frameworks */ = {isa = PBXBuildFile; productRef = FE10DEC04E14C190FEFE0002 /* FenixuzCore */; };
 		FE10DEC04E14C190FFFFFFF1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FE10DEC04E14C190FFFFFFF0 /* PrivacyInfo.xcprivacy */; };
 		FE20AD5040000000FEFE0003 /* NovagramAds in Frameworks */ = {isa = PBXBuildFile; productRef = FE20AD5040000000FEFE0002 /* NovagramAds */; };
@@ -2640,6 +2642,7 @@
 		27EF749629C44077009FA57B /* ShareCloudFolderController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCloudFolderController.swift; sourceTree = "<group>"; };
 		27EFF4BA27BAF19600006834 /* Auth_CodeEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth_CodeEntry.swift; sourceTree = "<group>"; };
 		27EFF4BC27BBDF4600006834 /* Auth_PasswordEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth_PasswordEntry.swift; sourceTree = "<group>"; };
+		72BD6B79891569F5BABBCB56 /* Auth_BotToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth_BotToken.swift; sourceTree = "<group>"; };
 		27EFF4BE27BBF2D600006834 /* Auth_NextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth_NextView.swift; sourceTree = "<group>"; };
 		27EFF4C027BBF49700006834 /* Auth_Insets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth_Insets.swift; sourceTree = "<group>"; };
 		27F023D325A5C19F008F1C81 /* DesktopCapturerWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesktopCapturerWindow.swift; sourceTree = "<group>"; };
@@ -3407,6 +3410,7 @@
 		FE10DEC04E14C19000000251 /* russia_proxies.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = russia_proxies.txt; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000261 /* FenixuzDeletedMessagesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzDeletedMessagesManager.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C19000000271 /* FenixuzChatExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzChatExport.swift; sourceTree = "<group>"; };
+		FE10DEC04E14C19000000281 /* FenixuzChatExportSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FenixuzChatExportSettings.swift; sourceTree = "<group>"; };
 		FE10DEC04E14C190FEFE0001 /* FenixuzCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FenixuzCore; path = packages/FenixuzCore; sourceTree = "<group>"; };
 		FE10DEC04E14C190FFFFFFF0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		FE20AD5040000000FEFE0011 /* FenixNovagramChatAds.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FenixNovagramChatAds.swift; sourceTree = "<group>"; };
@@ -3916,11 +3920,13 @@
 				FE10DEC04E14C190000000D1 /* FenixuzEditedHistoryManager.swift */,
 				FE10DEC04E14C19000000261 /* FenixuzDeletedMessagesManager.swift */,
 				FE10DEC04E14C19000000271 /* FenixuzChatExport.swift */,
+				FE10DEC04E14C19000000281 /* FenixuzChatExportSettings.swift */,
 				FE10DEC04E14C190000000E1 /* FenixuzEditedHistoryController.swift */,
 				FE10DEC04E14C190000000F1 /* FenixuzForeignUserBannerView.swift */,
 				FE10DEC04E14C19000000101 /* FenixuzSpeechToTextManager.swift */,
 				27EFF4BA27BAF19600006834 /* Auth_CodeEntry.swift */,
 				27EFF4BC27BBDF4600006834 /* Auth_PasswordEntry.swift */,
+				72BD6B79891569F5BABBCB56 /* Auth_BotToken.swift */,
 				27EFF4BE27BBF2D600006834 /* Auth_NextView.swift */,
 				27EFF4C027BBF49700006834 /* Auth_Insets.swift */,
 				27F2BBC627BE76D000A37463 /* Auth_Email.swift */,
@@ -8000,6 +8006,7 @@
 				27D6043E2955D75B00588C21 /* StorageUsageBlockController.swift in Sources */,
 				C205FEA61EB39DE400455808 /* SidebarCapViewController.swift in Sources */,
 				27EFF4BD27BBDF4600006834 /* Auth_PasswordEntry.swift in Sources */,
+				F96340D8867E7ADB5F84A1F7 /* Auth_BotToken.swift in Sources */,
 				C2271DAE1DAE1172001792B6 /* UserInfoEntries.swift in Sources */,
 				27CE375B2760931E007E6F1B /* AppMenuAnimatedImage.swift in Sources */,
 				C230B9131DD392EB0057F596 /* SearchRowItem.swift in Sources */,
@@ -8270,6 +8277,7 @@
 				FE10DEC04E14C190000000D0 /* FenixuzEditedHistoryManager.swift in Sources */,
 				FE10DEC04E14C19000000260 /* FenixuzDeletedMessagesManager.swift in Sources */,
 				FE10DEC04E14C19000000270 /* FenixuzChatExport.swift in Sources */,
+				FE10DEC04E14C19000000280 /* FenixuzChatExportSettings.swift in Sources */,
 				FE10DEC04E14C190000000E0 /* FenixuzEditedHistoryController.swift in Sources */,
 				FE10DEC04E14C190000000F0 /* FenixuzForeignUserBannerView.swift in Sources */,
 				FE10DEC04E14C19000000100 /* FenixuzSpeechToTextManager.swift in Sources */,

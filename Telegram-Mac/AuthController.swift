@@ -275,6 +275,11 @@ class AuthController: GenericViewController<AuthView> {
         var locked: Bool = false
         var countries: [Country] = []
         var lockAfterLogin: Bool = false
+        // Bot-token login. Modelled as a plain flag like the QR screen rather than a new
+        // UnauthorizedAccountStateContents case — that enum is PostboxCoding, so a new case
+        // would mean encode/decode changes inside the vendored TelegramCore.
+        var botTokenAvailable: Bool = false
+        var botTokenError: ImportBotAuthorizationError?
     }
 
     #if !APP_STORE
@@ -292,6 +297,7 @@ class AuthController: GenericViewController<AuthView> {
     private let awaiting_reset_c: Auth_AwaitingResetController
     private let signup_c: Auth_SignupController
     private let word_c: Auth_WordController
+    private let bot_token_c: Auth_BotTokenController
 
     private let otherAccountPhoneNumbers: ((String, AccountRecordId, Bool)?, [(String, AccountRecordId, Bool)])
 
@@ -309,6 +315,7 @@ class AuthController: GenericViewController<AuthView> {
         self.awaiting_reset_c = .init(frame: NSRect(x: 0, y: 0, width: 380, height: 300))
         self.signup_c = .init(frame: NSRect(x: 0, y: 0, width: 380, height: 300))
         self.word_c = .init(frame: NSRect(x: 0, y: 0, width: 380, height: 300))
+        self.bot_token_c = .init(frame: NSRect(x: 0, y: 0, width: 380, height: 300))
 
         self.otherAccountPhoneNumbers = otherAccountPhoneNumbers
         #if !APP_STORE
@@ -588,7 +595,25 @@ class AuthController: GenericViewController<AuthView> {
             return
         }
 
-        if state.tokenAvailable, state.qrEnabled {
+        if state.botTokenAvailable {
+            controller = bot_token_c
+            bot_token_c.update(locked: state.locked, error: state.botTokenError, takeNext: { [weak self] token in
+                self?.loginWithBotToken(token, updateState: updateState)
+            }, takeError: {
+                updateState { current in
+                    var current = current
+                    current.botTokenError = nil
+                    return current
+                }
+            }, takeCancel: {
+                updateState { current in
+                    var current = current
+                    current.botTokenAvailable = false
+                    current.botTokenError = nil
+                    return current
+                }
+            })
+        } else if state.tokenAvailable, state.qrEnabled {
             if state.tokenAvailable {
                 if let token = state.tokenResult {
                     switch token {
@@ -655,6 +680,12 @@ class AuthController: GenericViewController<AuthView> {
                     updateState { current in
                         var current = current
                         current.tokenAvailable = true
+                        return current
+                    }
+                }, takeBotToken: {
+                    updateState { current in
+                        var current = current
+                        current.botTokenAvailable = true
                         return current
                     }
                 }, takeNext: { [weak self] value in
@@ -1140,6 +1171,63 @@ class AuthController: GenericViewController<AuthView> {
 
     }
 
+    // Bot-token login. auth.importBotAuthorization is atomic — no code and no password step —
+    // so a success here means the account is already authorized; lockAfterLogin freezes this
+    // screen until AppDelegate swaps in the authorized context, instead of letting the next
+    // updateState pass bounce back to phone entry.
+    private func loginWithBotToken(_ token: String, updateState: @escaping ((State) -> State) -> Void) {
+        guard let window = self.window else {
+            return
+        }
+        let sharedContext = self.sharedContext
+
+        updateState { current in
+            var current = current
+            current.locked = true
+            current.botTokenError = nil
+            return current
+        }
+
+        let signal = importBotAuthorization(accountManager: sharedContext.accountManager, account: self.account, apiId: ApiEnvironment.apiId, apiHash: ApiEnvironment.apiHash, botToken: token)
+                                       |> map(Optional.init)
+                                       |> mapError(Optional.init)
+                                       |> timeout(20, queue: Queue.mainQueue(), alternate: .fail(nil))
+                                       |> deliverOnMainQueue
+
+        self.actionDisposable.set(signal.start(error: { [weak self] error in
+            if let error = error {
+                updateState { current in
+                    var current = current
+                    current.botTokenError = error
+                    current.locked = false
+                    return current
+                }
+            } else {
+                updateState { current in
+                    var current = current
+                    current.locked = false
+                    return current
+                }
+                verifyAlert_button(for: window, header: strings().loginConnectionErrorHeader, information: strings().loginConnectionErrorInfo, ok: strings().loginConnectionErrorTryAgain, option: strings().loginConnectionErrorUseProxy, successHandler: { [weak self] result in
+                    switch result {
+                    case .basic:
+                        self?.loginWithBotToken(token, updateState: updateState)
+                    case .thrid:
+                        break
+                    }
+                })
+            }
+        }, completed: {
+            updateState { current in
+                var current = current
+                current.botTokenError = nil
+                current.locked = false
+                current.lockAfterLogin = true
+                return current
+            }
+        }))
+    }
+
     func index(of controller: ViewController) -> Int {
         if controller == loading_c {
             return 0
@@ -1157,6 +1245,10 @@ class AuthController: GenericViewController<AuthView> {
             return 6
         } else if controller == signup_c {
             return 7
+        } else if controller == bot_token_c {
+            // Sits alongside the QR screen: both are alternate entry points reached from the
+            // phone step, and both keep the chrome Back button hidden (index <= 2).
+            return 1
         }
         return 8
     }
@@ -1208,6 +1300,7 @@ class AuthController: GenericViewController<AuthView> {
         phone_number_c.updateLocalizationAndTheme(theme: theme)
         code_entry_c.updateLocalizationAndTheme(theme: theme)
         password_entry_c.updateLocalizationAndTheme(theme: theme)
+        bot_token_c.updateLocalizationAndTheme(theme: theme)
 
         #if !APP_STORE
         updateController.updateLocalizationAndTheme(theme: theme)

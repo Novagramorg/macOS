@@ -190,12 +190,39 @@ Each stage ships something usable on its own.
 
 | # | Stage | Deliverable | Est. |
 |---|---|---|---|
-| 1 | JSON writer, text only | Working export, no media | ~1 day |
-| 2 | HTML writer + format picker (HTML / JSON / Both) | Parity with the official look | ~1–2 days |
-| 3 | Media download queue + per-file size cap | Full export | ~2–3 days |
-| 4 | Progress, cancel/resume, date range, folder picker | Reliable flow | ~1 day |
+| 1 | JSON writer, text only | Working export, no media | ~1 day ✅ **done** |
+| 2 | HTML writer + format picker (HTML / JSON / Both) | Parity with the official look | ~1–2 days ✅ **done** |
+| 3 | **Server-side history fetch + streaming write** | Whole history, not just cache | ~2 days |
+| 4 | Media download queue + per-file size cap | Full export | ~2–3 days |
+| 5 | Progress, cancel/resume, date range, folder picker | Reliable flow | ~1 day |
 
-Total ≈ 5–7 days.
+Total ≈ 6–8 days.
+
+### Stage 3 in detail — why it is its own stage
+
+Stages 1–2 read `transaction.withAllMessages`, i.e. **only what is cached on this device**.
+A chat you have scrolled 500 messages into exports 500 messages, not its 10-year history.
+The official client pulls from the server instead. Closing that gap needs four things that
+have to land together — doing paging without streaming will OOM on a large chat:
+
+| Piece | Notes |
+|---|---|
+| Paging | `messages.getHistory`, 100 per request (server cap), walk `offsetId` backwards until empty |
+| `FLOOD_WAIT` handling | Telegram returns the number of seconds to wait; sleep exactly that, then retry the same page |
+| Streaming write | Emit JSON/HTML incrementally instead of building one array in memory |
+| Progress + resume | Report `fetched / estimated`; persist the last `offsetId` so a cancelled run can continue |
+
+Rough cost at 100 messages/request, ~200–400 ms each plus anti-flood spacing:
+
+| Chat size | Requests | Wall time | JSON (text only) |
+|---|---|---|---|
+| 5 000 | 50 | ~15–30 s | ~1.5 MB |
+| 50 000 | 500 | ~3–5 min | ~15 MB |
+| 200 000 | 2 000 | ~12–20 min | ~60 MB |
+| 1 000 000 | 10 000 | ~1–1.5 h | ~300 MB |
+
+Nothing here is technically blocked — it is ordinary paged fetching. The only real hazard is
+memory, and streaming removes it.
 
 ### Where the code goes
 - `Telegram-Mac/FenixuzChatExport*.swift` — Fenixuz-owned, keeps merge pain low

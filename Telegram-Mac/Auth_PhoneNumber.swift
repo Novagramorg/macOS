@@ -608,6 +608,21 @@ final class Auth_PhoneNumberView: View {
 
     private var locked: Bool = false
 
+    // Novagram: bot-token login entry, styled as a footer link rather than a second pill.
+    private let botTokenButton: TextButton = TextButton()
+    private var takeBotToken: (() -> Void)?
+
+    // Hidden in App Store builds until the macOS listing is past review — a second login path
+    // that lands in a near-empty chat list is a plausible reviewer question. Unlike QR this is
+    // not gated on a server capability, so no `qrEnabled` check.
+    private var botTokenEnabled: Bool {
+        #if APP_STORE
+        return false
+        #else
+        return true
+        #endif
+    }
+
     required init(frame frameRect: NSRect) {
         header = Auth_LoginHeader(frame: frameRect.size.bounds)
         super.init(frame: frameRect)
@@ -631,6 +646,14 @@ final class Auth_PhoneNumberView: View {
             self?.takeToken?()
         }, for: .Click)
 
+        if botTokenEnabled {
+            container.addSubview(botTokenButton)
+            botTokenButton.scaleOnClick = true
+            botTokenButton.set(handler: { [weak self] _ in
+                self?.takeBotToken?()
+            }, for: .Click)
+        }
+
         addSubview(container)
 
         updateLocalizationAndTheme(theme: theme)
@@ -653,6 +676,13 @@ final class Auth_PhoneNumberView: View {
         qrButton.set(text: strings().loginQRLogin, for: .Normal)
         qrButton.sizeToFit(NSSize(width: 30, height: 0), NSSize(width: 0, height: Auth_Insets.nextHeight), thatFit: true)
 
+        if botTokenEnabled {
+            botTokenButton.set(font: Auth_Insets.infoFont, for: .Normal)
+            botTokenButton.style = ControlStyle(font: Auth_Insets.infoFont, foregroundColor: FenixuzBrandColors.primary, backgroundColor: .clear)
+            botTokenButton.set(text: FenixuzL10n.current.botlogin_entry_button, for: .Normal)
+            _ = botTokenButton.sizeToFit()
+        }
+
         nextView.updateLocalizationAndTheme(theme: theme)
 
         needsLayout = true
@@ -663,7 +693,11 @@ final class Auth_PhoneNumberView: View {
 
         self.input.setFrameSize(NSSize(width: 280, height: 80))
 
-        self.container.setFrameSize(NSSize(width: frame.width, height: self.header.height + Auth_Insets.betweenHeader + input.frame.height + Auth_Insets.betweenNextView + Auth_Insets.nextHeight))
+        var containerHeight = self.header.height + Auth_Insets.betweenHeader + input.frame.height + Auth_Insets.betweenNextView + Auth_Insets.nextHeight
+        if botTokenEnabled {
+            containerHeight += Auth_Insets.betweenHeader + botTokenButton.frame.height
+        }
+        self.container.setFrameSize(NSSize(width: frame.width, height: containerHeight))
 
         self.header.centerX(y: 0)
         self.input.centerX(y: self.header.frame.maxY + Auth_Insets.betweenHeader)
@@ -672,6 +706,13 @@ final class Auth_PhoneNumberView: View {
 
         self.qrButton.centerX(y: self.input.frame.maxY + Auth_Insets.betweenNextView)
         self.nextView.centerX(y: self.input.frame.maxY + Auth_Insets.betweenNextView)
+
+        if botTokenEnabled {
+            // nextView and qrButton share one y and one height and are mutually exclusive, so
+            // this anchor is stable even while nextView is hidden — the link never moves as
+            // the user types.
+            self.botTokenButton.centerX(y: self.nextView.frame.maxY + Auth_Insets.betweenHeader)
+        }
 
         self.container.center()
     }
@@ -701,7 +742,7 @@ final class Auth_PhoneNumberView: View {
         errorLabel.state.set(.error(text))
     }
 
-    func update(_ locked: Bool, state: UnauthorizedAccountStateContents, countries: [Country], error: AuthorizationCodeRequestError?, qrEnabled: Bool, animated: Bool, takeToken: @escaping () -> Void, takeNext: @escaping (String) -> Void) {
+    func update(_ locked: Bool, state: UnauthorizedAccountStateContents, countries: [Country], error: AuthorizationCodeRequestError?, qrEnabled: Bool, animated: Bool, takeToken: @escaping () -> Void, takeBotToken: @escaping () -> Void, takeNext: @escaping (String) -> Void) {
         if let error = error {
             setPhoneError(error)
         } else {
@@ -722,6 +763,10 @@ final class Auth_PhoneNumberView: View {
 
         self.takeNext = takeNext
         self.takeToken = takeToken
+        self.takeBotToken = takeBotToken
+
+        // Unlike qrButton, the bot link is never toggled by typing — it stays put.
+        self.botTokenButton.userInteractionEnabled = !locked
 
         if !qrEnabled {
             self.qrButton.isHidden = true
@@ -770,8 +815,8 @@ final class Auth_PhoneNumberController: GenericViewController<Auth_PhoneNumberVi
         readyOnce()
     }
 
-    func update(_ locked: Bool, state: UnauthorizedAccountStateContents, countries: [Country], error: AuthorizationCodeRequestError?, qrEnabled: Bool, takeToken: @escaping () -> Void, takeNext: @escaping (String) -> Void) {
-        self.genericView.update(locked, state: state, countries: countries, error: error, qrEnabled: qrEnabled, animated: true, takeToken: takeToken, takeNext: takeNext)
+    func update(_ locked: Bool, state: UnauthorizedAccountStateContents, countries: [Country], error: AuthorizationCodeRequestError?, qrEnabled: Bool, takeToken: @escaping () -> Void, takeBotToken: @escaping () -> Void, takeNext: @escaping (String) -> Void) {
+        self.genericView.update(locked, state: state, countries: countries, error: error, qrEnabled: qrEnabled, animated: true, takeToken: takeToken, takeBotToken: takeBotToken, takeNext: takeNext)
     }
 
     func set(number: String) {

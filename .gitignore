@@ -22,6 +22,9 @@ core-xprojects/tde2e/build
 # App Store screenshot working dir — raw/ holds real chat captures (private data)
 screenshots/
 
+# Reference exports from the official client — real chat content, never commit
+_export-reference/
+
 # Backup junk from various editor / refactor operations
 *.bak
 *.bak[0-9]*

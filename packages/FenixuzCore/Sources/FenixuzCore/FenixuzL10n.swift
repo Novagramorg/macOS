@@ -1065,6 +1065,35 @@ public struct FenixuzL10n {
         pick(en: "Export failed", uz: "Eksport bajarilmadi", ru: "Экспорт не выполнен")
     }
 
+    public var chatExport_settingsTitle: String {
+        pick(en: "Chat export settings", uz: "Eksport sozlamalari", ru: "Настройки экспорта")
+    }
+    public var chatExport_formatHeader: String {
+        pick(en: "FORMAT", uz: "FORMAT", ru: "ФОРМАТ")
+    }
+    public var chatExport_formatHTML: String {
+        pick(en: "Human-readable HTML", uz: "O'qishga qulay HTML", ru: "Удобный для чтения HTML")
+    }
+    public var chatExport_formatJSON: String {
+        pick(en: "Machine-readable JSON", uz: "Dastur o'qiydigan JSON", ru: "Машиночитаемый JSON")
+    }
+    public var chatExport_formatBoth: String {
+        pick(en: "Both", uz: "Ikkalasi", ru: "Оба")
+    }
+    public var chatExport_pathHeader: String {
+        pick(en: "PATH", uz: "JOYLASHUV", ru: "ПУТЬ")
+    }
+    public var chatExport_action: String {
+        pick(en: "Export", uz: "Eksport", ru: "Экспорт")
+    }
+    public var chatExport_mediaNote: String {
+        pick(
+            en: "Media files are not exported yet — text, dates, senders and replies only.",
+            uz: "Media fayllar hozircha eksport qilinmaydi — faqat matn, sana, yuboruvchi va javoblar.",
+            ru: "Медиафайлы пока не экспортируются — только текст, даты, отправители и ответы."
+        )
+    }
+
     /// "%1$d messages · %2$@" — count and a human-readable size.
     public func chatExport_doneText(messages: Int, size: String) -> String {
         let template = pick(
@@ -1073,5 +1102,66 @@ public struct FenixuzL10n {
             ru: "%1$d сообщений · %2$@"
         )
         return String(format: template, messages, size)
+    }
+
+    // MARK: - Bot token login
+
+    /// Footer link on the phone-number screen.
+    public var botlogin_entry_button: String {
+        pick(
+            en: "Log in with a bot token",
+            uz: "Bot token bilan kirish",
+            ru: "Войти по токену бота"
+        )
+    }
+
+    public var botlogin_title: String {
+        pick(en: "Bot Token", uz: "Bot token", ru: "Токен бота")
+    }
+
+    /// States the bot-session limitation up front — a bot cannot list its dialogs,
+    /// so the chat list will look almost empty. Better said here than discovered later.
+    public var botlogin_info: String {
+        pick(
+            en: "Paste the token BotFather gave you. A bot session only shows chats where the bot has received a message — most Telegram features stay unavailable.",
+            uz: "BotFather bergan tokenni joylang. Bot sessiyasi faqat bot xabar olgan chatlarni ko'rsatadi — Telegram'ning aksar imkoniyatlari ishlamaydi.",
+            ru: "Вставьте токен, выданный BotFather. Сессия бота показывает только чаты, куда боту писали — большинство функций Telegram недоступны."
+        )
+    }
+
+    public var botlogin_placeholder: String {
+        pick(en: "123456789:ABCdef…", uz: "123456789:ABCdef…", ru: "123456789:ABCdef…")
+    }
+
+    public var botlogin_hint: String {
+        pick(
+            en: "Format: digits, a colon, then letters and digits.",
+            uz: "Format: raqamlar, ikki nuqta, keyin harf va raqamlar.",
+            ru: "Формат: цифры, двоеточие, затем буквы и цифры."
+        )
+    }
+
+    public var botlogin_help: String {
+        pick(
+            en: "How do I get a token?",
+            uz: "Tokenni qanday olaman?",
+            ru: "Где взять токен?"
+        )
+    }
+
+    public var botlogin_error_invalid: String {
+        pick(
+            en: "That token isn't valid. It should look like 123456789:ABCdef… — send /mytoken to @BotFather to get it again.",
+            uz: "Bu token yaroqsiz. U 123456789:ABCdef… ko'rinishida bo'lishi kerak — @BotFather'ga /mytoken yuborib, qaytadan oling.",
+            ru: "Этот токен недействителен. Он должен выглядеть как 123456789:ABCdef… — отправьте /mytoken боту @BotFather, чтобы получить его снова."
+        )
+    }
+
+    public var botlogin_error_generic: String {
+        pick(
+            en: "Couldn't sign in. Please try again.",
+            uz: "Kirib bo'lmadi. Qaytadan urinib ko'ring.",
+            ru: "Не удалось войти. Попробуйте ещё раз."
+        )
     }
 }

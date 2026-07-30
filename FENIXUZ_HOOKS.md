@@ -529,22 +529,125 @@ items.append(ContextMenuItem(FenixuzL10n.current.chatExport_menuTitle, handler: 
     self?.runChatExport(peerId: peerId)
 }, itemImage: MenuAnimation.menu_save_as.value))
 
-// method, next to setLocation
-private func runChatExport(peerId: PeerId) { … }   // progress modal → result / error modal
+// two methods, next to setLocation
+private func runChatExport(peerId: PeerId)                                  // shows the settings sheet
+private func performChatExport(peerId: PeerId, format: ChatExportFormat)    // runs it
 ```
 
-`runChatExport` wraps `FenixuzChatExport.export(context:peerId:format:)` in `showModalProgress`,
-then reports through `showModalText` — success shows the message count and total size with a
-`Show my data` button that reveals the folder in Finder; `.noMessages` and `.writeFailed`
-get their own localized text.
+`runChatExport` presents `FenixuzChatExportSettingsController` (format picker); on confirm it
+hands the chosen format to `performChatExport`, which wraps
+`FenixuzChatExport.export(context:peerId:format:)` in `showModalProgress` and reports through
+`showModalText` — success shows the message count and total size with a `Show my data` button
+that reveals the folder in Finder; `.noMessages` and `.writeFailed` get their own localized text.
 
 Reason: the export itself lives in the Fenixuz-owned `FenixuzChatExport.swift`; only the menu
 entry and the thin caller touch upstream code, which keeps the merge surface to three small
 insertions. Strings go through `FenixuzL10n` (en/uz/ru) — never `Locale.current`.
 
-Related Fenixuz-owned files: `Telegram-Mac/FenixuzChatExport.swift` (collector + JSON writer),
+Related Fenixuz-owned files: `Telegram-Mac/FenixuzChatExport.swift` (collector + JSON/HTML
+writers), `Telegram-Mac/FenixuzChatExportSettings.swift` (the format sheet),
 `packages/FenixuzCore/Sources/FenixuzCore/FenixuzL10n.swift` (`chatExport_*` keys).
 Format spec and roadmap: `EXPORT_PLAN.md`; reference exports: `_export-reference/` (gitignored).
+
+---
+
+## Bot token login (2026-07-29)
+
+Log in as a bot with a BotFather token, via MTProto `auth.importBotAuthorization`. Port of the
+iOS fork's feature (`submodules/Fenixuz/BotTokenLogin/` + `TelegramCore/Sources/FenixuzBotAuthorization.swift`).
+
+### ⚠️ This is the fork's FIRST source patch inside the `telegram-ios` submodule
+
+Read this before any upstream pull or `git submodule update`.
+
+Every other hook in this document lives in a file the parent repo tracks. This one does not.
+`submodules/telegram-ios/submodules/TelegramCore/Sources/FenixuzBotAuthorization.swift` is a
+**new file inside a git submodule** that is pinned to a commit of `overtake/Telegram-iOS`, a
+repo we cannot push to. The parent repo does not see the file, and **`git submodule update`
+deletes it without warning.**
+
+Why it cannot live in the app target: the four completion helpers it reuses are `internal` to
+the TelegramCore module —
+
+| Symbol | Location |
+|---|---|
+| `switchToAuthorizedAccount(transaction:account:isSupportUser:)` | `TelegramCore/Sources/Authorization.swift:18` |
+| `storeFutureLoginToken(accountManager:token:)` | `TelegramCore/Sources/Authorization.swift:84` |
+| `initializedAppSettingsAfterLogin(transaction:appVersion:syncContacts:)` | `TelegramCore/Sources/State/InitializeAccountAfterLogin.swift:6` |
+| `TelegramUser(user: Api.User)` | `TelegramCore/Sources/ApiUtils/TelegramUser.swift:49` |
+
+Reimplementing them app-side is possible (`AccountManagerModifier`'s methods are public) but was
+rejected: it forks the account-record logic away from upstream with no compile-time link, so a
+future upstream change that adds a required `AccountRecord` attribute would be picked up by the
+phone-login path automatically and silently produce a malformed record for bot logins only.
+
+**Survival mechanism.** The real copy is tracked in the parent repo at
+`fork-patches/telegramcore/FenixuzBotAuthorization.swift`, and
+`fork-patches/apply-telegramcore-patches.sh` copies it back into the submodule. The script is
+idempotent and verifies with `diff`. **Run it after every fresh clone and after every
+`git submodule update`.**
+
+No registration is needed for the file itself: `submodules/telegram-ios/submodules/TelegramCore/Package.swift:48`
+declares `path: "Sources"` with no `sources:` array, so SwiftPM globs the directory.
+
+### `Telegram-Mac/AuthController.swift` — 5 hooks
+
+1. **`State` struct** — after `lockAfterLogin`, two additive fields:
+   ```swift
+   var botTokenAvailable: Bool = false
+   var botTokenError: ImportBotAuthorizationError?
+   ```
+   Modelled as a plain flag like the QR screen, *not* a new `UnauthorizedAccountStateContents`
+   case — that enum is `PostboxCoding`, so a new case would mean encode/decode changes inside
+   the vendored TelegramCore.
+
+2. **Child controller** — `private let bot_token_c: Auth_BotTokenController` declared next to
+   `word_c`, instantiated in `init` with the same `NSRect(x: 0, y: 0, width: 380, height: 300)`.
+
+3. **`updateState(_:refreshToken:updateState:)`** — a new leading branch before the QR check:
+   `if state.botTokenAvailable { controller = bot_token_c; bot_token_c.update(...) } else if state.tokenAvailable, state.qrEnabled { … }`.
+   `takeCancel` clears the flag, which falls through to the phone screen on the next pass.
+
+4. **Phone-entry call site** — `phone_number_c.update(...)` gains a `takeBotToken:` closure that
+   sets `botTokenAvailable = true`.
+
+5. **`index(of:)` + `updateLocalizationAndTheme`** — `bot_token_c` returns `1` (same slot as the
+   QR screen: an alternate entry point off the phone step that keeps the chrome Back button
+   hidden, since `updateBack` hides Back at `index <= 2`), and gets a theme-refresh call.
+
+Plus one new private method, `loginWithBotToken(_:updateState:)`, modelled on `sendCode`:
+20s timeout, `verifyAlert_button(loginConnectionError*)` on network failure with a recursive
+Try Again, and `lockAfterLogin = true` on success so the screen freezes rather than bouncing
+back to phone entry while `AppDelegate` swaps in the authorized context.
+
+### `Telegram-Mac/Auth_PhoneNumber.swift` — 5 hooks
+
+`botTokenButton: TextButton` + `takeBotToken` closure + a `botTokenEnabled` computed flag
+(`#if APP_STORE` → `false`); `addSubview` + click handler in `init`; styling in
+`updateLocalizationAndTheme` (`Auth_Insets.infoFont`, `FenixuzBrandColors.primary`,
+`FenixuzL10n.current.botlogin_entry_button`); `layout()` grows the container by
+`betweenHeader + botTokenButton.frame.height` and anchors the link at
+`nextView.frame.maxY + Auth_Insets.betweenHeader`; both `update(...)` overloads gain a
+`takeBotToken:` parameter.
+
+The anchor is stable while `nextView.isHidden`, because `nextView` and `qrButton` share one y
+and one 36pt height and are mutually exclusive — so the link never moves as the user types.
+Unlike QR it is **not** gated on `qrEnabled`; bot login needs no server capability.
+
+### Fenixuz-owned surfaces (not hooks)
+
+- `Telegram-Mac/Auth_BotToken.swift` — the AppKit screen (4 types), a structural clone of
+  `Auth_PasswordEntry.swift` with the secure field swapped for a plain monospaced one.
+  Registered in `Telegram.xcodeproj/project.pbxproj` in the usual four places.
+- `packages/FenixuzCore/Sources/FenixuzCore/FenixuzL10n.swift` — eight `botlogin_*` strings (en/uz/ru).
+
+### Known v1 limitation — do not treat as a bug
+
+After a successful bot login the **chat list will be empty or near-empty**. `messages.getDialogs`,
+`messages.getHistory`, `messages.getPeerDialogs` and `messages.getDialogFilters` are all marked
+"Only users can use this method" and return `BOT_METHOD_INVALID`. Making chats render is Phase 2:
+on iOS it needed a second core file (`FenixuzBotSession.swift`) plus hooks in five more upstream
+TelegramCore files. Not started here.
 
 ---
 
@@ -574,8 +677,11 @@ Format spec and roadmap: `EXPORT_PLAN.md`; reference exports: `_export-reference
 | `Telegram-Mac/ChatInputView.swift` | 1 | Rounded composer, no top hairline (12.9 parity) |
 | `Telegram-Mac/ApplicationContext.swift` | 1 | Folder rail fixed on all tabs (12.9 parity) |
 | `Telegram-Mac/ChatController.swift` | 3 | Export chat history menu entry + disposable + caller |
+| `Telegram-Mac/AuthController.swift` | 5 | Bot-token login: state fields, child controller, updateState branch, phone call site, index/theme |
+| `Telegram-Mac/Auth_PhoneNumber.swift` | 5 | Bot-token login: footer link, closure, styling, layout, both `update(...)` signatures |
+| `submodules/telegram-ios/…/TelegramCore/Sources/FenixuzBotAuthorization.swift` | new file | Bot-token login RPC — ⚠️ **inside the git submodule**, restored by `fork-patches/apply-telegramcore-patches.sh` |
 
-**Total Telegram-owned files with hooks: 22. Total hook insertions: 27.** Every Fenixuz-owned code surface (`FenixuzAppStoreIAP.swift`, `FenixuzL10n.swift`, `FenixuzDemoCodeFetcher.swift`, the Fenixuz Settings controllers, the Tasks tab, `packages/TGUIKit/Sources/LiquidGlass.swift`, etc.) lives in `Telegram-Mac/Fenixuz*.swift` or a Novagram/Fenixuz-owned package file and is the source of truth for these features.
+**Total Telegram-owned files with hooks: 24. Total hook insertions: 37**, plus one new source file inside the `telegram-ios` submodule (the fork's first — see the Bot token login section). Every Fenixuz-owned code surface (`FenixuzAppStoreIAP.swift`, `FenixuzL10n.swift`, `FenixuzDemoCodeFetcher.swift`, the Fenixuz Settings controllers, the Tasks tab, `packages/TGUIKit/Sources/LiquidGlass.swift`, etc.) lives in `Telegram-Mac/Fenixuz*.swift` or a Novagram/Fenixuz-owned package file and is the source of truth for these features.
 
 ---
 

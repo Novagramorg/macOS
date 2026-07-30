@@ -126,7 +126,15 @@ final class FenixuzChatExport {
                     written.append(url)
                 }
 
-                // stage 2 adds the HTML writer here
+                if format == .html || format == .both {
+                    let html = buildHTML(payload: payload)
+                    let url = folder.appendingPathComponent("messages.html")
+                    guard let data = html.data(using: .utf8) else {
+                        throw ChatExportError.writeFailed("HTML encoding failed")
+                    }
+                    try data.write(to: url)
+                    written.append(url)
+                }
 
                 let totalSize = written.reduce(Int64(0)) { sum, url in
                     let attributes = try? FileManager.default.attributesOfItem(atPath: url.path)
@@ -148,6 +156,11 @@ final class FenixuzChatExport {
             return EmptyDisposable
         }
         |> runOn(.concurrentDefaultQueue())
+    }
+
+    /// Human-readable destination, shown in the settings sheet.
+    static var destinationDescription: String {
+        return "Downloads/Novagram Desktop"
     }
 
     /// `~/Downloads/Novagram Desktop/ChatExport_<yyyy-MM-dd>/`, suffixed when it exists.
@@ -226,6 +239,127 @@ final class FenixuzChatExport {
         }
 
         return item
+    }
+
+    // MARK: - HTML
+
+    /// Emits a single self-contained `messages.html`. The class names follow the
+    /// official export so the markup reads the same, but the stylesheet is ours and
+    /// is inlined — no `css/`, `js/` or `images/` folder to ship. Media stages will
+    /// add the asset folders when there is actually something to link to.
+    private static func buildHTML(payload: Payload) -> String {
+        var rows: [String] = []
+        var previousSender: String?
+
+        for message in payload.messages {
+            let senderKey = message.author.map { peerIdString($0.id) } ?? "service"
+            let isJoined = senderKey == previousSender
+            previousSender = senderKey
+            rows.append(htmlRow(for: message, joined: isJoined))
+        }
+
+        return """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="utf-8">
+        <title>\(escape(payload.chatTitle))</title>
+        <style>
+        \(stylesheet)
+        </style>
+        </head>
+        <body>
+        <div class="page_wrap">
+        <div class="page_header"><div class="text bold">\(escape(payload.chatTitle))</div></div>
+        <div class="history">
+        \(rows.joined(separator: "\n"))
+        </div>
+        </div>
+        </body>
+        </html>
+        """
+    }
+
+    private static func htmlRow(for message: Message, joined: Bool) -> String {
+        let isService = message.media.contains(where: { $0 is TelegramMediaAction })
+        let time = timeOnly(message.timestamp)
+        let fullDate = isoDate(message.timestamp)
+
+        if isService {
+            return #"<div class="message service" id="message\#(message.id.id)"><div class="body details">\#(escape(message.text))</div></div>"#
+        }
+
+        let name = message.author?.displayTitle ?? ""
+        var head = ""
+        if !joined {
+            let initials = escape(String(name.prefix(2)).uppercased())
+            let bucket = (abs(name.hashValue) % 8) + 1
+            head = #"<div class="pull_left userpic_wrap"><div class="userpic userpic\#(bucket)"><div class="initials">\#(initials)</div></div></div>"#
+        }
+
+        var body = #"<div class="pull_right date details" title="\#(escape(fullDate))">\#(escape(time))</div>"#
+        if !joined, !name.isEmpty {
+            body += #"<div class="from_name">\#(escape(name))</div>"#
+        }
+        if let reply = message.attributes.compactMap({ $0 as? ReplyMessageAttribute }).first {
+            body += #"<div class="reply_to details">In reply to message \#(reply.messageId.id)</div>"#
+        }
+        if !message.text.isEmpty {
+            body += #"<div class="text">\#(escapeMultiline(message.text))</div>"#
+        }
+
+        let classes = joined ? "message default clearfix joined" : "message default clearfix"
+        return #"<div class="\#(classes)" id="message\#(message.id.id)">\#(head)<div class="body">\#(body)</div></div>"#
+    }
+
+    private static let stylesheet = """
+    body { margin: 0; padding: 0; background: #0f1620; color: #e6ebf1;
+           font: 14px/1.45 -apple-system, "SF Pro Text", Helvetica, Arial, sans-serif; }
+    .page_wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
+    .page_header { padding: 12px 0 20px; font-size: 20px; }
+    .bold { font-weight: 600; }
+    .details { color: #7d8b99; font-size: 12px; }
+    .clearfix::after { content: ""; display: table; clear: both; }
+    .pull_left { float: left; }
+    .pull_right { float: right; }
+    .message { padding: 8px 12px; margin-bottom: 4px; border-radius: 12px; background: #17212b; }
+    .message.joined { margin-top: -2px; }
+    .message.service { background: none; text-align: center; padding: 10px 0; }
+    .message.service .body { display: inline-block; background: #17212b;
+                             border-radius: 12px; padding: 4px 12px; }
+    .userpic_wrap { margin-right: 10px; }
+    .userpic { width: 36px; height: 36px; border-radius: 50%; display: flex;
+               align-items: center; justify-content: center; }
+    .initials { font-size: 13px; font-weight: 600; color: #fff; }
+    .userpic1 { background: #e17076; } .userpic2 { background: #7bc862; }
+    .userpic3 { background: #e5ca77; } .userpic4 { background: #65aadd; }
+    .userpic5 { background: #a695e7; } .userpic6 { background: #ee7aae; }
+    .userpic7 { background: #6ec9cb; } .userpic8 { background: #faa774; }
+    .from_name { color: #6ab3f3; font-weight: 600; margin-bottom: 2px; }
+    .reply_to { border-left: 2px solid #6ab3f3; padding-left: 8px; margin: 4px 0; }
+    .text { white-space: pre-wrap; word-wrap: break-word; }
+    .date { margin-left: 10px; }
+    """
+
+    private static func timeOnly(_ timestamp: Int32) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter.string(from: Date(timeIntervalSince1970: TimeInterval(timestamp)))
+    }
+
+    private static func escape(_ value: String) -> String {
+        var out = value
+        out = out.replacingOccurrences(of: "&", with: "&amp;")
+        out = out.replacingOccurrences(of: "<", with: "&lt;")
+        out = out.replacingOccurrences(of: ">", with: "&gt;")
+        out = out.replacingOccurrences(of: "\"", with: "&quot;")
+        return out
+    }
+
+    /// `.text` keeps newlines via `white-space: pre-wrap`, so only the entities escape.
+    private static func escapeMultiline(_ value: String) -> String {
+        return escape(value)
     }
 
     /// Matches the official export: local time, no timezone marker.

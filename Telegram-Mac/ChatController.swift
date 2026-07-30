@@ -2071,8 +2071,16 @@ class ChatController: EditableViewController<ChatControllerView>, Notifable, Tab
     /// Stage 1 emits JSON only — the format picker and media come in later stages.
     private func runChatExport(peerId: PeerId) {
         let context = self.context
+        // ask first — the sheet picks the format, then the export runs
+        showModal(with: FenixuzChatExportSettingsController(context: context, onExport: { [weak self] format in
+            self?.performChatExport(peerId: peerId, format: format)
+        }), for: context.window)
+    }
+
+    private func performChatExport(peerId: PeerId, format: ChatExportFormat) {
+        let context = self.context
         let l10n = FenixuzL10n.current
-        let signal = FenixuzChatExport.export(context: context, peerId: peerId, format: .json)
+        let signal = FenixuzChatExport.export(context: context, peerId: peerId, format: format)
 
         chatExportDisposable.set(showModalProgress(signal: signal, for: context.window).start(next: { result in
             let size = ByteCountFormatter.string(fromByteCount: result.totalSize, countStyle: .file)
