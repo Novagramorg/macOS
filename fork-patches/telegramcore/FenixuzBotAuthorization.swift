@@ -75,6 +75,9 @@ public func importBotAuthorization(accountManager: AccountManager<TelegramAccoun
                 let state = AuthorizedAccountState(isTestingEnvironment: resolvedAccount.testingEnvironment, masterDatacenterId: resolvedAccount.masterDatacenterId, peerId: user.id, state: nil, invalidatedChannels: [])
                 initializedAppSettingsAfterLogin(transaction: transaction, appVersion: resolvedAccount.networkArguments.appVersion, syncContacts: false)
                 transaction.setState(state)
+                // Mark this as a bot session so the managed hole operations stop retrying the
+                // user-only RPCs a bot can't call. See FenixuzBotSession.swift.
+                setFenixuzBotSession(transaction: transaction, isBot: true)
 
                 return accountManager.transaction { transaction in
                     switchToAuthorizedAccount(transaction: transaction, account: resolvedAccount, isSupportUser: false)

@@ -1,12 +1,16 @@
 #!/bin/bash
-# Restores the fork's own source files into the vendored TelegramCore.
+# Restores the fork's own changes inside the vendored TelegramCore.
 #
 # Why this exists: submodules/telegram-ios is a git submodule pinned to a commit of
-# overtake/Telegram-iOS, which we cannot push to. Any file we add inside it is invisible
-# to the parent repo and a `git submodule update` wipes it without warning. So the real
-# copy is tracked here in the parent repo and this script puts it back.
+# overtake/Telegram-iOS, which we cannot push to. The parent repo does not track anything inside
+# it, and `git submodule update` reverts the whole tree — silently deleting our added files and
+# undoing our hooks.
 #
-# Idempotent — running it twice is a no-op. Run it after every fresh clone and after any
+# Two kinds of change are restored:
+#   1. NEW files          -> fork-patches/telegramcore/*.swift, copied in
+#   2. HOOKS in upstream files -> fork-patches/telegramcore-hooks.patch, git-applied
+#
+# Idempotent — running it twice is a no-op. Run it after every fresh clone and after every
 # `git submodule update`.
 #
 #   ./fork-patches/apply-telegramcore-patches.sh
@@ -15,7 +19,9 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC="$ROOT/fork-patches/telegramcore"
-DEST="$ROOT/submodules/telegram-ios/submodules/TelegramCore/Sources"
+PATCH="$ROOT/fork-patches/telegramcore-hooks.patch"
+SUBMODULE="$ROOT/submodules/telegram-ios"
+DEST="$SUBMODULE/submodules/TelegramCore/Sources"
 
 if [ ! -d "$DEST" ]; then
     echo "ERROR: $DEST not found."
@@ -23,6 +29,8 @@ if [ ! -d "$DEST" ]; then
     exit 1
 fi
 
+# ---- 1. new files -------------------------------------------------------------
+echo "New files:"
 copied=0
 unchanged=0
 
@@ -41,8 +49,7 @@ for file in "$SRC"/*.swift; do
     fi
 done
 
-echo ""
-echo "$copied copied, $unchanged already current."
+echo "  $copied copied, $unchanged already current."
 
 # Verify every mirror matches its destination byte for byte.
 fail=0
@@ -54,6 +61,24 @@ for file in "$SRC"/*.swift; do
         fail=1
     fi
 done
+
+# ---- 2. hooks in upstream files -----------------------------------------------
+echo "Hooks in upstream files:"
+if [ ! -f "$PATCH" ]; then
+    echo "  (no patch file — nothing to apply)"
+elif git -C "$SUBMODULE" apply --reverse --check "$PATCH" 2> /dev/null; then
+    # The patch reverses cleanly, so it is already applied.
+    echo "  = telegramcore-hooks.patch (already applied)"
+elif git -C "$SUBMODULE" apply --check "$PATCH" 2> /dev/null; then
+    git -C "$SUBMODULE" apply "$PATCH"
+    echo "  + telegramcore-hooks.patch applied"
+else
+    echo "ERROR: telegramcore-hooks.patch does not apply cleanly and is not already applied."
+    echo "The submodule has probably moved to a new upstream commit — re-apply the hooks by hand"
+    echo "(see FENIXUZ_HOOKS.md 'Bot token login') and regenerate the patch with:"
+    echo "  git -C submodules/telegram-ios diff -- submodules/TelegramCore/Sources/State/ > fork-patches/telegramcore-hooks.patch"
+    fail=1
+fi
 
 if [ "$fail" -ne 0 ]; then
     exit 1

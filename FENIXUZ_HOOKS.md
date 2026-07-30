@@ -679,13 +679,49 @@ Unlike QR it is **not** gated on `qrEnabled`; bot login needs no server capabili
   Registered in `Telegram.xcodeproj/project.pbxproj` in the usual four places.
 - `packages/FenixuzCore/Sources/FenixuzCore/FenixuzL10n.swift` — eight `botlogin_*` strings (en/uz/ru).
 
-### Known v1 limitation — do not treat as a bug
+### Bot-session behaviour — `FenixuzBotSession.swift` (added 2026-07-30)
 
-After a successful bot login the **chat list will be empty or near-empty**. `messages.getDialogs`,
-`messages.getHistory`, `messages.getPeerDialogs` and `messages.getDialogFilters` are all marked
-"Only users can use this method" and return `BOT_METHOD_INVALID`. Making chats render is Phase 2:
-on iOS it needed a second core file (`FenixuzBotSession.swift`) plus hooks in five more upstream
-TelegramCore files. Not started here.
+Second new file in the submodule, same survival mechanism. Login alone leaves the client unusable:
+`messages.getDialogs` and `messages.getHistory` are "Only users can use this method" and return
+`BOT_METHOD_INVALID`, so Telegram's managed hole operations retry forever, the chat list renders a
+permanent spinner, and opening a chat hangs on an unresolved history hole. Live updates DO arrive
+over the update stream — the blockers are all in the sync layer, not delivery.
+
+Bot detection is `fenixuzIsBotSession(transaction:accountPeerId:)` — true if the login flag is set
+**OR** the account's own peer has `botInfo`. The peer check makes it retroactive, so sessions that
+logged in before this file existed pick it up without re-login.
+
+**Hooks (all one-line swaps, exactly mirroring the iOS fork):**
+
+| File | Change |
+|---|---|
+| `FenixuzBotAuthorization.swift` | `setFenixuzBotSession(transaction:isBot: true)` after `transaction.setState(state)` |
+| `State/ManagedChatListHoles.swift` | `fetchChatListHole(...)` → `fenixuzManagedChatListHole(...)` — removes the hole for a bot instead of calling getDialogs. **This is what kills the permanent chat-list spinner.** |
+| `State/ManagedMessageHistoryHoles.swift` | `fetchMessageHistoryHole(...)` → `fenixuzManagedMessageHistoryHole(...)` — removes the history hole so a chat opens |
+| `State/ManagedPendingPeerNotificationSettings.swift` | `fenixuzCommitPendingSettingsIfBot(...)` on **both** discard branches — a bot peer has no accessHash so `apiInputPeer` is nil and the mute would be dropped without ever reaching CURRENT |
+
+**Deliberately NOT ported.** The iOS file also defines `fenixuzForceBotChatInclusion`,
+`fenixuzInitializeBotDMReadState` and `fenixuzEnsureAllChatsForBotFilters`. A grep of the whole iOS
+tree (2026-07-30) shows **nothing calls them** — they are dead code there, and iOS works without
+them. Carrying them over would be dead code here too. If chat-list inclusion or DM unread counts
+turn out to be needed, port them then and hook them for real.
+
+> ⚠️ **The formatter will wreck these files if you edit them with an editing tool.** A PostToolUse
+> formatter hook reformats whole files, which on the first attempt silently deleted two `init`s from
+> `ManagedMessageHistoryHoles.swift` and blew the patch up from 56 to 585 lines. Apply hooks in these
+> upstream files via a script (`python3`/`sed` through Bash), not the editing tools, and check
+> `git -C submodules/telegram-ios diff --stat` afterwards — it should be ~10 lines, not hundreds.
+
+### Restoring all of this after a submodule update
+
+```bash
+./fork-patches/apply-telegramcore-patches.sh
+```
+
+Copies `fork-patches/telegramcore/*.swift` into place and `git apply`s
+`fork-patches/telegramcore-hooks.patch`. Idempotent; detects an already-applied patch via
+`git apply --reverse --check`. If the submodule ever moves to a new upstream commit and the patch
+stops applying, the script fails loudly and tells you to re-apply by hand and regenerate.
 
 ---
 

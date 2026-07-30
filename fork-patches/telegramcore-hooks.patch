@@ -1,0 +1,56 @@
+diff --git a/submodules/TelegramCore/Sources/State/ManagedChatListHoles.swift b/submodules/TelegramCore/Sources/State/ManagedChatListHoles.swift
+index 84ade74719..98022ad3e3 100644
+--- a/submodules/TelegramCore/Sources/State/ManagedChatListHoles.swift
++++ b/submodules/TelegramCore/Sources/State/ManagedChatListHoles.swift
+@@ -76,7 +76,8 @@ func managedChatListHoles(network: Network, postbox: Postbox, accountPeerId: Pee
+             }
+             
+             for (entry, disposable) in added {
+-                disposable.set(fetchChatListHole(postbox: postbox, network: network, accountPeerId: accountPeerId, groupId: entry.groupId, hole: entry.hole).start())
++                // Fenixuz hook: bot sessions remove the hole instead of getDialogs. See FenixuzBotSession.swift
++                disposable.set(fenixuzManagedChatListHole(postbox: postbox, network: network, accountPeerId: accountPeerId, groupId: entry.groupId, hole: entry.hole).start())
+             }
+         })
+         
+diff --git a/submodules/TelegramCore/Sources/State/ManagedMessageHistoryHoles.swift b/submodules/TelegramCore/Sources/State/ManagedMessageHistoryHoles.swift
+index efe3ecc81f..28c63a0839 100644
+--- a/submodules/TelegramCore/Sources/State/ManagedMessageHistoryHoles.swift
++++ b/submodules/TelegramCore/Sources/State/ManagedMessageHistoryHoles.swift
+@@ -192,11 +192,12 @@ private final class ManagedMessageHistoryHolesContext {
+             let entry = pendingEntry.entry
+             switch pendingEntry.entry.hole {
+             case let .peer(hole):
+-                pendingEntry.disposable.set((fetchMessageHistoryHole(
++                // Fenixuz hook: bot sessions remove the hole instead of getHistory. See FenixuzBotSession.swift
++                pendingEntry.disposable.set((fenixuzManagedMessageHistoryHole(
+                     accountPeerId: self.accountPeerId,
+-                    source: .network(self.network),
++                    network: self.network,
+                     postbox: self.postbox,
+-                    peerInput: .direct(peerId: hole.peerId, threadId: hole.threadId), namespace: hole.namespace, direction: pendingEntry.entry.direction, space: pendingEntry.entry.space, count: pendingEntry.entry.count)
++                    hole: hole, direction: pendingEntry.entry.direction, space: pendingEntry.entry.space, count: pendingEntry.entry.count)
+                 |> deliverOn(self.queue)).start(completed: { [weak self] in
+                     guard let self = self else {
+                         return
+diff --git a/submodules/TelegramCore/Sources/State/ManagedPendingPeerNotificationSettings.swift b/submodules/TelegramCore/Sources/State/ManagedPendingPeerNotificationSettings.swift
+index 8d251c6422..023590a4cb 100644
+--- a/submodules/TelegramCore/Sources/State/ManagedPendingPeerNotificationSettings.swift
++++ b/submodules/TelegramCore/Sources/State/ManagedPendingPeerNotificationSettings.swift
+@@ -251,6 +251,8 @@ func pushPeerNotificationSettings(postbox: Postbox, network: Network, peerId: Pe
+                         }
+                     }
+                 } else {
++                    // Fenixuz hook: a bot's peer can't sync mute to the server (apiInputPeer nil); commit it to current so it sticks. See FenixuzBotSession.swift
++                    fenixuzCommitPendingSettingsIfBot(transaction: transaction, peerId: notificationPeerId, settings: settings)
+                     if let pending = transaction.getPendingPeerNotificationSettings(peerId), pending.isEqual(to: settings) {
+                         transaction.updatePendingPeerNotificationSettings(peerId: peerId, settings: nil)
+                     }
+@@ -258,6 +260,8 @@ func pushPeerNotificationSettings(postbox: Postbox, network: Network, peerId: Pe
+                 }
+             }
+         } else {
++            // Fenixuz hook: bot peer has no accessHash -> apiInputPeer nil -> can't sync mute to server; commit it to current so it sticks. See FenixuzBotSession.swift
++            fenixuzCommitPendingSettingsIfBot(transaction: transaction, peerId: peerId, settings: settings)
+             if let pending = transaction.getPendingPeerNotificationSettings(peerId), pending.isEqual(to: settings) {
+                 transaction.updatePendingPeerNotificationSettings(peerId: peerId, settings: nil)
+             }
