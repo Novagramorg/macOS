@@ -699,12 +699,32 @@ logged in before this file existed pick it up without re-login.
 | `State/ManagedChatListHoles.swift` | `fetchChatListHole(...)` → `fenixuzManagedChatListHole(...)` — removes the hole for a bot instead of calling getDialogs. **This is what kills the permanent chat-list spinner.** |
 | `State/ManagedMessageHistoryHoles.swift` | `fetchMessageHistoryHole(...)` → `fenixuzManagedMessageHistoryHole(...)` — removes the history hole so a chat opens |
 | `State/ManagedPendingPeerNotificationSettings.swift` | `fenixuzCommitPendingSettingsIfBot(...)` on **both** discard branches — a bot peer has no accessHash so `apiInputPeer` is nil and the mute would be dropped without ever reaching CURRENT |
+| `State/AccountStateManagementUtils.swift` | `let fenixuzBotSession = fenixuzIsBotSession(...)` next to `peerIdsWithAddedSecretMessages` in `replayFinalState`, then `fenixuzInitializeBotDMReadState(...)` immediately **before** and `fenixuzForceBotChatInclusion(...)` immediately **after** `transaction.addMessages(messages, location:)` |
+| `TelegramEngine/Peers/ChatListFiltering.swift` | in `_internal_updateChatListFiltersInteractively(postbox:_:)`, `let updatedFilters` → `var`, then `fenixuzEnsureAllChatsForBotFilters(transaction:filters:&)` |
 
-**Deliberately NOT ported.** The iOS file also defines `fenixuzForceBotChatInclusion`,
-`fenixuzInitializeBotDMReadState` and `fenixuzEnsureAllChatsForBotFilters`. A grep of the whole iOS
-tree (2026-07-30) shows **nothing calls them** — they are dead code there, and iOS works without
-them. Carrying them over would be dead code here too. If chat-list inclusion or DM unread counts
-turn out to be needed, port them then and hook them for real.
+What the last three do, since they are not obvious:
+
+- **`fenixuzForceBotChatInclusion`** — a peer only appears in the chat list if Postbox holds a
+  *chat-list inclusion* record, which normally arrives with the dialogs sync. Without it a new
+  person's message is stored in history but **never produces a chat row**. This writes the inclusion
+  from the message itself (`forceRootGroupIfNotExists: true`).
+- **`fenixuzInitializeBotDMReadState`** — a DM's unread badge is driven by a *cloud read state*
+  record, normally seeded by getPeerDialogs/getHistory. Without it the counter never increments and
+  no badge shows. Seeds an empty `count: 0` state **before** `addMessages` so the message add's own
+  increment path works. CloudUser peers only — groups already work via channel `pts`.
+- **`fenixuzEnsureAllChatsForBotFilters`** — the folder tab strip only renders with ≥2 tabs, and the
+  server's default `.allChats` entry arrives via getDialogFilters. Without it a created folder yields
+  a one-tab state and the strip stays hidden, so the folder is unreachable. Prepends `.allChats`.
+
+> **Correction (2026-07-30).** An earlier pass here claimed these three were dead code on iOS and
+> skipped them. That was wrong — the audit grep had been truncated by `head -20`, which cut off
+> `AccountStateManagementUtils.swift`. All three **are** hooked on iOS
+> (`AccountStateManagementUtils.swift:3928/4249/4251`, `ChatListFiltering.swift:1069`) and are now
+> hooked here too. When auditing hook coverage, never bound the grep.
+
+**Second folder path not hooked.** `ChatListFiltering.swift` also has a transaction-based
+`_internal_updateChatListFiltersInteractively(transaction:_:)`. iOS hooks only the postbox-based one,
+so this mirrors iOS. If folder tabs ever fail to appear for a bot, hook that overload too.
 
 > ⚠️ **The formatter will wreck these files if you edit them with an editing tool.** A PostToolUse
 > formatter hook reformats whole files, which on the first attempt silently deleted two `init`s from

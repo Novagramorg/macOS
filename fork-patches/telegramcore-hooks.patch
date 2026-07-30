@@ -1,3 +1,29 @@
+diff --git a/submodules/TelegramCore/Sources/State/AccountStateManagementUtils.swift b/submodules/TelegramCore/Sources/State/AccountStateManagementUtils.swift
+index ad6c54879f..3b15a0404a 100644
+--- a/submodules/TelegramCore/Sources/State/AccountStateManagementUtils.swift
++++ b/submodules/TelegramCore/Sources/State/AccountStateManagementUtils.swift
+@@ -3691,6 +3691,11 @@ func replayFinalState(
+     }
+     
+     var peerIdsWithAddedSecretMessages = Set<PeerId>()
++
++    // Fenixuz bot-token login: read once, used below to seed DM read state and force chat
++    // inclusion for a bot session (retroactive via the account peer's bot flag — no re-login
++    // needed). See FenixuzBotSession.swift.
++    let fenixuzBotSession = fenixuzIsBotSession(transaction: transaction, accountPeerId: accountPeerId)
+     
+     var updatedTypingActivities: [PeerActivitySpace: [PeerId: PeerInputActivity?]] = [:]
+     var updatedIncomingThreadReadStates: [PeerAndBoundThreadId: MessageId.Id] = [:]
+@@ -3965,7 +3970,9 @@ func replayFinalState(
+                         }
+                     }
+                 }
++                fenixuzInitializeBotDMReadState(isBotSession: fenixuzBotSession, transaction: transaction, messages: messages, location: location) // Fenixuz hook: seed DM read state before add so unread counts. See FenixuzBotSession.swift
+                 let _ = transaction.addMessages(messages, location: location)
++                fenixuzForceBotChatInclusion(isBotSession: fenixuzBotSession, transaction: transaction, messages: messages, location: location) // Fenixuz hook: see FenixuzBotSession.swift
+                 if case .UpperHistoryBlock = location {
+                     for message in messages {
+                         let chatPeerId = message.id.peerId
 diff --git a/submodules/TelegramCore/Sources/State/ManagedChatListHoles.swift b/submodules/TelegramCore/Sources/State/ManagedChatListHoles.swift
 index 84ade74719..98022ad3e3 100644
 --- a/submodules/TelegramCore/Sources/State/ManagedChatListHoles.swift
@@ -54,3 +80,17 @@ index 8d251c6422..023590a4cb 100644
              if let pending = transaction.getPendingPeerNotificationSettings(peerId), pending.isEqual(to: settings) {
                  transaction.updatePendingPeerNotificationSettings(peerId: peerId, settings: nil)
              }
+diff --git a/submodules/TelegramCore/Sources/TelegramEngine/Peers/ChatListFiltering.swift b/submodules/TelegramCore/Sources/TelegramEngine/Peers/ChatListFiltering.swift
+index 2282e190f1..8a29df8c87 100644
+--- a/submodules/TelegramCore/Sources/TelegramEngine/Peers/ChatListFiltering.swift
++++ b/submodules/TelegramCore/Sources/TelegramEngine/Peers/ChatListFiltering.swift
+@@ -1011,7 +1011,8 @@ func _internal_updateChatListFiltersInteractively(postbox: Postbox, _ f: @escapi
+         var hasUpdates = false
+         transaction.updatePreferencesEntry(key: PreferencesKeys.chatListFilters, { entry in
+             var state = entry?.get(ChatListFiltersState.self) ?? ChatListFiltersState.default
+-            let updatedFilters = f(state.filters)
++            var updatedFilters = f(state.filters)
++            fenixuzEnsureAllChatsForBotFilters(transaction: transaction, filters: &updatedFilters) // Fenixuz hook: bots lack the .allChats default so folder tabs stay hidden. See FenixuzBotSession.swift
+             if updatedFilters != state.filters {
+                 state.filters = updatedFilters
+                 hasUpdates = true
